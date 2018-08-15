@@ -8,6 +8,18 @@ All VMs are provided as [OpenShift templates](https://docs.okd.io/latest/dev_gui
 These templates can be used straight forward with OpenShift itself, or they
 can be transformed into regular objects for use with Kubernetes.
 
+# Templates
+
+| Template | Description | |
+|---|---|---|
+| Microsoft Windows Server 2012 R2 (win2k12r2) | "Microsoft Windows Server 2012 R2" and other Windows versions | [Source](templates/win2k12r2.yaml) |
+| Fedora 28 |"Fedora 28" and other Fedora versions | [Source](templates/fedora28.yaml) |
+| Red Hat Enterprise Linux 7 | | TBD |
+| Ubuntu | | TBD |
+| OpenSuse | | TBD |
+
+# How to create Virtual Machines
+
 Every template consists of two objects:
 
 1. A VirtualMachineInstancePreset definition for the specific guest, this is
@@ -37,13 +49,3 @@ If the object shsall be created right away then the output can be piped to
 ```bash
 oc process … | kubectl apply -f -
 ```
-
-# Templates
-
-| Template | Description | |
-|---|---|---|
-| Microsoft Windows Server 2012 R2 (win2k12r2) | "Microsoft Windows Server 2012 R2" and other Windows versions | [Source](templates/win2k12r2.yaml) |
-| Fedora 28 |"Fedora 28" and other Fedora versions | [Source](templates/fedora28.yaml) |
-| Red Hat Enterprise Linux 7 | | TBD |
-| Ubuntu | | TBD |
-| OpenSuse | | TBD |
