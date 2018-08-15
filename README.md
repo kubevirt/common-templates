@@ -43,7 +43,7 @@ oc process … | kubectl apply -f -
 | Template | Description | |
 |---|---|---|
 | Microsoft Windows Server 2012 R2 (win2k12r2) | "Microsoft Windows Server 2012 R2" and other Windows versions | [Source](templates/win2k12r2.yaml) |
-| Fedora 28 | | TBD |
+| Fedora 28 |"Fedora 28" and other Fedora versions | [Source](templates/fedora28.yaml) |
 | Red Hat Enterprise Linux 7 | | TBD |
 | Ubuntu | | TBD |
 | OpenSuse | | TBD |
