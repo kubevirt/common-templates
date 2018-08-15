@@ -1,3 +1,5 @@
+language: go
+
 sudo: required
 
 env:
@@ -30,5 +32,5 @@ before_script:
 - sudo mount --make-rshared /run
 
 script:
-- bash test.sh $KUBEVIRT_VER
+- bash deploy-kubevirt.sh $KUBEVIRT_VER
 - make test

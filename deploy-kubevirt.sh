@@ -30,8 +30,6 @@ k_wait_all_running() { while [[ "$(kubectl get $1 --all-namespaces --field-selec
   kubectl api-versions | grep kubevirt.io
 
   condTravisFold k_wait_all_running pods
-
-  make test-functional
 }
 
 #curl -Lo virtctl https://github.com/kubevirt/kubevirt/releases/download/v$K6T_VER/virtctl-v$K6T_VER-linux-amd64 && chmod +x virtctl && sudo mv virtctl /usr/local/bin
