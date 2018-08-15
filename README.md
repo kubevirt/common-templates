@@ -31,9 +31,12 @@ If the object shsall be created right away then the output can be piped to
 oc process … | kubectl apply -f -
 ```
 
-# How to use
-## Microsoft Windows Server 2012 R2 (win2k12r2)
+# Templates
 
-This template can be used for "Microsoft Windows Server 2012 R2" and other
-Windows versions.
-
+| Template | Description | |
+|---|---|---|
+| Microsoft Windows Server 2012 R2 (win2k12r2) | "Microsoft Windows Server 2012 R2" and other Windows versions | [Source](templates/win2k12r2.yaml) |
+| Fedora 28 | | TBD |
+| Red Hat Enterprise Linux 7 | | TBD |
+| Ubuntu | | TBD |
+| OpenSuse | | TBD |
