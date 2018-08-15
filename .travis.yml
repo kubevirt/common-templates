@@ -8,17 +8,18 @@ env:
   matrix:
     - K8S_VER=1.10.0
 
-notifications:
-  irc:
-    channels:
-      - "chat.freenode.net#kubevirt"
-    on_success: change
-    on_failure: always
+#notifications:
+#  irc:
+#    channels:
+#      - "chat.freenode.net#kubevirt"
+#    on_success: change
+#    on_failure: always
 
 before_script:
 # Setup minikube
 - curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v$K8S_VER/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 - curl -Lo minikube https://storage.googleapis.com/minikube/releases/$MINIKUBE_VER/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+- curl -L https://github.com/openshift/origin/releases/download/v3.10.0/openshift-origin-client-tools-v3.10.0-dd10d17-linux-64bit.tar.gz | tar zx --strip-components=1 openshift-origin-client-tools-v3.10.0-dd10d17-linux-64bit/oc && sudo mv oc /usr/local/bin
 
 - sudo minikube start --vm-driver=none --kubernetes-version=v$K8S_VER --bootstrapper=localkube
 - sudo minikube addons disable addon-manager  # When adding this line, the add-on manager was continously crashing
