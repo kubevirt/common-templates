@@ -32,10 +32,10 @@ before_script:
 - sudo mount --make-rshared /run
 
 # Deploy KubeVirt
-- kubectl create configmap -n kube-system kubevirt-config --from-literal debug.allowEmulation=true || :
-- kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VER/kubevirt.yaml ;
+- kubectl create configmap -n kube-system kubevirt-config --from-literal debug.allowEmulation=true || true
+- kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VER/kubevirt.yaml
 - kubectl api-versions | grep kubevirt.io
-- while [[ "$(kubectl get pods --all-namespaces --field-selector=status.phase!=Running | wc -l)" -gt 1 ]]; do kubectl get pods --all-namespaces ; sleep 6; done ;
+- while [[ "$(kubectl get pods --all-namespaces --field-selector=status.phase!=Running | wc -l)" -gt 1 ]]; do kubectl get pods --all-namespaces ; sleep 6; done
 
 
 script:
