@@ -25,7 +25,6 @@ before_script:
 
 # Start Kubernetes using minikube
 - sudo minikube start --vm-driver=none --kubernetes-version=v$K8S_VER --bootstrapper=localkube
-- sudo minikube addons disable addon-manager  # When adding this line, the add-on manager was continously crashing
 - minikube update-context
 - JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 1; done
 
