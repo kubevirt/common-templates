@@ -30,5 +30,5 @@ before_script:
 - sudo mount --make-rshared /run
 
 script:
+- bash test.sh $KUBEVIRT_VER
 - make test
-#- bash test.sh $KUBEVIRT_VER

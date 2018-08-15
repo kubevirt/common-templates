@@ -1,14 +1,19 @@
 
 TEMPLATES=$(wildcard templates/*.yaml)
+GUESTS=$(TEMPLATES:templates/%.yaml=%)
 
-all: $(TEMPLATES)
+test: $(GUESTS)
 
-$(TEMPLATES): %: %.syntax-check
+$(GUESTS): %: %.syntax-check
+$(GUESTS): %: %.apply-and-remove
 
 %.syntax-check:
-	oc process --local -f "$*" NAME=the-vmname PVCNAME=the-pvcname >/dev/null && \
-	  echo "PASS SYNTAX $*"
+	oc process --local -f "templates/$*.yaml" NAME=the-$* PVCNAME=the-$*-pvc
 
-test: all
+%.apply-and-remove:
+	oc process --local -f "templates/$*.yaml" NAME=the-$* PVCNAME=the-$*-pvc | \
+	  kubectl apply -f -
+	oc process --local -f "templates/$*.yaml" NAME=the-$* PVCNAME=the-$*-pvc | \
+	  kubectl delete -f -
 
-.PHONY: $(TEMPLATES)
+.PHONY: all test
