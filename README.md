@@ -22,9 +22,9 @@ single place. This configuration is applied to the VMs once they are started.
 
 | Template | Description | |
 |---|---|---|
-| Microsoft Windows Server 2012 R2 (win2k12r2) | "Microsoft Windows Server 2012 R2" and other Windows versions | [Source](templates/win2k12r2.yaml) |
-| Fedora 28 |"Fedora 28" and other Fedora versions | [Source](templates/fedora28.yaml) |
-| Red Hat Enterprise Linux 7 | | TBD |
+| Microsoft Windows Server 2012 R2 (win2k12r2) | For this and other versions | [Source](templates/win2k12r2.yaml) |
+| Fedora 28 | For this and other versions | [Source](templates/fedora28.yaml) |
+| Red Hat Enterprise Linux 7.5 | For this and other versions | [Source](templates/rhel7.5.yaml) |
 | Ubuntu | | TBD |
 | OpenSuse | | TBD |
 
