@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/fabiand/common-templates.svg?branch=master)](https://travis-ci.com/fabiand/common-templates)
+
 A set of OpenShift Templates to create KubeVirt VMs.
 
 # Overview
