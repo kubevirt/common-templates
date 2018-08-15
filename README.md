@@ -8,6 +8,16 @@ All VMs are provided as [OpenShift templates](https://docs.okd.io/latest/dev_gui
 These templates can be used straight forward with OpenShift itself, or they
 can be transformed into regular objects for use with Kubernetes.
 
+Every template consists of two objects:
+
+1. A VirtualMachineInstancePreset definition for the specific guest, this is
+   comparable to a "flavor"
+2. A VirtualMachine definition which can be used to launch the guest, if a disk
+   image is available (see below)
+
+The presets allow to keep all the guest specific machine configuration in a
+single place. This configuration is applied to the VMs once they are started.
+
 # Templates
 
 | Template | Description | |
@@ -19,13 +29,6 @@ can be transformed into regular objects for use with Kubernetes.
 | OpenSuse | | TBD |
 
 # How to create Virtual Machines
-
-Every template consists of two objects:
-
-1. A VirtualMachineInstancePreset definition for the specific guest, this is
-   comparable to a "flavor"
-2. A VirtualMachine definition which can be used to launch the guest, if a disk
-   image is available (see below)
 
 Every template (if not noted otherwise) has two parameters:
 
