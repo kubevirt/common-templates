@@ -28,6 +28,7 @@ objects:
     domain:
       cpu:
         cores: 2
+      devices: {}
       resources:
         requests:
           memory: 2G

@@ -24,19 +24,6 @@ objects:
       matchLabels:
         kubevirt.io/os: win2k12r2
     domain:
-      cpu:
-        cores: 2
-      resources:
-        requests:
-          memory: 2G
-      features:
-        acpi: {}
-        apic: {}
-        hyperv:
-          relaxed: {}
-          vapic: {}
-          spinlocks:
-            spinlocks: 8191
       clock:
         utc: {}
         timer:
@@ -47,6 +34,20 @@ objects:
           rtc:
             tickPolicy: catchup
           hyperv: {}
+      cpu:
+        cores: 2
+      devices: {}
+      features:
+        acpi: {}
+        apic: {}
+        hyperv:
+          relaxed: {}
+          vapic: {}
+          spinlocks:
+            spinlocks: 8191
+      resources:
+        requests:
+          memory: 2G
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachine
   metadata:
