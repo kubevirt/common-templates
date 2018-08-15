@@ -18,19 +18,25 @@ env:
 #    on_failure: always
 
 before_script:
-# Setup minikube
+# Fetch binaries
 - curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v$K8S_VER/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 - curl -Lo minikube https://storage.googleapis.com/minikube/releases/$MINIKUBE_VER/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
 - curl -L https://github.com/openshift/origin/releases/download/v3.10.0/openshift-origin-client-tools-v3.10.0-dd10d17-linux-64bit.tar.gz | tar zx --strip-components=1 openshift-origin-client-tools-v3.10.0-dd10d17-linux-64bit/oc && sudo mv oc /usr/local/bin
 
+# Start Kubernetes using minikube
 - sudo minikube start --vm-driver=none --kubernetes-version=v$K8S_VER --bootstrapper=localkube
-- sudo minikube addons disable addon-manager  # When adding this line, the add-on manager was continously crashing
 - minikube update-context
 - JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 1; done
 
 # FIXME Workaround for https://github.com/kubernetes/kubernetes/issues/61058
 - sudo mount --make-rshared /run
 
+# Deploy KubeVirt
+- kubectl create configmap -n kube-system kubevirt-config --from-literal debug.allowEmulation=true || true
+- kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VER/kubevirt.yaml
+- kubectl api-versions | grep kubevirt.io
+- while [[ "$(kubectl get pods --all-namespaces --field-selector=status.phase!=Running | wc -l)" -gt 1 ]]; do kubectl get pods --all-namespaces ; sleep 6; done
+
+
 script:
-- bash deploy-kubevirt.sh $KUBEVIRT_VER
 - make test
