@@ -26,12 +26,13 @@ the parameter is appended to the snippet, i.e. `PVCNAME`:
 
 ```bash
 $ oc process --local -f https://git.io/fNp4Z
-The Template "win2k12r2" is invalid: template.parameters[1]: Required value: template.parameters[1]: parameter PVCNAME is required and must be specified
+The Template "win2k12r2" is invalid: template.parameters[1]: Required value:
+template.parameters[1]: parameter PVCNAME is required and must be specified
 
 $ oc process --local -f https://git.io/fNp4Z  --parameters
-NAME                DESCRIPTION                           GENERATOR           VALUE
-NAME                Name of the new VM                    expression          windows2012r2-[a-z0-9]{6}
-PVCNAME             Name of the PVC with the disk image
+NAME      DESCRIPTION                           GENERATOR   VALUE
+NAME      Name of the new VM                    expression  windows2012r2-[a-z0-9]{6}
+PVCNAME   Name of the PVC with the disk image
 
 $ oc process --local -f https://git.io/fNp4Z PVCNAME=mydisk
 …
