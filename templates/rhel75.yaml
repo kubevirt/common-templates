@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: rhel7.5
+  name: rhel75
   annotations:
     openshift.io/display-name: "Red Hat Enterprise Linux 7.5 VM"
     description: >-
@@ -19,7 +19,7 @@ objects:
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachineInstancePreset
   metadata:
-    name: rhel7.5
+    name: rhel75
   spec:
     selector:
       matchLabels:
