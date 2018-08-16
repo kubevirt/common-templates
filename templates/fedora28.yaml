@@ -9,6 +9,9 @@ metadata:
       Fedora 28.
       The template assumes that a PVC is available which is providing the
       necessary Fedora disk image.
+
+      Recommended disk image (needs to be converted to raw)
+      https://download.fedoraproject.org/pub/fedora/linux/releases/28/Cloud/x86_64/images/Fedora-Cloud-Base-28-1.1.x86_64.qcow2
     tags: "kubevirt,virtualmachine,fedora"
     iconClass: "icon-fedora"
     openshift.io/provider-display-name: "KubeVirt"

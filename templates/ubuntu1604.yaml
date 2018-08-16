@@ -9,6 +9,9 @@ metadata:
       Ubuntu 16.04 (Xenial Xerus).
       The template assumes that a PVC is available which is providing the
       necessary Ubuntu disk image.
+
+      Recommended disk image (needs to be converted to raw)
+      http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img
     tags: "kubevirt,virtualmachine,ubuntu"
     iconClass: "icon-ubuntu"
     openshift.io/provider-display-name: "KubeVirt"
