@@ -52,7 +52,7 @@ $
 
 | Template | Snippet |
 |---|---|
-| Microsoft Windows Server 2012 R2 (win2k12r2) `oc process --local -f https://git.io/fNp4Z` |
+| Microsoft Windows Server 2012 R2 (win2k12r2) | `oc process --local -f https://git.io/fNp4Z` |
 | Fedora 28 | `oc process --local -f https://git.io/fNpBU` |
 | Red Hat Enterprise Linux 7.5 | `oc process --local -f https://git.io/fNpBq` |
 | Ubuntu | TBD |
