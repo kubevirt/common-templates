@@ -68,7 +68,7 @@ parameters:
 - name: NAME
   description: Name of the new VM
   generate: expression
-  from: "Fedora28-[a-zA-Z0-9]{6}"
+  from: "fedora28-[a-z0-9]{6}"
   required: true
 - name: PVCNAME
   description: Name of the PVC with the disk image

@@ -60,7 +60,7 @@ parameters:
 - name: NAME
   description: Name of the new VM
   generate: expression
-  from: "RHEL7.5-[a-zA-Z0-9]{6}"
+  from: "rhel75-[a-z0-9]{6}"
   required: true
 - name: PVCNAME
   description: Name of the PVC with the disk image

@@ -15,5 +15,9 @@ $(GUESTS): %: %.apply-and-remove
 	  kubectl apply -f -
 	oc process --local -f "templates/$*.yaml" NAME=the-$* PVCNAME=the-$*-pvc | \
 	  kubectl delete -f -
+	oc process --local -f "templates/$*.yaml" PVCNAME=the-$*-pvc > $*.yaml
+	kubectl apply -f $*.yaml
+	kubectl delete -f $*.yaml
+	rm -v $*.yaml
 
 .PHONY: all test

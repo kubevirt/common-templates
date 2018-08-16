@@ -18,18 +18,32 @@ Every template consists of two objects:
 The presets allow to keep all the guest specific machine configuration in a
 single place. This configuration is applied to the VMs once they are started.
 
-# Templates
-
-> **Note:** Add `--parameters` to the snippets below to learn about all
-> parameters of a template
-
+# Usage
 
 By default the snippets will fetch the template and process it. It fails if
 a parameter (like the PVC name) is required, but not provided. In such a case
 the parameter is appended to the snippet, i.e. `PVCNAME`:
 
-`oc process --local -f https://git.io/fNp4Z` **`PVCNAME=mydisk`**
+```bash
+$ oc process --local -f https://git.io/fNp4Z
+The Template "win2k12r2" is invalid: template.parameters[1]: Required value: template.parameters[1]: parameter PVCNAME is required and must be specified
 
+$ oc process --local -f https://git.io/fNp4Z  --parameters
+NAME                DESCRIPTION                           GENERATOR           VALUE
+NAME                Name of the new VM                    expression          windows2012r2-[a-z0-9]{6}
+PVCNAME             Name of the PVC with the disk image
+
+$ oc process --local -f https://git.io/fNp4Z PVCNAME=mydisk
+…
+
+$ oc process --local -f https://git.io/fNp4Z PVCNAME=mydisk | kubectl apply -f -
+virtualmachineinstancepreset.kubevirt.io/win2k12r2 created
+virtualmachine.kubevirt.io/windows2012r2-rt1ap2 created
+
+$
+```
+
+# Templates
 
 | Template | Description | Snippet |
 |---|---|---|
@@ -38,12 +52,3 @@ the parameter is appended to the snippet, i.e. `PVCNAME`:
 | Red Hat Enterprise Linux 7.5 | For this and other versions | `oc process --local -f https://git.io/fNpBq` |
 | Ubuntu | | TBD |
 | OpenSuse | | TBD |
-
-## Creation of VMs
-
-If the object shall be created right away then the output can be piped to
-`kubectl`:
-
-```bash
-oc process … | kubectl apply -f -
-```
