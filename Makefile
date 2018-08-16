@@ -1,14 +1,16 @@
 
 ALL_TEMPLATES=$(wildcard templates/*.yaml)
 
-ALL_GUESTS=$(TEMPLATES:templates/%.yaml=%)
+ALL_GUESTS=$(ALL_TEMPLATES:templates/%.yaml=%)
 
 $(ALL_GUESTS): %: %.syntax-check
 $(ALL_GUESTS): %: %.apply-and-remove
 $(ALL_GUESTS): %: %.generated-name-apply-and-remove
 
+ifdef WITH_FUNCTIONAL
 TESTABLE_GUESTS=fedora28 ubuntu1604 opensuse15
 $(TESTABLE_GUESTS): %: %.start-and-stop
+endif
 
 test: $(ALL_GUESTS)
 
@@ -53,7 +55,7 @@ opensuse15.qcow2:
 opensuse15.raw: opensuse15.qcow2
 	qemu-img convert -p -O raw $< $@
 
-.PHONY: all test
-
 clean:
 	rm -v *.raw *.qcow2
+
+.PHONY: all test
