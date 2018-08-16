@@ -14,6 +14,7 @@ metadata:
     openshift.io/provider-display-name: "KubeVirt"
     openshift.io/documentation-url: "https://github.com/fabiand/common-templates"
     openshift.io/support-url: "https://github.com/fabiand/common-templates/issues"
+    template.openshift.io/bindable: "false"
 objects:
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachineInstancePreset
@@ -56,7 +57,11 @@ objects:
           persistentVolumeClaim:
             claimName: ${PVCNAME}
 parameters:
-- description: Name of the new VM
-  name: NAME
-- description: Name of the PVC with the RHEL image
-  name: PVCNAME
+- name: NAME
+  description: Name of the new VM
+  generate: expression
+  from: "RHEL7.5-[a-zA-Z0-9]{6}"
+  required: true
+- name: PVCNAME
+  description: Name of the PVC with the disk image
+  required: true

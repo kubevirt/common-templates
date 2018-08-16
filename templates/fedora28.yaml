@@ -14,6 +14,7 @@ metadata:
     openshift.io/provider-display-name: "KubeVirt"
     openshift.io/documentation-url: "https://github.com/fabiand/common-templates"
     openshift.io/support-url: "https://github.com/fabiand/common-templates/issues"
+    template.openshift.io/bindable: "false"
   labels:
     kubevirt.io/os: fedora28
 objects:
@@ -64,7 +65,11 @@ objects:
               chpasswd: { expire: False }
           name: cloudinitvolume
 parameters:
-- description: Name of the new VM
-  name: NAME
-- description: Name of the PVC with the Fedora image
-  name: PVCNAME
+- name: NAME
+  description: Name of the new VM
+  generate: expression
+  from: "Fedora28-[a-zA-Z0-9]{6}"
+  required: true
+- name: PVCNAME
+  description: Name of the PVC with the disk image
+  required: true
