@@ -20,7 +20,7 @@ single place. This configuration is applied to the VMs once they are started.
 
 # Templates
 
-| Template | Description | |
+| Template | Description | Snippet |
 |---|---|---|
 | Microsoft Windows Server 2012 R2 (win2k12r2) | For this and other versions | `oc process --local -f https://git.io/fNp4Z NAME=windows PVCNAME=windowspvc` |
 | Fedora 28 | For this and other versions | `oc process --local -f https://git.io/fNpBU NAME=fedora PVCNAME=fedorapvc` |
