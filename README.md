@@ -47,8 +47,9 @@ $
 
 # Templates
 
-> **Note:** The templates are utned for a specific guest version, but is often
-> usable with different versions as well.
+> **Note:** The templates are tuned for a specific guest version, but is often
+> usable with different versions as well, i.e. the Fedora 28 template is also
+> usable with Fedora 27 or 26.
 
 | Template | Snippet |
 |---|---|
