@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: opensuse15
+  annotations:
+    openshift.io/display-name: "OpenSUSE Leap 15.0 VM"
+    description: >-
+      This template can be used to create a VM suitable for
+      OpenSUSE Leap 15.0.
+      The template assumes that a PVC is available which is providing the
+      necessary OpenSUSE disk image.
+
+      Recommended disk image (needs to be converted to raw)
+      https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.0/images/
+    tags: "kubevirt,virtualmachine,opensuse"
+    iconClass: "icon-ubuntu"
+    openshift.io/provider-display-name: "KubeVirt"
+    openshift.io/documentation-url: "https://github.com/fabiand/common-templates"
+    openshift.io/support-url: "https://github.com/fabiand/common-templates/issues"
+    template.openshift.io/bindable: "false"
+  labels:
+    kubevirt.io/os: opensuse15.0
+objects:
+- apiVersion: kubevirt.io/v1alpha2
+  kind: VirtualMachineInstancePreset
+  metadata:
+    name: opensuse15
+  spec:
+    selector:
+      matchLabels:
+        kubevirt.io/os: opensuse15.0
+    domain:
+      cpu:
+        cores: 2
+      devices: {}
+      resources:
+        requests:
+          memory: 2G
+- apiVersion: kubevirt.io/v1alpha2
+  kind: VirtualMachine
+  metadata:
+    labels:
+      kubevirt.io/os: opensuse15.0
+    name: ${NAME}
+  spec:
+    running: false
+    template:
+      metadata:
+        labels:
+          kubevirt.io/os: opensuse15.0
+      spec:
+        domain:
+          devices:
+            disks:
+            - disk:
+                bus: virtio
+              name: rootdisk
+              volumeName: rootvolume
+        terminationGracePeriodSeconds: 0
+        volumes:
+        - name: rootvolume
+          persistentVolumeClaim:
+            claimName: ${PVCNAME}
+        - cloudInitNoCloud:
+            userData: |-
+              #cloud-config
+              password: opensuse
+              chpasswd: { expire: False }
+          name: cloudinitvolume
+parameters:
+- name: NAME
+  description: Name of the new VM
+  generate: expression
+  from: "opensuse15-[a-z0-9]{6}"
+  required: true
+- name: PVCNAME
+  description: Name of the PVC with the disk image
+  required: true
