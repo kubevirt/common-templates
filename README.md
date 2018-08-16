@@ -23,6 +23,12 @@ single place. This configuration is applied to the VMs once they are started.
 > **Note:** Add `--parameters` to the snippets below to learn about all
 > parameters of a template
 
+
+By default the snippets will fetch the template and process it. It fails if
+a parameter (like the PVC name) is required, but not provided. In such a case
+the parameter is appended to the snippet, i.e.: `oc process --local -f
+https://git.io/fNp4Z **PVCNAME=mydisk**`
+
 | Template | Description | Snippet |
 |---|---|---|
 | Microsoft Windows Server 2012 R2 (win2k12r2) | For this and other versions | `oc process --local -f https://git.io/fNp4Z` |
@@ -31,25 +37,9 @@ single place. This configuration is applied to the VMs once they are started.
 | Ubuntu | | TBD |
 | OpenSuse | | TBD |
 
-# How to create Virtual Machines
+## Creation of VMs
 
-Every template (if not noted otherwise) has two parameters:
-
-1. `NAME`: The name of the VM to be created
-1. `PVCNAME`: The name of the PVC which holds the disk image to be run
-
-Manually transforming a tempalte into a list of objects can be done by using
-[`oc`](https://github.com/openshift/origin/releases) - the OpenShift client tool:
-
-```bash
-oc process --local \
-  -o yaml \
-  -f "templates/$TEMPLATE_NAME" \
-  NAME=the-vmname \
-  PVCNAME=the-pvcname
-```
-
-If the object shsall be created right away then the output can be piped to
+If the object shall be created right away then the output can be piped to
 `kubectl`:
 
 ```bash
