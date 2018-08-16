@@ -1,15 +1,18 @@
 
-TEMPLATES=$(wildcard templates/*.yaml)
-GUESTS=$(TEMPLATES:templates/%.yaml=%)
+ALL_TEMPLATES=$(wildcard templates/*.yaml)
+
+ALL_GUESTS=$(TEMPLATES:templates/%.yaml=%)
+
+$(ALL_GUESTS): %: %.syntax-check
+$(ALL_GUESTS): %: %.apply-and-remove
+$(ALL_GUESTS): %: %.generated-name-apply-and-remove
 
 TESTABLE_GUESTS=fedora28 ubuntu1604 opensuse15
+$(TESTABLE_GUESTS): %: %.start-and-stop
 
-test: $(GUESTS)
+test: $(ALL_GUESTS)
 
-$(GUESTS): %: %.syntax-check
-$(GUESTS): %: %.apply-and-remove
-
-%.syntax-check:
+%.syntax-check: templates/%.yaml
 	oc process --local -f "templates/$*.yaml" NAME=the-$* PVCNAME=the-$*-pvc
 
 %.apply-and-remove:
@@ -17,6 +20,8 @@ $(GUESTS): %: %.apply-and-remove
 	  kubectl apply -f -
 	oc process --local -f "templates/$*.yaml" NAME=the-$* PVCNAME=the-$*-pvc | \
 	  kubectl delete -f -
+
+%.generated-name-apply-and-remove:
 	oc process --local -f "templates/$*.yaml" PVCNAME=the-$*-pvc > $*.yaml
 	kubectl apply -f $*.yaml
 	kubectl delete -f $*.yaml
