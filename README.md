@@ -22,9 +22,9 @@ single place. This configuration is applied to the VMs once they are started.
 
 | Template | Description | |
 |---|---|---|
-| Microsoft Windows Server 2012 R2 (win2k12r2) | For this and other versions | `oc process --local -f [https://git.io/fNp4Z](https://git.io/fNp4Z) NAME=windows PVCNAME=windowspvc` |
-| Fedora 28 | For this and other versions | `oc process --local -f [https://git.io/fNpBU](https://git.io/fNpBU) NAME=fedora PVCNAME=fedorapvc` |
-| Red Hat Enterprise Linux 7.5 | For this and other versions | `oc process --local -f [https://git.io/fNpBq](https://git.io/fNpBq) NAME=rhel PVCNAME=rhelpvc` |
+| Microsoft Windows Server 2012 R2 (win2k12r2) | For this and other versions | `oc process --local -f https://git.io/fNp4Z NAME=windows PVCNAME=windowspvc` |
+| Fedora 28 | For this and other versions | `oc process --local -f https://git.io/fNpBU NAME=fedora PVCNAME=fedorapvc` |
+| Red Hat Enterprise Linux 7.5 | For this and other versions | `oc process --local -f https://git.io/fNpBq NAME=rhel PVCNAME=rhelpvc` |
 | Ubuntu | | TBD |
 | OpenSuse | | TBD |
 
