@@ -47,10 +47,13 @@ $
 
 # Templates
 
-| Template | Description | Snippet |
-|---|---|---|
-| Microsoft Windows Server 2012 R2 (win2k12r2) | For this and other versions | `oc process --local -f https://git.io/fNp4Z` |
-| Fedora 28 | For this and other versions | `oc process --local -f https://git.io/fNpBU` |
-| Red Hat Enterprise Linux 7.5 | For this and other versions | `oc process --local -f https://git.io/fNpBq` |
-| Ubuntu | | TBD |
-| OpenSuse | | TBD |
+> **Note:** The templates are utned for a specific guest version, but is often
+> usable with different versions as well.
+
+| Template | Snippet |
+|---|---|
+| Microsoft Windows Server 2012 R2 (win2k12r2) `oc process --local -f https://git.io/fNp4Z` |
+| Fedora 28 | `oc process --local -f https://git.io/fNpBU` |
+| Red Hat Enterprise Linux 7.5 | `oc process --local -f https://git.io/fNpBq` |
+| Ubuntu | TBD |
+| OpenSuse | TBD |
