@@ -20,9 +20,10 @@ single place. This configuration is applied to the VMs once they are started.
 
 # Usage
 
-By default the snippets will fetch the template and process it. It fails if
-a parameter (like the PVC name) is required, but not provided. In such a case
-the parameter is appended to the snippet, i.e. `PVCNAME`:
+By default the snippets below from the table will fetch the template and
+process it. It fails if a parameter (like the PVC name) is required, but not
+provided. In such a case the parameter is appended to the snippet, i.e.
+`PVCNAME`.
 
 ```bash
 $ oc process --local -f https://git.io/fNp4Z
