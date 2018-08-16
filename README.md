@@ -58,3 +58,4 @@ $
 | Red Hat Enterprise Linux 7.5 | [`oc process --local -f https://git.io/fNpuq`](templates/rhel75.yaml) |
 | Ubuntu 16.04 LTS (Xenial Xerus) | [`oc process --local -f https://git.io/fNpuH`](templates/ubuntu1604.yaml) |
 | OpenSUSE Leap 15.0 | [`oc process --local -f https://git.io/fNpz2`](templates/opensuse15.yaml) |
+| CoreOS Container Linux | TBD |
