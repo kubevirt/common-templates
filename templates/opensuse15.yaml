@@ -30,12 +30,8 @@ objects:
       matchLabels:
         kubevirt.io/os: opensuse15.0
     domain:
-      cpu:
-        cores: 2
-      devices: {}
-      resources:
-        requests:
-          memory: 2G
+      devices:
+        rng: {}
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachine
   metadata:
@@ -48,6 +44,7 @@ objects:
       metadata:
         labels:
           kubevirt.io/os: opensuse15.0
+          kubevirt.io/size: medium
       spec:
         domain:
           devices:

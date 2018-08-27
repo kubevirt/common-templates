@@ -20,6 +20,7 @@ metadata:
     template.openshift.io/bindable: "false"
   labels:
     kubevirt.io/os: fedora28
+    kubevirt.io/size: medium
 objects:
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachineInstancePreset
@@ -29,13 +30,10 @@ objects:
     selector:
       matchLabels:
         kubevirt.io/os: fedora28
+objects:
     domain:
-      cpu:
-        cores: 2
-      devices: {}
-      resources:
-        requests:
-          memory: 2G
+      devices:
+        rng: {}
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachine
   metadata:
@@ -48,6 +46,7 @@ objects:
       metadata:
         labels:
           kubevirt.io/os: fedora28
+          kubevirt.io/size: medium
       spec:
         domain:
           devices:

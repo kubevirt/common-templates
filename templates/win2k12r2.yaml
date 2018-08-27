@@ -35,8 +35,6 @@ objects:
           rtc:
             tickPolicy: catchup
           hyperv: {}
-      cpu:
-        cores: 2
       devices: {}
       features:
         acpi: {}
@@ -46,9 +44,6 @@ objects:
           vapic: {}
           spinlocks:
             spinlocks: 8191
-      resources:
-        requests:
-          memory: 2G
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachine
   metadata:
@@ -61,6 +56,7 @@ objects:
       metadata:
         labels:
           kubevirt.io/os: win2k12r2
+          kubevirt.io/size: large
       spec:
         domain:
           devices:

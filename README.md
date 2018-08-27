@@ -26,6 +26,9 @@ provided. In such a case the parameter is appended to the snippet, i.e.
 `PVCNAME`.
 
 ```bash
+# Define the generic instance types:
+$ oc apply -f https://raw.githubusercontent.com/fabiand/common-templates/master/templates/instancetypes.yaml
+
 $ oc process --local -f https://git.io/fNp4Z
 The Template "win2k12r2" is invalid: template.parameters[1]: Required value:
 template.parameters[1]: parameter PVCNAME is required and must be specified

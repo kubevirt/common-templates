@@ -1,0 +1,116 @@
+#
+# Based on size definitions of T2
+# https://aws.amazon.com/de/ec2/instance-types/
+#
+apiVersion: kubevirt.io/v1alpha2
+kind: VirtualMachineInstancePreset
+metadata:
+  name: size-nano
+spec:
+  selector:
+    matchLabels:
+      kubevirt.io/size: nano
+  domain:
+    cpu:
+      cores: 1
+    devices: {}
+    resources:
+      requests:
+        memory: 0.5G
+---
+apiVersion: kubevirt.io/v1alpha2
+kind: VirtualMachineInstancePreset
+metadata:
+  name: size-micro
+spec:
+  selector:
+    matchLabels:
+      kubevirt.io/size: micro
+  domain:
+    cpu:
+      cores: 1
+    devices: {}
+    resources:
+      requests:
+        memory: 1G
+---
+apiVersion: kubevirt.io/v1alpha2
+kind: VirtualMachineInstancePreset
+metadata:
+  name: size-small
+spec:
+  selector:
+    matchLabels:
+      kubevirt.io/size: small
+  domain:
+    cpu:
+      cores: 1
+    devices: {}
+    resources:
+      requests:
+        memory: 2G
+---
+apiVersion: kubevirt.io/v1alpha2
+kind: VirtualMachineInstancePreset
+metadata:
+  name: size-medium
+spec:
+  selector:
+    matchLabels:
+      kubevirt.io/size: medium
+  domain:
+    cpu:
+      cores: 2
+    devices: {}
+    resources:
+      requests:
+        memory: 4G
+---
+apiVersion: kubevirt.io/v1alpha2
+kind: VirtualMachineInstancePreset
+metadata:
+  name: size-large
+spec:
+  selector:
+    matchLabels:
+      kubevirt.io/size: large
+  domain:
+    cpu:
+      cores: 2
+    devices: {}
+    resources:
+      requests:
+        memory: 8G
+---
+apiVersion: kubevirt.io/v1alpha2
+kind: VirtualMachineInstancePreset
+metadata:
+  name: size-xlarge
+spec:
+  selector:
+    matchLabels:
+      kubevirt.io/size: xlarge
+  domain:
+    cpu:
+      cores: 4
+    devices: {}
+    resources:
+      requests:
+        memory: 16G
+---
+apiVersion: kubevirt.io/v1alpha2
+kind: VirtualMachineInstancePreset
+metadata:
+  name: size-2xlarge
+spec:
+  selector:
+    matchLabels:
+      kubevirt.io/size: 2xlarge
+  domain:
+    cpu:
+      cores: 8
+    devices: {}
+    resources:
+      requests:
+        memory: 32G
+

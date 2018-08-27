@@ -30,17 +30,14 @@ objects:
       matchLabels:
         kubevirt.io/os: ubuntu1604
     domain:
-      cpu:
-        cores: 2
-      devices: {}
-      resources:
-        requests:
-          memory: 2G
+      devices:
+        rng: {}
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachine
   metadata:
     labels:
       kubevirt.io/os: ubuntu1604
+      kubevirt.io/size: medium
     name: ${NAME}
   spec:
     running: false
