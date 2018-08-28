@@ -55,6 +55,15 @@ opensuse15.qcow2:
 opensuse15.raw: opensuse15.qcow2
 	qemu-img convert -p -O raw $< $@
 
+centos7.qcow2:
+	curl -L http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2.xz | xz -d > $@
+centos7.raw: centos7.qcow2
+	qemu-img convert -p -O raw $< $@
+
+# For now we test the RHEL75 template with the CentOS image
+rhel75.raw: centos7.raw
+       ln $< $@
+
 clean:
 	rm -v *.raw *.qcow2
 
