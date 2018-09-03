@@ -5,22 +5,24 @@ ALL_TEMPLATES=$(wildcard templates/*.yaml)
 ALL_GUESTS=$(ALL_TEMPLATES:templates/%.yaml=%)
 
 
+TEST_SYNTAX=$(ALL_GUESTS)
 TEST_UNIT=$(ALL_GUESTS)
 ifeq ($(TEST_FUNCTIONAL),ALL)
 TEST_FUNCTIONAL=fedora28 ubuntu1804 opensuse15 rhel75
 endif
 
 
-unit-tests: is-deployed $(TEST_UNIT)
-$(TEST_UNIT): %: %-syntax-check
-$(TEST_UNIT): %: %-apply-and-remove
-$(TEST_UNIT): %: %-generated-name-apply-and-remove
+syntax-tests: $(TEST_SYNTAX:%=%-syntax-check)
+
+unit-tests: is-deployed
+unit-tests: $(TEST_UNIT:%=%-apply-and-remove)
+unit-tests: $(TEST_UNIT:%=%-generated-name-apply-and-remove)
+
+functional-tests: is-deployed
+functional-tests: $(TEST_FUNCTIONAL:%=%-start-and-stop)
 
 
-functional-tests: is-deployed $(TEST_FUNCTIONAL)
-$(TEST_FUNCTIONAL): %: %-start-and-stop
-
-test: unit-tests functional-tests
+test: syntax-tests unit-tests functional-tests
 
 TRAVIS_FOLD_START=echo -e "travis_fold:start:details\033[33;1mDetails\033[0m"
 TRAVIS_FOLD_END=echo -e "\ntravis_fold:end:details\r"
