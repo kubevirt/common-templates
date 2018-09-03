@@ -56,7 +56,7 @@ is-deployed:
 	  kubectl apply -f -
 	virtctl start $@
 	$(TRAVIS_FOLD_START)
-	while ! kubectl get vmi $@ -o yaml | grep "phase: Running" ; do make gather-env-of-$@ ; sleep 6; done
+	while ! kubectl get vmi $@ -o yaml | grep "phase: Running" ; do make gather-env-of-$@ ; sleep 3; done
 	$(TRAVIS_FOLD_END)
 	# Wait for a pretty universal magic word
 	virtctl console --timeout=5 $@ | egrep -m 1 "Welcome|systemd"
