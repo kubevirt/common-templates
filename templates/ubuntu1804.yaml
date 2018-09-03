@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: ubuntu1604
+  name: ubuntu1804
   annotations:
-    openshift.io/display-name: "Ubuntu 16.04 (Xenial Xerus) VM"
+    openshift.io/display-name: "Ubuntu 18.04 (Xenial Xerus) VM"
     description: >-
       This template can be used to create a VM suitable for
-      Ubuntu 16.04 (Xenial Xerus).
+      Ubuntu 18.04 (Xenial Xerus).
       The template assumes that a PVC is available which is providing the
       necessary Ubuntu disk image.
 
@@ -19,16 +19,16 @@ metadata:
     openshift.io/support-url: "https://github.com/fabiand/common-templates/issues"
     template.openshift.io/bindable: "false"
   labels:
-    kubevirt.io/os: ubuntu1604
+    kubevirt.io/os: ubuntu1804
 objects:
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachineInstancePreset
   metadata:
-    name: ubuntu1604
+    name: ubuntu1804
   spec:
     selector:
       matchLabels:
-        kubevirt.io/os: ubuntu1604
+        kubevirt.io/os: ubuntu1804
     domain:
       devices:
         rng: {}
@@ -38,7 +38,7 @@ objects:
   kind: VirtualMachine
   metadata:
     labels:
-      kubevirt.io/os: ubuntu1604
+      kubevirt.io/os: ubuntu1804
       kubevirt.io/size: medium
     name: ${NAME}
   spec:
@@ -46,7 +46,7 @@ objects:
     template:
       metadata:
         labels:
-          kubevirt.io/os: ubuntu1604
+          kubevirt.io/os: ubuntu1804
       spec:
         domain:
           devices:
@@ -70,7 +70,7 @@ parameters:
 - name: NAME
   description: Name of the new VM
   generate: expression
-  from: "ubuntu1604-[a-z0-9]{6}"
+  from: "ubuntu1804-[a-z0-9]{6}"
   required: true
 - name: PVCNAME
   description: Name of the PVC with the disk image

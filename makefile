@@ -7,7 +7,7 @@ ALL_GUESTS=$(ALL_TEMPLATES:templates/%.yaml=%)
 
 TEST_UNIT=$(ALL_GUESTS)
 ifeq ($(TEST_FUNCTIONAL),ALL)
-TEST_FUNCTIONAL=fedora28 ubuntu1604 opensuse15 rhel75
+TEST_FUNCTIONAL=fedora28 ubuntu1804 opensuse15 rhel75
 endif
 
 
@@ -82,11 +82,6 @@ raws: $(TESTABLE_GUESTS:%=%.raw)
 fedora28.qcow2:
 	curl -L -o $@ https://download.fedoraproject.org/pub/fedora/linux/releases/28/Cloud/x86_64/images/Fedora-Cloud-Base-28-1.1.x86_64.qcow2
 fedora28.raw: fedora28.qcow2
-	qemu-img convert -p -O raw $< $@
-
-ubuntu1604.qcow2:
-	curl -L -o $@ http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img
-ubuntu1604.raw: ubuntu1604.qcow2
 	qemu-img convert -p -O raw $< $@
 
 ubuntu1804.qcow2:
