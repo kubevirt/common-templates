@@ -56,9 +56,9 @@ $
 
 | Template | Snippet |
 |---|---|
-| Microsoft Windows Server 2012 R2 (win2k12r2) | [`oc process --local -f https://git.io/fNp4Z`](templates/win2k12r2.yaml) |
+| Microsoft Windows Server 2012 R2 (no CI) | [`oc process --local -f https://git.io/fNp4Z`](templates/win2k12r2.yaml) |
 | Fedora 28 | [`oc process --local -f https://git.io/fNpBU`](templates/fedora28.yaml) |
 | Red Hat Enterprise Linux 7.5 | [`oc process --local -f https://git.io/fNpuq`](templates/rhel75.yaml) |
-| Ubuntu 16.04 LTS (Xenial Xerus) | [`oc process --local -f https://git.io/fNpuH`](templates/ubuntu1604.yaml) |
-| OpenSUSE Leap 15.0 | [`oc process --local -f https://git.io/fNpz2`](templates/opensuse15.yaml) |
+| Ubuntu 18.04 LTS | [`oc process --local -f https://git.io/fA4q5`](templates/ubuntu1804.yaml) |
+| OpenSUSE Leap 15.0 (no CI) | [`oc process --local -f https://git.io/fNpz2`](templates/opensuse15.yaml) |
 | CoreOS Container Linux | TBD |
