@@ -14,11 +14,11 @@ endif
 
 syntax-tests: $(TEST_SYNTAX:%=%-syntax-check)
 
-unit-tests: is-deployed
+unit-tests: is-deployed syntax-tests
 unit-tests: $(TEST_UNIT:%=%-apply-and-remove)
 unit-tests: $(TEST_UNIT:%=%-generated-name-apply-and-remove)
 
-functional-tests: is-deployed
+functional-tests: is-deployed unit-tests
 functional-tests: $(TEST_FUNCTIONAL:%=%-start-and-stop)
 
 

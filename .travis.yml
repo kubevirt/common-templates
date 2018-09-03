@@ -15,7 +15,7 @@ env:
 matrix:
   include:
   - name: Check syntax of all templates
-    env: TARGET=unit-tests
+    env: TARGET=syntax-tests
   - name: Functional test of the Fedora template
     env: TARGET=functional-tests TEST_FUNCTIONAL=fedora28
   - name: Functional test of the Ubuntu template
