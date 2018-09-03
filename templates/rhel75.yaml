@@ -27,8 +27,13 @@ objects:
       matchLabels:
         kubevirt.io/os: rhel7.5
     domain:
+      cpu:
+        cores: 2
       devices:
         rng: {}
+      resources:
+        requests:
+          memory: 2G
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachine
   metadata:
@@ -41,7 +46,6 @@ objects:
       metadata:
         labels:
           kubevirt.io/os: rhel7.5
-          kubevirt.io/size: medium
       spec:
         domain:
           devices:

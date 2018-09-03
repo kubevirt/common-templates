@@ -30,16 +30,19 @@ objects:
       matchLabels:
         kubevirt.io/os: ubuntu1804
     domain:
+      cpu:
+        cores: 2
+        model: Conroe
       devices:
         rng: {}
-      cpu:
-        model: Conroe
+      resources:
+        requests:
+          memory: 2G
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachine
   metadata:
     labels:
       kubevirt.io/os: ubuntu1804
-      kubevirt.io/size: medium
     name: ${NAME}
   spec:
     running: false
