@@ -69,15 +69,24 @@ raws: $(TESTABLE_GUESTS:%=%.raw)
 %.pvc: %.pv
 	kubectl get pvc $*
 
+# We expect:
+# travis: minikube --driver=none -- Then outter==inner path
+# local: minikube --driver=kvm2 --mount --mount-string $PWD:/minikube-host
+PVPATH=$$PWD/pvs
+ifdef TRAVIS
+INNERPVPATH=$(PVPATH)
+else
+INNERPVPATH=/minikube-host/pvs
+endif
 %.pv: %.raw
 	$(TRAVIS_FOLD_START)
 	SIZEMB=$$(( $$(qemu-img info $< --output json | jq '.["virtual-size"]') / 1024 / 1024 + 128 )) && \
-	mkdir -p "$$PWD/pvs/$*" && \
-	ln $< $$PWD/pvs/$*/disk.img && \
-	sudo chown 107:107 $$PWD/pvs/$*/disk.img && \
-	sudo chmod -R a+X $$PWD/pvs && \
-	bash create-minikube-pvc.sh "$*" "$${SIZEMB}M" "$$PWD/pvs/$*/" | tee | kubectl apply -f -
-	find $$PWD/pvs
+	mkdir -p "$(PVPATH)/$*" && \
+	ln $< $(PVPATH)/$*/disk.img && \
+	sudo chown -R 107:107 $(PVPATH) && \
+	sudo chmod -R a+Xr $(PVPATH) && \
+	bash create-minikube-pvc.sh "$*" "$${SIZEMB}M" "$(INNERPVPATH)/$*/" | tee | kubectl apply -f -
+	find $(PVPATH)
 	kubectl get -o yaml pv $*
 	$(TRAVIS_FOLD_END)
 
