@@ -19,8 +19,8 @@ matrix:
     env: TARGET=functional-tests TEST_FUNCTIONAL=fedora28
   - name: Functional test of the Ubuntu template
     env: TARGET=functional-tests TEST_FUNCTIONAL=ubuntu1804
-#  - name: Functional test of the OpenSUSE template
-#    env: TARGET=functional-tests TEST_FUNCTIONAL=opensuse15
+  - name: Functional test of the OpenSUSE template
+    env: TARGET=functional-tests TEST_FUNCTIONAL=opensuse15
   - name: Functional test of the CentOS/RHEL template
     env: TARGET=functional-tests TEST_FUNCTIONAL=rhel75
 
