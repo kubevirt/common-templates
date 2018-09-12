@@ -15,42 +15,25 @@ metadata:
     openshift.io/documentation-url: "https://github.com/fabiand/common-templates"
     openshift.io/support-url: "https://github.com/fabiand/common-templates/issues"
     template.openshift.io/bindable: "false"
+
+    defaults.template.cnv.io/disk: rootdisk
+    defaults.template.cnv.io/network: default
+    template.cnv.io/editable: |
+      /objects[0].spec.template.spec.domain.cpu.cores
+      /objects[0].spec.template.spec.domain.resources.requests.memory
+      /objects[0].spec.template.spec.domain.devices.disks
+      /objects[0].spec.template.spec.volumes
+      /objects[0].spec.template.spec.networks
+
   labels:
-    kubevirt.io/os: win2k12r2
+    os.template.cnv.io/win2k12r2: "true"
+    os.template.cnv.io/win2k8r2: "true"
+    os.template.cnv.io/win2k8: "true"
+    os.template.cnv.io/win10: "true"
+    workload.template.cnv.io/server: "true"
+    workload.template.cnv.io/desktop: "true"
+    flavor.template.cnv.io/medium: "true"
 objects:
-- apiVersion: kubevirt.io/v1alpha2
-  kind: VirtualMachineInstancePreset
-  metadata:
-    name: win2k12r2
-  spec:
-    selector:
-      matchLabels:
-        kubevirt.io/os: win2k12r2
-    domain:
-      clock:
-        utc: {}
-        timer:
-          hpet:
-            present: false
-          pit:
-            tickPolicy: delay
-          rtc:
-            tickPolicy: catchup
-          hyperv: {}
-      cpu:
-        cores: 2
-      devices: {}
-      features:
-        acpi: {}
-        apic: {}
-        hyperv:
-          relaxed: {}
-          vapic: {}
-          spinlocks:
-            spinlocks: 8191
-      resources:
-        requests:
-          memory: 4G
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachine
   metadata:
@@ -60,11 +43,31 @@ objects:
   spec:
     running: false
     template:
-      metadata:
-        labels:
-          kubevirt.io/os: win2k12r2
       spec:
         domain:
+          clock:
+            utc: {}
+            timer:
+              hpet:
+                present: false
+              pit:
+                tickPolicy: delay
+              rtc:
+                tickPolicy: catchup
+              hyperv: {}
+          cpu:
+            cores: 2
+          resources:
+            requests:
+              memory: 4G
+          features:
+            acpi: {}
+            apic: {}
+            hyperv:
+              relaxed: {}
+              vapic: {}
+              spinlocks:
+                spinlocks: 8191
           devices:
             disks:
             - disk:
@@ -73,7 +76,7 @@ objects:
               volumeName: rootvolume
             interfaces:
             - bridge: {}
-              model: e1000
+              model: e1000e
               name: default
         terminationGracePeriodSeconds: 0
         volumes:
@@ -83,12 +86,12 @@ objects:
         networks:
         - name: default
           pod: {}
+
 parameters:
 - name: NAME
-  description: Name of the new VM
+  description: VM name
   generate: expression
-  from: "windows2012r2-[a-z0-9]{6}"
-  required: true
+  from: "win2k12-[a-z0-9]{6}"
 - name: PVCNAME
   description: Name of the PVC with the disk image
   required: true

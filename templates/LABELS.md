@@ -1,5 +1,11 @@
 # Available labels
 
+This file describes the labels we will be using to select
+the workload a template is supposed to be used for.
+
+Some of them are not going to be used immediately and serve
+as examples.
+
 ## Operating systems
 
 The operating system labels must match the [libosinfo
@@ -48,6 +54,7 @@ identifiers](https://gitlab.com/libosinfo/osinfo-db/tree/master/data/os) from th
 - os.template.cnv.io/rhel6.7
 - os.template.cnv.io/rhel6.8
 - os.template.cnv.io/rhel6.9
+- os.template.cnv.io/rhel6.10
 
 ### openSUSE
 

@@ -12,46 +12,44 @@ metadata:
 
       Recommended disk image (needs to be converted to raw)
       https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.0/images/
-    tags: "kubevirt,virtualmachine,opensuse"
-    iconClass: "icon-ubuntu"
+    tags: "kubevirt,virtualmachine,linux,opensuse"
+    iconClass: "icon-fedora"
     openshift.io/provider-display-name: "KubeVirt"
     openshift.io/documentation-url: "https://github.com/fabiand/common-templates"
     openshift.io/support-url: "https://github.com/fabiand/common-templates/issues"
     template.openshift.io/bindable: "false"
+
+    defaults.template.cnv.io/disk: rootdisk
+    template.cnv.io/editable: |
+      /objects[0].spec.template.spec.domain.cpu.cores
+      /objects[0].spec.template.spec.domain.resources.requests.memory
+      /objects[0].spec.template.spec.domain.devices.disks
+      /objects[0].spec.template.spec.volumes
+      /objects[0].spec.template.spec.networks
+
   labels:
-    kubevirt.io/os: opensuse15.0
+    os.template.cnv.io/opensuse15.0: "true"
+    workload.template.cnv.io/server: "true"
+    workload.template.cnv.io/desktop: "true"
+    flavor.template.cnv.io/small: "true"
+
 objects:
-- apiVersion: kubevirt.io/v1alpha2
-  kind: VirtualMachineInstancePreset
-  metadata:
-    name: opensuse15
-  spec:
-    selector:
-      matchLabels:
-        kubevirt.io/os: opensuse15.0
-    domain:
-      cpu:
-        cores: 2
-      devices:
-        rng: {}
-      resources:
-        requests:
-          memory: 2G
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachine
   metadata:
-    labels:
-      kubevirt.io/os: opensuse15.0
     name: ${NAME}
   spec:
     running: false
     template:
-      metadata:
-        labels:
-          kubevirt.io/os: opensuse15.0
       spec:
         domain:
+          cpu:
+            cores: 2
+          resources:
+            requests:
+              memory: 2G
           devices:
+            rng: {}
             disks:
             - disk:
                 bus: virtio
@@ -68,12 +66,13 @@ objects:
               password: opensuse
               chpasswd: { expire: False }
           name: cloudinitvolume
+
 parameters:
 - name: NAME
-  description: Name of the new VM
+  description: VM name
   generate: expression
   from: "opensuse15-[a-z0-9]{6}"
-  required: true
 - name: PVCNAME
   description: Name of the PVC with the disk image
   required: true
+
