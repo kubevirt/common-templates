@@ -55,7 +55,8 @@ before_script:
 - sudo mount --make-rshared /
 
 # Start Kubernetes using minikube
-- sudo minikube start --vm-driver=none --kubernetes-version=v$K8S_VER #--mount --mount-string /:/minikube-host
+#- sudo minikube start --vm-driver=none --kubernetes-version=v$K8S_VER #--mount --mount-string /:/minikube-host
+- sudo minikube start --logtostderr --loglevel 0 --v 10 --vm-driver=none --kubernetes-version=v1.11.2
 - minikube update-context
 - JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 1; done
 
