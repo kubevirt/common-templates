@@ -2,6 +2,11 @@ sudo: required
 dist: xenial
 language: go
 
+branches:
+  only:
+  - master
+  - /^v[0-9]/
+
 env:
   global:
     - CHANGE_MINIKUBE_NONE_USER=true
