@@ -2,3 +2,5 @@
 *.raw
 *.qcow2
 pvs
+openshift.local.clusterup/
+common-templates.yaml
