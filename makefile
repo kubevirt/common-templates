@@ -25,7 +25,7 @@ unit-tests: $(TEST_UNIT:%=%-apply-and-remove)
 unit-tests: $(TEST_UNIT:%=%-generated-name-apply-and-remove)
 
 functional-tests: is-deployed
-functional-tests: $(TEST_FUNCTIONAL:%=%-start-and-stop)
+functional-tests: $(TEST_FUNCTIONAL:%=%-start-wait-for-systemd-and-stop)
 
 common-templates.yaml: $(SOURCES)
 	( \
@@ -65,7 +65,7 @@ is-deployed:
 	kubectl delete -f $@.yaml
 	rm -v $@.yaml
 
-%-start-and-stop: %.pvc
+%-start-wait-for-systemd-and-stop: %.pvc
 	oc process --local -f "templates/$*.yaml" NAME=$@ PVCNAME=$* | \
 	  kubectl apply -f -
 	virtctl start $@
