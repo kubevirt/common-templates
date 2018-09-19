@@ -96,25 +96,20 @@ raws: $(TESTABLE_GUESTS:%=%.raw)
 	kubectl get -o yaml pv $*
 	$(TRAVIS_FOLD_END)
 
+%.raw: %.qcow2
+	qemu-img convert -p -O raw $< $@
+
 fedora28.qcow2:
 	curl -L -o $@ https://download.fedoraproject.org/pub/fedora/linux/releases/28/Cloud/x86_64/images/Fedora-Cloud-Base-28-1.1.x86_64.qcow2
-fedora28.raw: fedora28.qcow2
-	qemu-img convert -p -O raw $< $@
 
 ubuntu1804.qcow2:
 	curl -L -o $@ http://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img
-ubuntu1804.raw: ubuntu1804.qcow2
-	qemu-img convert -p -O raw $< $@
 
 opensuse15.qcow2:
 	curl -L -o $@ https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.0/images/openSUSE-Leap-15.0-OpenStack.x86_64-0.0.4-Buildlp150.12.12.qcow2
-opensuse15.raw: opensuse15.qcow2
-	qemu-img convert -p -O raw $< $@
 
 centos7.qcow2:
 	curl -L http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2.xz | xz -d > $@
-centos7.raw: centos7.qcow2
-	qemu-img convert -p -O raw $< $@
 
 # For now we test the RHEL75 template with the CentOS image
 rhel75.raw: centos7.raw
