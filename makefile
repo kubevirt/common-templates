@@ -71,9 +71,10 @@ is-deployed:
 	virtctl start $@
 	$(TRAVIS_FOLD_START)
 	while ! kubectl get vmi $@ -o yaml | grep "phase: Running" ; do make gather-env-of-$@ ; sleep 3; done
+	make gather-env-of-$@
 	$(TRAVIS_FOLD_END)
 	# Wait for a pretty universal magic word
-	virtctl console --timeout=5 $@ | egrep -m 1 "Welcome|systemd"
+	virtctl console --timeout=5 $@ | tee /dev/stderr | egrep -m 1 "Welcome|systemd"
 	oc process --local -f "templates/$*.yaml" NAME=$@ PVCNAME=$* | \
 	  kubectl delete -f -
 
