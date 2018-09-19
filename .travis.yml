@@ -9,7 +9,7 @@ branches:
 
 env:
   global:
-    - KUBEVIRT_VER=v0.8.0-alpha.1
+    - KUBEVIRT_VER=v0.8.0
 #    - CPLATFORM=oc_cluster CDIST=origin CVER=3.10.0
     - CPLATFORM=minikube CDIST=kubernetes CVER=1.11.2
 
