@@ -1,6 +1,10 @@
+SHELL=/bin/bash
 
 # i.e. fedora28.yaml
 ALL_TEMPLATES=$(wildcard templates/*.yaml)
+ALL_PRESETS=$(wildcard presets/*.yaml)
+SOURCES=$(ALL_TEMPLATES) $(ALL_PRESETS)
+
 # i.e. fedora28
 ALL_GUESTS=$(ALL_TEMPLATES:templates/%.yaml=%)
 
@@ -12,17 +16,27 @@ TEST_FUNCTIONAL=fedora28 ubuntu1804 opensuse15 rhel75
 endif
 
 
+test: syntax-tests unit-tests functional-tests
+
 syntax-tests: $(TEST_SYNTAX:%=%-syntax-check)
 
-unit-tests: is-deployed syntax-tests
+unit-tests: is-deployed
 unit-tests: $(TEST_UNIT:%=%-apply-and-remove)
 unit-tests: $(TEST_UNIT:%=%-generated-name-apply-and-remove)
 
-functional-tests: is-deployed unit-tests
+functional-tests: is-deployed
 functional-tests: $(TEST_FUNCTIONAL:%=%-start-and-stop)
 
-
-test: syntax-tests unit-tests functional-tests
+common-templates.yaml: $(SOURCES)
+	( \
+	  git describe --always --tags HEAD ; \
+	  for F in $(SOURCES) ; \
+	  do \
+	    echo "---" ; \
+	    echo "# Source: $$F" ; \
+	    cat $$F ; \
+	  done ; \
+	) | tee $@
 
 TRAVIS_FOLD_START=echo -e "travis_fold:start:details\033[33;1mDetails\033[0m"
 TRAVIS_FOLD_END=echo -e "\ntravis_fold:end:details\r"
@@ -108,4 +122,4 @@ rhel75.raw: centos7.raw
 clean:
 	rm -v *.raw *.qcow2
 
-.PHONY: all test
+.PHONY: all test common-templates.yaml
