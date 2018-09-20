@@ -14,18 +14,39 @@ env:
     - CPLATFORM=minikube CDIST=kubernetes CVER=1.11.2
 
 
-matrix:
+jobs:
   include:
-  - name: Check syntax of all templates
-    env: TARGET=syntax-tests
-  - name: Functional test of the Fedora template
-    env: TARGET=functional-tests TEST_FUNCTIONAL=fedora28
-  - name: Functional test of the Ubuntu template
-    env: TARGET=functional-tests TEST_FUNCTIONAL=ubuntu1804
-#  - name: Functional test of the OpenSUSE template
-#    env: TARGET=functional-tests TEST_FUNCTIONAL=opensuse15
-  - name: Functional test of the CentOS/RHEL template
-    env: TARGET=functional-tests TEST_FUNCTIONAL=rhel75
+    - stage: "Tests"
+      name: Check syntax of all templates
+      env: TARGET=syntax-tests
+      # -e is important to let make use the vars defined in "matrix:" above
+      script: bash -x test.sh
+    - script: bash -x test.sh
+      name: Functional test of the Fedora template
+      env: TARGET=functional-tests TEST_FUNCTIONAL=fedora28
+    - script: bash -x test.sh
+      name: Functional test of the Ubuntu template
+      env: TARGET=functional-tests TEST_FUNCTIONAL=ubuntu1804
+#    - script: bash -x test.sh
+#      name: Functional test of the OpenSUSE template
+#      env: TARGET=functional-tests TEST_FUNCTIONAL=opensuse15
+    - script: bash -x test.sh
+      name: Functional test of the CentOS/RHEL template
+      env: TARGET=functional-tests TEST_FUNCTIONAL=rhel75
+    - stage: "Deploy"
+      name: deploy 
+      before_script: skip
+      script: skip
+      before_deploy:
+      - make common-templates.yaml
+      deploy:
+        provider: releases
+        api_key: $GITHUB_OAUTH_TOKEN
+        file: "common-templates.yaml"
+        skip_cleanup: true
+        on:
+          tags: true
+          all_branches: true
 
 cache:
   directories:
@@ -67,5 +88,3 @@ before_script:
 - kubectl describe -n kube-system daemonset virt-handler
 - kubectl -n kube-system logs -l kubevirt.io=virt-handler
 
-script:
-- bash -x test.sh
