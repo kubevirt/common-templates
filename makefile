@@ -29,6 +29,7 @@ functional-tests: $(TEST_FUNCTIONAL:%=%-start-wait-for-systemd-and-stop)
 
 common-templates.yaml: $(SOURCES)
 	( \
+	  echo -n "# Version "
 	  git describe --always --tags HEAD ; \
 	  for F in $(SOURCES) ; \
 	  do \
