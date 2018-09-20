@@ -19,20 +19,20 @@ jobs:
     - stage: "Tests"
       name: Check syntax of all templates
       env: TARGET=syntax-tests
-      # -e is important to let make use the vars defined in "matrix:" above
       script: bash -x test.sh
-    - script: bash -x test.sh
-      name: Functional test of the Fedora template
+    - name: Functional test of the Fedora template
       env: TARGET=functional-tests TEST_FUNCTIONAL=fedora28
-    - script: bash -x test.sh
-      name: Functional test of the Ubuntu template
+      script: bash -x test.sh
+    - name: Functional test of the Ubuntu template
       env: TARGET=functional-tests TEST_FUNCTIONAL=ubuntu1804
-#    - script: bash -x test.sh
-#      name: Functional test of the OpenSUSE template
+      script: bash -x test.sh
+#    - name: Functional test of the OpenSUSE template
 #      env: TARGET=functional-tests TEST_FUNCTIONAL=opensuse15
-    - script: bash -x test.sh
-      name: Functional test of the CentOS/RHEL template
+#      script: bash -x test.sh
+    - name: Functional test of the CentOS/RHEL template
       env: TARGET=functional-tests TEST_FUNCTIONAL=rhel75
+      script: bash -x test.sh
+
     - stage: "Deploy"
       name: deploy 
       before_script: skip
