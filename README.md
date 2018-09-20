@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/fabiand/common-templates.svg?branch=master)](https://travis-ci.com/fabiand/common-templates)
+[![Build Status](https://travis-ci.com/kubevirt/common-templates.svg?branch=master)](https://travis-ci.com/kubevirt/common-templates)
 
 A set of Templates to create KubeVirt VMs.
 
