@@ -1,90 +1,65 @@
 sudo: required
 dist: xenial
 language: go
-
 branches:
   only:
   - master
-  - /^v[0-9]/
-
+  - "/^v[0-9]/"
 env:
   global:
-    - KUBEVIRT_VER=v0.8.0
-#    - CPLATFORM=oc_cluster CDIST=origin CVER=3.10.0
-    - CPLATFORM=minikube CDIST=kubernetes CVER=1.11.2
-
-
+  - KUBEVIRT_VER=v0.8.0
+  - CPLATFORM=minikube CDIST=kubernetes CVER=1.11.2
 jobs:
   include:
-    - stage: "Tests"
-      name: Check syntax of all templates
-      env: TARGET=syntax-tests
-      script: bash -x test.sh
-    - name: Functional test of the Fedora template
-      env: TARGET=functional-tests TEST_FUNCTIONAL=fedora28
-      script: bash -x test.sh
-    - name: Functional test of the Ubuntu template
-      env: TARGET=functional-tests TEST_FUNCTIONAL=ubuntu1804
-      script: bash -x test.sh
-#    - name: Functional test of the OpenSUSE template
-#      env: TARGET=functional-tests TEST_FUNCTIONAL=opensuse15
-#      script: bash -x test.sh
-    - name: Functional test of the CentOS/RHEL template
-      env: TARGET=functional-tests TEST_FUNCTIONAL=rhel75
-      script: bash -x test.sh
 
-    - stage: "Deploy"
-      name: deploy 
-      before_script: skip
-      script: skip
-      before_deploy:
-      - make common-templates.yaml
-      deploy:
-        provider: releases
-        api_key: $GITHUB_OAUTH_TOKEN
-        file: "common-templates.yaml"
-        skip_cleanup: true
-        on:
-          tags: true
-          all_branches: true
+  - stage: Tests
+    name: Check syntax of all templates
+    env: TARGET=syntax-tests
+    script: bash -x test.sh
+
+  - name: Functional test of the Fedora template
+    env: TARGET=functional-tests TEST_FUNCTIONAL=fedora28
+    script: bash -x test.sh
+
+  - name: Functional test of the Ubuntu template
+    env: TARGET=functional-tests TEST_FUNCTIONAL=ubuntu1804
+    script: bash -x test.sh
+
+  - name: Functional test of the CentOS/RHEL template
+    env: TARGET=functional-tests TEST_FUNCTIONAL=rhel75
+    script: bash -x test.sh
+
+  - stage: Build and Deploy
+    name: Build and Deploy to GitHub
+    before_script: skip
+    script: make common-templates.yaml
+    deploy:
+      provider: releases
+      api_key:
+        secure: V97yqTN9wkDGIfQ5eYbo5vnzjFvYVeuUvHgRVRfKTn7Ei25gDlIU8M3I56a9mMWBLtrWTH/3AKmIbP/HbDmBOhbYGdBhgXSvdW/nUvvyOWxx4NOhPOHNUpPxUB7G8QQWwU4lkHDKf4Yw7ytoqimknQG+Vbeop9jYHNP/u0+htVCmJSDFbFK71S+rKChJyKjS8m8P0KJ9ObGvNJxvnQ8BWw3kKvd5W9iLHzoD3Tej2ityot3gXVoQHwpjK89aJUNQWlDfuQA/cvMLDekllf7rN4kqxVxWRygSeLYM8bkWZeRDhDiPMOweDNc5lYO7Pb+aCdxe5MIWF4Y8tQFu5zAUfk+K76aqBOEWLCp0Id2/Tm9cwtQY4cJuGpnGkWNF4nvekLwVzILwXMyGKhGUfS/I3aOhF5eJhzvj4tllPKVO4ME7jVnQRttko+1fAspmxC3VhxsHXJQUgP2azxUj3kEFlQRRHXJtmBFv37EqE95hO5CgWlbO+6/FKnDrYgNNaDL2EQ5wD5w2eTenFRa+iWv7+gqXpcQFptqsCuNiMOW/1Siuf7Pr3jrH9Txl13nFLaYdI55GhHrum59Q6N8fjZUfInBXLx0sFhmRfIyKaJht06389QEvOw++ZxHtbphmWprTy6IxiEYQf+E3gEcu2MaXXR04ryFK81TUfCett2Bb4G0=
+      file: "common-templates.yaml"
+      skip_cleanup: true
+      on:
+        tags: true
 
 cache:
   directories:
   - cache
-  - ~/.minishift/cache
-  - ~/.minikube/cache
-
-#notifications:
-#  irc:
-#    channels:
-#      - "chat.freenode.net#kubevirt"
-#    on_success: change
-#    on_failure: always
-
+  - "~/.minishift/cache"
+  - "~/.minikube/cache"
 addons:
   apt:
     packages:
     - qemu-utils
     - jq
-
 before_script:
-## FIXME Workaround for https://github.com/kubernetes/kubernetes/issues/61058
-### And https://github.com/LiliC/travis-minikube/blob/e0f26f7b388057f51a0e2558afd5f990e07b6c49/.travis.yml#L11
 - sudo mount --make-rshared /
-
-# Fetch binaries
 - bash -x ci/prepare-host $CPLATFORM $CVER
 - bash -x ci/prepare-host virtctl $KUBEVIRT_VER
 - bash -x ci/prepare-host oc 3.10.0
-
-# Start Kubernetes using minikube
 - bash -x ci/start-cluster $CPLATFORM $CVER
-
-# Deploy KubeVirt
 - bash -x ci/deploy-kubevirt $CDIST $KUBEVIRT_VER
-
 - kubectl get pods --all-namespaces
 - kubectl describe nodes
 - kubectl describe -n kube-system daemonset virt-handler
 - kubectl -n kube-system logs -l kubevirt.io=virt-handler
-
