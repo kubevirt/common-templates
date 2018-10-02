@@ -36,6 +36,9 @@ metadata:
     openshift.io/support-url: "https://access.redhat.com"
     iconClass: icon-windows    
 
+    # Template structure version
+    template.cnv.io/version: v1alpha1
+
     # The `defaults` set of annotations is meant as a hint only
     # and is not going to be processed by the stock openshift templating
     # mechanism. CNV UI can and should use it though.

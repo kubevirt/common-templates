@@ -16,6 +16,7 @@ metadata:
     openshift.io/support-url: "https://github.com/fabiand/common-templates/issues"
     template.openshift.io/bindable: "false"
 
+    template.cnv.io/version: v1alpha1
     defaults.template.cnv.io/disk: rootdisk
     defaults.template.cnv.io/network: default
     template.cnv.io/editable: |
