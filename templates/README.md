@@ -188,10 +188,7 @@ metadata:
     # Arbitrary format as needed to be able to
     # repopulate the UI or the template processor
     # and get the same output
-    template.cnv.io/original:
-      MEMORY_SIZE: 8
-      STORAGE_CLASS:
-      NETWORK_CLASS:
+    parameters.template.cnv.io/MEMORY_SIZE: 8
 
   labels:
     # This labels will link the VM to a template that was
