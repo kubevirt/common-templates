@@ -190,6 +190,19 @@ metadata:
     # and get the same output
     parameters.template.cnv.io/MEMORY_SIZE: 8
 
+    # Extension for specifying which elements were customized.
+    # The idea is to record fields that need to be preserved
+    # during spec replacement happening as part of Template
+    # editing or upgrade.
+    # The content is a line separated list of jsonpath selectors.
+    # The jsonpath root is the spec: element of the VM object
+    template.cnv.io/keep: |
+      /template.spec.domain.cpu.cores
+      /template.spec.domain.resources.requests.memory
+      /template.spec.domain.devices.disks
+      /template.spec.volumes
+      /template.spec.networks
+
   labels:
     # This labels will link the VM to a template that was
     # used to create it. This can be then used by the user
