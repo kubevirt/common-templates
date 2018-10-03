@@ -1,0 +1,18 @@
+---
+- connection: local
+  hosts: 127.0.0.1
+  tasks:
+  - name: Generate RHEL templates
+    template:
+      src: rhel75.tpl.yaml
+      dest: "{{ playbook_dir }}/rhel75-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: tiny, workload: generic, memsize: 1, cores: 1, iothreads: False}
+    - {flavor: tiny, workload: highperformance, memsize: 1, cores: 1, iothreads: True}
+    - {flavor: small, workload: generic, memsize: 2, cores: 1, iothreads: False}
+    - {flavor: small, workload: highperformance, memsize: 2, cores: 1, iothreads: True}
+    - {flavor: medium, workload: generic, memsize: 4, cores: 1, iothreads: False}
+    - {flavor: medium, workload: highperformance, memsize: 4, cores: 1, iothreads: True}
+    - {flavor: large, workload: generic, memsize: 8, cores: 2, iothreads: False}
+    - {flavor: large, workload: highperformance, memsize: 8, cores: 2, iothreads: True}
+

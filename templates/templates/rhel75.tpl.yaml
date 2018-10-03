@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: rhel-{{ item.flavor }}-{{ item.workload }}
+  annotations:
+    openshift.io/display-name: "Red Hat Enterprise Linux 7.0+ VM"
+    description: >-
+      This template can be used to create a VM suitable for
+      Red Hat Enterprise Linux 7 and newer. This template
+      can also be used for CentOS based VMs.
+      The template assumes that a PVC is available which is providing the
+      necessary RHEL disk image.
+    tags: "kubevirt,virtualmachine,linux,rhel"
+    iconClass: "icon-rhel"
+    openshift.io/provider-display-name: "KubeVirt"
+    openshift.io/documentation-url: "https://github.com/kubevirt/common-templates"
+    openshift.io/support-url: "https://github.com/kubevirt/common-templates/issues"
+    template.openshift.io/bindable: "false"
+
+    template.cnv.io/version: v1alpha1
+    defaults.template.cnv.io/disk: rootdisk
+    template.cnv.io/editable: |
+      /objects[0].spec.template.spec.domain.cpu.cores
+      /objects[0].spec.template.spec.domain.resources.requests.memory
+      /objects[0].spec.template.spec.domain.devices.disks
+      /objects[0].spec.template.spec.volumes
+      /objects[0].spec.template.spec.networks
+
+  labels:
+    os.template.cnv.io/centos7.0: "true"
+    os.template.cnv.io/rhel7.0: "true"
+    os.template.cnv.io/rhel7.1: "true"
+    os.template.cnv.io/rhel7.2: "true"
+    os.template.cnv.io/rhel7.3: "true"
+    os.template.cnv.io/rhel7.4: "true"
+    os.template.cnv.io/rhel7.5: "true"
+    workload.template.cnv.io/{{ item.workload }}: "true"
+    flavor.template.cnv.io/{{ item.flavor }}: "true"
+    template.cnv.io/type: "base"
+
+objects:
+- apiVersion: kubevirt.io/v1alpha2
+  kind: VirtualMachine
+  metadata:
+    name: ${NAME}
+  spec:
+    running: false
+    template:
+      spec:
+        domain:
+{% if item.iothreads %}
+          ioThreadsPolicy: shared
+{% endif %}
+          cpu:
+            cores: {{ item.cores }}
+          resources:
+            requests:
+              memory: {{ item.memsize }}G
+          devices:
+            rng: {}
+            disks:
+            - disk:
+                bus: virtio
+              name: rootdisk
+              volumeName: rootvolume
+        terminationGracePeriodSeconds: 0
+        volumes:
+        - name: rootvolume
+          persistentVolumeClaim:
+            claimName: ${PVCNAME}
+        - cloudInitNoCloud:
+            userData: |-
+              #cloud-config
+              password: redhat
+              chpasswd: { expire: False }
+          name: cloudinitvolume
+
+parameters:
+- name: NAME
+  description: VM name
+  generate: expression
+  from: "rhel75-{{ item.flavor }}-[a-z0-9]{6}"
+- name: PVCNAME
+  description: Name of the PVC with the disk image
+  required: true
+
