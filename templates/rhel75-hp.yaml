@@ -47,6 +47,7 @@ objects:
     template:
       spec:
         domain:
+          ioThreadsPolicy: shared
           cpu:
             cores: 2
             dedicatedCpuPlacement: "true"
