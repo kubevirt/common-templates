@@ -104,7 +104,7 @@ metadata:
     # CNV Template type to separate the use cases for base OS,
     # flavor, sizing templates and templates created from
     # running or imported VMs.
-    # The supported values are currently: base and config
+    # The supported values are currently: base and vm
     template.cnv.io/type: "base"
 
 # Parameters must come from a subset of well known names

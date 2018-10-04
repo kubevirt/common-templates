@@ -34,6 +34,8 @@ metadata:
     workload.template.cnv.io/server: "true"
     workload.template.cnv.io/desktop: "true"
     flavor.template.cnv.io/medium: "true"
+    template.cnv.io/type: "base"
+
 objects:
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachine

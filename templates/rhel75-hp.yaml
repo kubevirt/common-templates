@@ -36,6 +36,7 @@ metadata:
     os.template.cnv.io/rhel7.5: "true"
     workload.template.cnv.io/high-performance: "true"
     flavor.template.cnv.io/medium: "true"
+    template.cnv.io/type: "base"
 
 objects:
 - apiVersion: kubevirt.io/v1alpha2
