@@ -26,6 +26,7 @@
        - rhel7.3
        - rhel7.4
        - rhel7.5
+      osinfo: "{{ lookup('osinfo', os) }}"
 
   - name: Generate Fedora templates
     template:
