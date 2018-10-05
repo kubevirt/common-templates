@@ -1,3 +1,6 @@
 [submodule "ci"]
 	path = ci
 	url = https://github.com/fabiand/traviskube/
+[submodule "osinfo-db"]
+	path = osinfo-db
+	url = https://gitlab.com/libosinfo/osinfo-db.git

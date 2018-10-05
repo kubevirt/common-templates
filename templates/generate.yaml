@@ -26,7 +26,7 @@
        - rhel7.3
        - rhel7.4
        - rhel7.5
-      osinfo: "{{ lookup('osinfo', os) }}"
+      osinfoname: "{{ oslabels[0] }}"
 
   - name: Generate Fedora templates
     template:
@@ -49,6 +49,7 @@
        - fedora26
        - fedora27
        - fedora28
+      osinfoname: "{{ oslabels[0] }}"
 
   - name: Generate OpenSUSE templates
     template:
@@ -64,7 +65,8 @@
       icon: opensuse
       password: opensuse
       oslabels:
-       - opensuse15
+       - opensuse15.0
+      osinfoname: "{{ oslabels[0] }}"
 
   - name: Generate Ubuntu templates
     template:
@@ -81,7 +83,8 @@
       icon: ubuntu
       password: ubuntu
       oslabels:
-       - ubuntu1804
+       - ubuntu18.04
+      osinfoname: "{{ oslabels[0] }}"
 
   - name: Generate Windows templates
     template:
@@ -90,4 +93,7 @@
     with_items:
     - {flavor: medium, workload: generic, memsize: 4, cores: 1, iothreads: False}
     - {flavor: large, workload: generic, memsize: 8, cores: 2, iothreads: False}
+    vars:
+      osinfoname: win2k12r2
+
 

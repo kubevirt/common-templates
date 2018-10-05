@@ -26,6 +26,7 @@ objects:
   kind: VirtualMachine
   metadata:
     name: ${NAME}
+    osinfoname: {{ lookup('osinfo', osinfoname).name }}
   spec:
     running: false
     template:
