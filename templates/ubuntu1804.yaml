@@ -18,40 +18,41 @@ metadata:
     openshift.io/documentation-url: "https://github.com/fabiand/common-templates"
     openshift.io/support-url: "https://github.com/fabiand/common-templates/issues"
     template.openshift.io/bindable: "false"
+
+    template.cnv.io/version: v1alpha1
+    defaults.template.cnv.io/disk: rootdisk
+    template.cnv.io/editable: |
+      /objects[0].spec.template.spec.domain.cpu.cores
+      /objects[0].spec.template.spec.domain.resources.requests.memory
+      /objects[0].spec.template.spec.domain.devices.disks
+      /objects[0].spec.template.spec.volumes
+      /objects[0].spec.template.spec.networks
+
   labels:
-    kubevirt.io/os: ubuntu1804
+    os.template.cnv.io/ubuntu18.04: "true"
+    workload.template.cnv.io/server: "true"
+    workload.template.cnv.io/desktop: "true"
+    flavor.template.cnv.io/small: "true"
+    template.cnv.io/type: "base"
+
 objects:
-- apiVersion: kubevirt.io/v1alpha2
-  kind: VirtualMachineInstancePreset
-  metadata:
-    name: ubuntu1804
-  spec:
-    selector:
-      matchLabels:
-        kubevirt.io/os: ubuntu1804
-    domain:
-      cpu:
-        cores: 2
-        model: Conroe
-      devices:
-        rng: {}
-      resources:
-        requests:
-          memory: 2G
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachine
   metadata:
-    labels:
-      kubevirt.io/os: ubuntu1804
     name: ${NAME}
   spec:
     running: false
     template:
-      metadata:
-        labels:
-          kubevirt.io/os: ubuntu1804
       spec:
         domain:
+          cpu:
+            cores: 2
+            model: Conroe
+          devices:
+            rng: {}
+          resources:
+            requests:
+              memory: 2G
           devices:
             disks:
             - disk:

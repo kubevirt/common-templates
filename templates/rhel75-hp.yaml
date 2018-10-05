@@ -1,19 +1,18 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: opensuse15
+  name: rhel-high-performance
   annotations:
-    openshift.io/display-name: "OpenSUSE Leap 15.0 VM"
+    openshift.io/display-name: "Red Hat Enterprise Linux 7.0+ VM High Performance"
     description: >-
       This template can be used to create a VM suitable for
-      OpenSUSE Leap 15.0.
+      Red Hat Enterprise Linux 7 and newer and sets configuration
+      for high performance. That means for example CPU passhtrough,
+      CPU pinning and disabled graphics device.
       The template assumes that a PVC is available which is providing the
-      necessary OpenSUSE disk image.
-
-      Recommended disk image (needs to be converted to raw)
-      https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.0/images/
-    tags: "kubevirt,virtualmachine,linux,opensuse"
-    iconClass: "icon-fedora"
+      necessary RHEL disk image.
+    tags: "kubevirt,virtualmachine,linux,rhel,high-performance"
+    iconClass: "icon-rhel"
     openshift.io/provider-display-name: "KubeVirt"
     openshift.io/documentation-url: "https://github.com/fabiand/common-templates"
     openshift.io/support-url: "https://github.com/fabiand/common-templates/issues"
@@ -29,10 +28,14 @@ metadata:
       /objects[0].spec.template.spec.networks
 
   labels:
-    os.template.cnv.io/opensuse15.0: "true"
-    workload.template.cnv.io/server: "true"
-    workload.template.cnv.io/desktop: "true"
-    flavor.template.cnv.io/small: "true"
+    os.template.cnv.io/rhel7.0: "true"
+    os.template.cnv.io/rhel7.1: "true"
+    os.template.cnv.io/rhel7.2: "true"
+    os.template.cnv.io/rhel7.3: "true"
+    os.template.cnv.io/rhel7.4: "true"
+    os.template.cnv.io/rhel7.5: "true"
+    workload.template.cnv.io/high-performance: "true"
+    flavor.template.cnv.io/medium: "true"
     template.cnv.io/type: "base"
 
 objects:
@@ -45,12 +48,16 @@ objects:
     template:
       spec:
         domain:
+          ioThreadsPolicy: shared
           cpu:
             cores: 2
+            dedicatedCpuPlacement: "true"
+            model: host-model
           resources:
             requests:
-              memory: 2G
+              memory: 4G
           devices:
+            autoattachGraphicsDevice: false
             rng: {}
             disks:
             - disk:
@@ -65,15 +72,15 @@ objects:
         - cloudInitNoCloud:
             userData: |-
               #cloud-config
-              password: opensuse
+              password: redhat
               chpasswd: { expire: False }
           name: cloudinitvolume
 
 parameters:
-- name: NAME
-  description: VM name
+- description: Name of the new VM
+  from: '[A-Za-z0-9]{1,16}'
   generate: expression
-  from: "opensuse15-[a-z0-9]{6}"
+  name: NAME
 - name: PVCNAME
   description: Name of the PVC with the disk image
   required: true
