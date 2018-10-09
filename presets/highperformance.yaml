@@ -1,0 +1,18 @@
+apiVersion: kubevirt.io/v1alpha2
+kind: VirtualMachineInstancePreset
+metadata:
+  name: flavor-highperformance
+spec:
+  selector:
+    matchLabels:
+      kubevirt.io/flavor: highperformance
+  domain:
+    cpu:
+      model: host-model
+      dedicatedCpuPlacement: true
+    devices:
+      autoattachGraphicsDevice: false
+      iothreads:
+        threadcount: 1
+      rng: {}
+
