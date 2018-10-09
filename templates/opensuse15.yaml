@@ -15,8 +15,8 @@ metadata:
     tags: "kubevirt,virtualmachine,linux,opensuse"
     iconClass: "icon-fedora"
     openshift.io/provider-display-name: "KubeVirt"
-    openshift.io/documentation-url: "https://github.com/fabiand/common-templates"
-    openshift.io/support-url: "https://github.com/fabiand/common-templates/issues"
+    openshift.io/documentation-url: "https://github.com/kubevirt/common-templates"
+    openshift.io/support-url: "https://github.com/kubevirt/common-templates/issues"
     template.openshift.io/bindable: "false"
 
     template.cnv.io/version: v1alpha1
