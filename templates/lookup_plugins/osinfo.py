@@ -30,13 +30,24 @@ class OsInfoGObjectProxy(object):
         if hasattr(self._obj, "get_" + str(key)):
             return True
         elif hasattr(self._obj, "get_length") and hasattr(self._obj, "get_nth"):
-            return self._obj.get_length() > int(key)
+            if type(key) == int or type(key) == long:
+                return self._obj.get_length() > int(key)
+            elif type(key) == str or type(key) == unicode:
+                conditions = [v.split("=", 1) for v in key.split(",")]
+                conditions = {v[0] : v[1] for v in conditions}
+                matches = 0
+                for idx in range(self._obj.get_length()):
+                    obj = self.__class__(self._obj.get_nth(idx),
+                            self._root_path + "." + str(idx))
+                    if all([obj[k] == v for k,v in conditions.items()]):
+                        matches += 1
+                return matches > 0
         else:
             return False
 
     def _resolve(self, val, path):
         if (type(val) == int or type(val) == long or type(val) == float or
-                type(val) == str or type(val) == bool):
+                type(val) == str or type(val) == unicode or type(val) == bool):
             return val
         else:
             return self.__class__(val, root_path = path)
@@ -58,6 +69,8 @@ class OsInfoGObjectProxy(object):
         return self._resolve(root, self._root_path + "." + name)
 
     def __getitem__(self, idx):
+        if type(idx) == int or type(idx) == long:
+            idx = str(idx)
         root = self._obj
         root_path = [self._root_path]
         for i in idx.split("."):
