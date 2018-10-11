@@ -5,7 +5,7 @@
   - name: Generate RHEL 7 templates
     template:
       src: rhel7.tpl.yaml
-      dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.dist.yaml"
     with_items:
     - {flavor: tiny, workload: generic, memsize: 1, cores: 1, iothreads: False}
     - {flavor: tiny, workload: highperformance, memsize: 1, cores: 1, iothreads: True}
@@ -31,7 +31,7 @@
   - name: Generate CentOS 7 templates
     template:
       src: centos7.tpl.yaml
-      dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.dist.yaml"
     with_items:
     - {flavor: tiny, workload: generic, memsize: 1, cores: 1, iothreads: False}
     - {flavor: small, workload: generic, memsize: 2, cores: 1, iothreads: False}
@@ -48,7 +48,7 @@
   - name: Generate Fedora templates
     template:
       src: fedora.tpl.yaml
-      dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.dist.yaml"
     with_items:
     - {flavor: tiny, workload: generic, memsize: 1, cores: 1, iothreads: False}
     - {flavor: tiny, workload: highperformance, memsize: 1, cores: 1, iothreads: True}
@@ -71,7 +71,7 @@
   - name: Generate OpenSUSE templates
     template:
       src: opensuse.tpl.yaml
-      dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.dist.yaml"
     with_items:
     - {flavor: tiny, workload: generic, memsize: 1, cores: 1, iothreads: False}
     - {flavor: small, workload: generic, memsize: 2, cores: 1, iothreads: False}
@@ -88,7 +88,7 @@
   - name: Generate Ubuntu templates
     template:
       src: ubuntu.tpl.yaml
-      dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.dist.yaml"
     with_items:
     - {flavor: tiny, workload: generic, memsize: 1, cores: 1, iothreads: False}
     - {flavor: small, workload: generic, memsize: 2, cores: 1, iothreads: False}
@@ -106,7 +106,7 @@
   - name: Generate Windows templates
     template:
       src: win2k12r2.tpl.yaml
-      dest: "{{ playbook_dir }}/win2k12r2-{{ item.workload }}-{{ item.flavor }}.yaml"
+      dest: "{{ playbook_dir }}/win2k12r2-{{ item.workload }}-{{ item.flavor }}.dist.yaml"
     with_items:
     - {flavor: medium, workload: generic, memsize: 4, cores: 1, iothreads: False}
     - {flavor: large, workload: generic, memsize: 8, cores: 2, iothreads: False}
