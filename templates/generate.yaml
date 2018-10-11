@@ -2,7 +2,7 @@
 - connection: local
   hosts: 127.0.0.1
   tasks:
-  - name: Generate RHEL templates
+  - name: Generate RHEL 7 templates
     template:
       src: rhel7.tpl.yaml
       dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
@@ -26,6 +26,23 @@
        - rhel7.3
        - rhel7.4
        - rhel7.5
+      osinfoname: "{{ oslabels[0] }}"
+
+  - name: Generate CentOS 7 templates
+    template:
+      src: centos7.tpl.yaml
+      dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: tiny, workload: generic, memsize: 1, cores: 1, iothreads: False}
+    - {flavor: small, workload: generic, memsize: 2, cores: 1, iothreads: False}
+    - {flavor: medium, workload: generic, memsize: 4, cores: 1, iothreads: False}
+    - {flavor: large, workload: generic, memsize: 8, cores: 2, iothreads: False}
+    vars:
+      os: centos7
+      icon: centos
+      password: centos
+      oslabels:
+       - centos7.0
       osinfoname: "{{ oslabels[0] }}"
 
   - name: Generate Fedora templates
