@@ -1,6 +1,6 @@
 sudo: required
 dist: xenial
-language: go
+language: python
 branches:
   only:
   - master
@@ -18,15 +18,19 @@ jobs:
     script: bash -x test.sh
 
   - name: Functional test of the Fedora template
-    env: TARGET=functional-tests TEST_FUNCTIONAL=fedora28
+    env: TARGET=functional-tests TEST_FUNCTIONAL=fedora-generic-small
     script: bash -x test.sh
 
   - name: Functional test of the Ubuntu template
-    env: TARGET=functional-tests TEST_FUNCTIONAL=ubuntu1804
+    env: TARGET=functional-tests TEST_FUNCTIONAL=ubuntu-generic-small
     script: bash -x test.sh
 
-  - name: Functional test of the CentOS/RHEL template
-    env: TARGET=functional-tests TEST_FUNCTIONAL=rhel75
+  - name: Functional test of the RHEL template
+    env: TARGET=functional-tests TEST_FUNCTIONAL=rhel7-generic-small
+    script: bash -x test.sh
+
+  - name: Functional test of the CentOS template
+    env: TARGET=functional-tests TEST_FUNCTIONAL=centos7-generic-small
     script: bash -x test.sh
 
   - stage: Build and Deploy
@@ -51,9 +55,15 @@ cache:
   - "~/.minikube/cache"
 addons:
   apt:
+    sources:
+    - sourceline: 'ppa:ansible/ansible'
     packages:
     - qemu-utils
     - jq
+    - ansible
+    - python-gobject
+    - libosinfo-1.0
+    - gir1.2-libosinfo-1.0
 before_script:
 - sudo mount --make-rshared /
 - bash -x ci/prepare-host $CPLATFORM $CVER

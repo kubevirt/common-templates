@@ -14,8 +14,9 @@ Every template consists of a VirtualMachine definition which can be used to laun
 
 # Requirements
 
-Is it necessary to install the following components to be able to run the Ansible generator:
+Is it necessary to install the following components to be able to run the Ansible generator and the CI suite:
 
+- jq
 - ansible >= 2.4
 - libosinfo
 - python-gobject
