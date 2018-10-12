@@ -59,7 +59,7 @@ objects:
             cores: {{ item.cores }}
           resources:
             requests:
-              memory: {{ item.memsize }}G
+              memory: {{ item.memsize }}
           features:
             acpi: {}
             apic: {}

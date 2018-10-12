@@ -7,14 +7,14 @@
       src: rhel7.tpl.yaml
       dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.dist.yaml"
     with_items:
-    - {flavor: tiny, workload: generic, memsize: 1, cores: 1, iothreads: False}
-    - {flavor: tiny, workload: highperformance, memsize: 1, cores: 1, iothreads: True}
-    - {flavor: small, workload: generic, memsize: 2, cores: 1, iothreads: False}
-    - {flavor: small, workload: highperformance, memsize: 2, cores: 1, iothreads: True}
-    - {flavor: medium, workload: generic, memsize: 4, cores: 1, iothreads: False}
-    - {flavor: medium, workload: highperformance, memsize: 4, cores: 1, iothreads: True}
-    - {flavor: large, workload: generic, memsize: 8, cores: 2, iothreads: False}
-    - {flavor: large, workload: highperformance, memsize: 8, cores: 2, iothreads: True}
+    - {flavor: tiny, workload: generic, memsize: "1G", cores: 1, iothreads: False}
+    - {flavor: tiny, workload: highperformance, memsize: "1G", cores: 1, iothreads: True}
+    - {flavor: small, workload: generic, memsize: "2G", cores: 1, iothreads: False}
+    - {flavor: small, workload: highperformance, memsize: "2G", cores: 1, iothreads: True}
+    - {flavor: medium, workload: generic, memsize: "4G", cores: 1, iothreads: False}
+    - {flavor: medium, workload: highperformance, memsize: "4G", cores: 1, iothreads: True}
+    - {flavor: large, workload: generic, memsize: "8G", cores: 2, iothreads: False}
+    - {flavor: large, workload: highperformance, memsize: "8G", cores: 2, iothreads: True}
     vars:
       os: rhel7
       icon: rhel
@@ -33,10 +33,10 @@
       src: centos7.tpl.yaml
       dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.dist.yaml"
     with_items:
-    - {flavor: tiny, workload: generic, memsize: 1, cores: 1, iothreads: False}
-    - {flavor: small, workload: generic, memsize: 2, cores: 1, iothreads: False}
-    - {flavor: medium, workload: generic, memsize: 4, cores: 1, iothreads: False}
-    - {flavor: large, workload: generic, memsize: 8, cores: 2, iothreads: False}
+    - {flavor: tiny, workload: generic, memsize: "1G", cores: 1, iothreads: False}
+    - {flavor: small, workload: generic, memsize: "2G", cores: 1, iothreads: False}
+    - {flavor: medium, workload: generic, memsize: "4G", cores: 1, iothreads: False}
+    - {flavor: large, workload: generic, memsize: "8G", cores: 2, iothreads: False}
     vars:
       os: centos7
       icon: centos
@@ -50,14 +50,14 @@
       src: fedora.tpl.yaml
       dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.dist.yaml"
     with_items:
-    - {flavor: tiny, workload: generic, memsize: 1, cores: 1, iothreads: False}
-    - {flavor: tiny, workload: highperformance, memsize: 1, cores: 1, iothreads: True}
-    - {flavor: small, workload: generic, memsize: 2, cores: 1, iothreads: False}
-    - {flavor: small, workload: highperformance, memsize: 2, cores: 1, iothreads: True}
-    - {flavor: medium, workload: generic, memsize: 4, cores: 1, iothreads: False}
-    - {flavor: medium, workload: highperformance, memsize: 4, cores: 1, iothreads: True}
-    - {flavor: large, workload: generic, memsize: 8, cores: 2, iothreads: False}
-    - {flavor: large, workload: highperformance, memsize: 8, cores: 2, iothreads: True}
+    - {flavor: tiny, workload: generic, memsize: "1G", cores: 1, iothreads: False}
+    - {flavor: tiny, workload: highperformance, memsize: "1G", cores: 1, iothreads: True}
+    - {flavor: small, workload: generic, memsize: "2G", cores: 1, iothreads: False}
+    - {flavor: small, workload: highperformance, memsize: "2G", cores: 1, iothreads: True}
+    - {flavor: medium, workload: generic, memsize: "4G", cores: 1, iothreads: False}
+    - {flavor: medium, workload: highperformance, memsize: "4G", cores: 1, iothreads: True}
+    - {flavor: large, workload: generic, memsize: "8G", cores: 2, iothreads: False}
+    - {flavor: large, workload: highperformance, memsize: "8G", cores: 2, iothreads: True}
     vars:
       os: fedora
       icon: fedora
@@ -73,10 +73,10 @@
       src: opensuse.tpl.yaml
       dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.dist.yaml"
     with_items:
-    - {flavor: tiny, workload: generic, memsize: 1, cores: 1, iothreads: False}
-    - {flavor: small, workload: generic, memsize: 2, cores: 1, iothreads: False}
-    - {flavor: medium, workload: generic, memsize: 4, cores: 1, iothreads: False}
-    - {flavor: large, workload: generic, memsize: 8, cores: 2, iothreads: False}
+    - {flavor: tiny, workload: generic, memsize: "1G", cores: 1, iothreads: False}
+    - {flavor: small, workload: generic, memsize: "2G", cores: 1, iothreads: False}
+    - {flavor: medium, workload: generic, memsize: "4G", cores: 1, iothreads: False}
+    - {flavor: large, workload: generic, memsize: "8G", cores: 2, iothreads: False}
     vars:
       os: opensuse
       icon: opensuse
@@ -90,10 +90,10 @@
       src: ubuntu.tpl.yaml
       dest: "{{ playbook_dir }}/{{ os }}-{{ item.workload }}-{{ item.flavor }}.dist.yaml"
     with_items:
-    - {flavor: tiny, workload: generic, memsize: 1, cores: 1, iothreads: False}
-    - {flavor: small, workload: generic, memsize: 2, cores: 1, iothreads: False}
-    - {flavor: medium, workload: generic, memsize: 4, cores: 1, iothreads: False}
-    - {flavor: large, workload: generic, memsize: 8, cores: 2, iothreads: False}
+    - {flavor: tiny, workload: generic, memsize: "1G", cores: 1, iothreads: False}
+    - {flavor: small, workload: generic, memsize: "2G", cores: 1, iothreads: False}
+    - {flavor: medium, workload: generic, memsize: "4G", cores: 1, iothreads: False}
+    - {flavor: large, workload: generic, memsize: "8G", cores: 2, iothreads: False}
     vars:
       cpumodel: Conroe
       os: ubuntu
@@ -108,8 +108,8 @@
       src: win2k12r2.tpl.yaml
       dest: "{{ playbook_dir }}/win2k12r2-{{ item.workload }}-{{ item.flavor }}.dist.yaml"
     with_items:
-    - {flavor: medium, workload: generic, memsize: 4, cores: 1, iothreads: False}
-    - {flavor: large, workload: generic, memsize: 8, cores: 2, iothreads: False}
+    - {flavor: medium, workload: generic, memsize: "4G", cores: 1, iothreads: False}
+    - {flavor: large, workload: generic, memsize: "8G", cores: 2, iothreads: False}
     vars:
       osinfoname: win2k12r2
 
