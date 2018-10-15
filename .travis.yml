@@ -32,12 +32,12 @@ jobs:
   - stage: Build and Deploy
     name: Build and Deploy to GitHub
     before_script: skip
-    script: make common-templates.yaml
+    script: make release "VERSION=$TRAVIS_TAG"
     deploy:
       provider: releases
       api_key:
         secure: "TKxavkyq4h4xmH5hLCMbl2w9gceWh9InTY9xomxrZM8DkhLozjeUCRXn6YubnPnI9V23iemLHucUMV/mIwxT3m3iU+L6IwIdl1E1SdYKGwWUvW5ZfMjYI2A1NEVCiR7yyRoo0rhMd7v00gavgAY9UhUhIerR/CduFqbyfik/Qvy80m6+XZ1D099Em+4uWlzZ9qBVHSj7kdEbhDlV2rvqd9A6sA/qO+eg+jdzirB2T5sRvNs0eSpoKl2M1qPRBilbeA7DWXvkHsA5LJlOuNO0p6DW/+vqMxXpKBE1BsfQQzHReCCrSi0CkM+1uPzbKDPYKHXkWFfwQP8s6mZf4pPx2EVmiuZ7nKtB+y1hUoTnaIQs0IdsOMzPJvTNC+5DMnldMn1+8uDzIXrPkxfPCC6z9vc4eenuBWuNR/3SVzWkmoB+JpsvMNC2+rCX7SB8yy93T9PlfyOBRnckKzr2YZmxcArGvLzb+wVHwukzmIyQYLq4pxjgMhh1BWMdobLPYhTgj1s1pWqgNnam54bdK+OLVt72Xh0VHVtPSZHrmtyE5m+Ifzz+DUu9NKeCdgzxNq+KrOmf9q3xn8iUYPOIbbI67tmWYaQ/UB6nGd2Np2dOGlhfAFau11Q9d8X2U/IKBn0u725cj/a/yaRYzATSzd2xJo29BYE8I0KTJq5pVaTAMzg="
-      file: "common-templates.yaml"
+      file: "common-templates-$TRAVIS_TAG.yaml"
       skip_cleanup: true
       name: $TRAVIS_TAG
       on:

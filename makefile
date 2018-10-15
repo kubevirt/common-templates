@@ -8,6 +8,9 @@ SOURCES=$(ALL_TEMPLATES) $(ALL_PRESETS)
 # i.e. fedora28
 ALL_GUESTS=$(ALL_TEMPLATES:templates/%.yaml=%)
 
+# Make sure the version is defined
+VERSION=unknown
+
 
 TEST_SYNTAX=$(ALL_GUESTS)
 TEST_UNIT=$(ALL_GUESTS)
@@ -38,6 +41,9 @@ common-templates.yaml: $(SOURCES)
 	    cat $$F ; \
 	  done ; \
 	) | tee $@
+
+release: common-templates.yaml
+	cp common-templates.yaml common-templates-$(VERSION).yaml
 
 TRAVIS_FOLD_START=echo -e "travis_fold:start:details\033[33;1mDetails\033[0m"
 TRAVIS_FOLD_END=echo -e "\ntravis_fold:end:details\r"
@@ -119,4 +125,4 @@ rhel75.raw: centos7.raw
 clean:
 	rm -v *.raw *.qcow2
 
-.PHONY: all test common-templates.yaml
+.PHONY: all test release common-templates.yaml

@@ -3,4 +3,4 @@
 *.qcow2
 pvs
 openshift.local.clusterup/
-common-templates.yaml
+common-templates*.yaml
