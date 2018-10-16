@@ -16,7 +16,7 @@ VERSION=unknown
 TEST_SYNTAX=$(ALL_GUESTS)
 TEST_UNIT=$(ALL_GUESTS)
 ifeq ($(TEST_FUNCTIONAL),ALL)
-TEST_FUNCTIONAL=fedora-generic-small ubuntu-generic-small opensuse-generic-small rhel7-generic-small centos7-generic-small
+TEST_FUNCTIONAL=fedora-generic-small ubuntu-generic-small rhel7-generic-small centos7-generic-small
 endif
 
 
