@@ -1,14 +1,13 @@
 SHELL=/bin/bash
 
 # i.e. fedora28.yaml
-ALL_META_TEMPLATES=$(wildcard templates/templates/*.yaml)
-ALL_TEMPLATES=$(wildcard templates/*.dist.yaml)
+ALL_META_TEMPLATES=$(wildcard templates/*.yaml)
+ALL_TEMPLATES=$(wildcard dist/templates/*.yaml)
 ALL_PRESETS=$(wildcard presets/*.yaml)
-SOURCES=$(ALL_TEMPLATES) $(ALL_PRESETS)
 METASOURCES=$(ALL_META_TEMPLATES) $(ALL_PRESETS)
 
 # i.e. fedora28
-ALL_GUESTS=$(ALL_TEMPLATES:templates/%.dist.yaml=%)
+ALL_GUESTS=$(ALL_TEMPLATES:dist/templates/%.yaml=%)
 
 # Make sure the version is defined
 VERSION=unknown
@@ -32,20 +31,22 @@ unit-tests: $(TEST_UNIT:%=%-generated-name-apply-and-remove)
 functional-tests: generate is-deployed
 functional-tests: $(TEST_FUNCTIONAL:%=%-start-wait-for-systemd-and-stop)
 
-common-templates.yaml: generate $(SOURCES)
+dist/templates/%.yaml: generate
+
+dist/common-templates.yaml: generate
 	( \
 	  echo -n "# Version " ; \
 	  git describe --always --tags HEAD ; \
-	  for F in $(SOURCES) ; \
+	  for F in $(ALL_PRESETS) dist/templates/*.yaml; \
 	  do \
 	    echo "---" ; \
 	    echo "# Source: $$F" ; \
 	    cat $$F ; \
 	  done ; \
-	) | tee $@
+	) >$@
 
-release: common-templates.yaml
-	cp common-templates.yaml common-templates-$(VERSION).yaml
+release: dist/common-templates.yaml
+	cp dist/common-templates.yaml dist/common-templates-$(VERSION).yaml
 
 TRAVIS_FOLD_START=echo -e "travis_fold:start:details\033[33;1mDetails\033[0m"
 TRAVIS_FOLD_END=echo -e "\ntravis_fold:end:details\r"
@@ -59,26 +60,26 @@ gather-env-of-%:
 is-deployed:
 	kubectl api-versions | grep kubevirt.io
 
-generate: templates/generate.yaml $(METASOURCES)
-	pushd templates && ansible-playbook generate.yaml && popd
+generate: generate-templates.yaml $(METASOURCES)
+	ansible-playbook generate-templates.yaml
 
-%-syntax-check: templates/%.dist.yaml
-	oc process --local -f "templates/$*.dist.yaml" NAME=$@ PVCNAME=$*-pvc
+%-syntax-check: dist/templates/%.yaml
+	oc process --local -f "dist/templates/$*.yaml" NAME=$@ PVCNAME=$*-pvc
 
-%-apply-and-remove: templates/%.dist.yaml
-	oc process --local -f "templates/$*.dist.yaml" NAME=$@ PVCNAME=$*-pvc | \
+%-apply-and-remove: dist/templates/%.yaml
+	oc process --local -f "dist/templates/$*.yaml" NAME=$@ PVCNAME=$*-pvc | \
 	  kubectl apply -f -
-	oc process --local -f "templates/$*.dist.yaml" NAME=$@ PVCNAME=$*-pvc | \
+	oc process --local -f "dist/templates/$*.yaml" NAME=$@ PVCNAME=$*-pvc | \
 	  kubectl delete -f -
 
 %-generated-name-apply-and-remove:
-	oc process --local -f "templates/$*.dist.yaml" PVCNAME=$*-pvc > $@.yaml
+	oc process --local -f "dist/templates/$*.yaml" PVCNAME=$*-pvc > $@.yaml
 	kubectl apply -f $@.yaml
 	kubectl delete -f $@.yaml
 	rm -v $@.yaml
 
 %-start-wait-for-systemd-and-stop: %.pvc
-	oc process --local -f "templates/$*.dist.yaml" NAME=$* PVCNAME=$* | \
+	oc process --local -f "dist/templates/$*.yaml" NAME=$* PVCNAME=$* | \
 	  kubectl apply -f -
 	virtctl start $*
 	$(TRAVIS_FOLD_START)
@@ -87,7 +88,7 @@ generate: templates/generate.yaml $(METASOURCES)
 	$(TRAVIS_FOLD_END)
 	# Wait for a pretty universal magic word
 	virtctl console --timeout=5 $* | tee /dev/stderr | egrep -m 1 "Welcome|systemd"
-	oc process --local -f "templates/$*.dist.yaml" NAME=$* PVCNAME=$* | \
+	oc process --local -f "dist/templates/$*.yaml" NAME=$* PVCNAME=$* | \
 	  kubectl delete -f -
 
 pvs: $(TESTABLE_GUESTS:%=%.pv)
