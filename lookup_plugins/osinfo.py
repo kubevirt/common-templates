@@ -1,3 +1,12 @@
+# This is an Ansible / Jinja2 lookup plugin
+# that allows querying the libosinfo database
+#
+# Example usage:
+# {{ lookup('osinfo', 'fedora15')["minimum_resources.0.ram"] }}
+# {% if "name=virtio-scsi2" in lookup('osinfo', 'fedora15').all_devices %} 
+#
+# The code is distributed under the Apache 2 license
+
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
