@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
+  annotations:
+    openshift.io/display-name: "CentOS 7.0+ VM"
+    description: >-
+      This template can be used to create a VM suitable for
+      CentOS 7 and newer.
+      The template assumes that a PVC is available which is providing the
+      necessary CentOS disk image.
+    tags: "kubevirt,virtualmachine,linux,centos"
+
+{% include "_linux.yaml" %}
+

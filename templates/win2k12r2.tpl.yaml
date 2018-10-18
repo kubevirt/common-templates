@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: win2k12r2
+  name: win2k12r2-{{ item.workload }}-{{ item.flavor }}
   annotations:
     openshift.io/display-name: "Microsoft Windows Server 2012 R2 VM"
     description: >-
@@ -31,17 +31,14 @@ metadata:
     os.template.cnv.io/win2k8r2: "true"
     os.template.cnv.io/win2k8: "true"
     os.template.cnv.io/win10: "true"
-    workload.template.cnv.io/server: "true"
-    workload.template.cnv.io/desktop: "true"
-    flavor.template.cnv.io/medium: "true"
+    workload.template.cnv.io/{{ item.workload }}: "true"
+    flavor.template.cnv.io/{{ item.flavor }}: "true"
     template.cnv.io/type: "base"
 
 objects:
 - apiVersion: kubevirt.io/v1alpha2
   kind: VirtualMachine
   metadata:
-    labels:
-      kubevirt.io/os: win2k12r2
     name: ${NAME}
   spec:
     running: false
@@ -59,10 +56,10 @@ objects:
                 tickPolicy: catchup
               hyperv: {}
           cpu:
-            cores: 2
+            cores: {{ item.cores }}
           resources:
             requests:
-              memory: 4G
+              memory: {{ item.memsize }}
           features:
             acpi: {}
             apic: {}

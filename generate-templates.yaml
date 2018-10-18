@@ -1,0 +1,121 @@
+---
+- connection: local
+  hosts: 127.0.0.1
+  tasks:
+  - name: Prepare dist directory
+    file:
+      path: "{{ playbook_dir }}/dist/templates"
+      state: directory
+
+  - name: Generate RHEL 7 templates
+    template:
+      src: rhel7.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: tiny, workload: generic, memsize: "1G", cores: 1, iothreads: False}
+    - {flavor: tiny, workload: highperformance, memsize: "1G", cores: 1, iothreads: True}
+    - {flavor: small, workload: generic, memsize: "2G", cores: 1, iothreads: False}
+    - {flavor: small, workload: highperformance, memsize: "2G", cores: 1, iothreads: True}
+    - {flavor: medium, workload: generic, memsize: "4G", cores: 1, iothreads: False}
+    - {flavor: medium, workload: highperformance, memsize: "4G", cores: 1, iothreads: True}
+    - {flavor: large, workload: generic, memsize: "8G", cores: 2, iothreads: False}
+    - {flavor: large, workload: highperformance, memsize: "8G", cores: 2, iothreads: True}
+    vars:
+      os: rhel7
+      icon: rhel
+      password: redhat
+      oslabels:
+       - rhel7.0
+       - rhel7.1
+       - rhel7.2
+       - rhel7.3
+       - rhel7.4
+       - rhel7.5
+      osinfoname: "{{ oslabels[0] }}"
+
+  - name: Generate CentOS 7 templates
+    template:
+      src: centos7.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: tiny, workload: generic, memsize: "1G", cores: 1, iothreads: False}
+    - {flavor: small, workload: generic, memsize: "2G", cores: 1, iothreads: False}
+    - {flavor: medium, workload: generic, memsize: "4G", cores: 1, iothreads: False}
+    - {flavor: large, workload: generic, memsize: "8G", cores: 2, iothreads: False}
+    vars:
+      os: centos7
+      icon: centos
+      password: centos
+      oslabels:
+       - centos7.0
+      osinfoname: "{{ oslabels[0] }}"
+
+  - name: Generate Fedora templates
+    template:
+      src: fedora.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: tiny, workload: generic, memsize: "1G", cores: 1, iothreads: False}
+    - {flavor: tiny, workload: highperformance, memsize: "1G", cores: 1, iothreads: True}
+    - {flavor: small, workload: generic, memsize: "2G", cores: 1, iothreads: False}
+    - {flavor: small, workload: highperformance, memsize: "2G", cores: 1, iothreads: True}
+    - {flavor: medium, workload: generic, memsize: "4G", cores: 1, iothreads: False}
+    - {flavor: medium, workload: highperformance, memsize: "4G", cores: 1, iothreads: True}
+    - {flavor: large, workload: generic, memsize: "8G", cores: 2, iothreads: False}
+    - {flavor: large, workload: highperformance, memsize: "8G", cores: 2, iothreads: True}
+    vars:
+      os: fedora
+      icon: fedora
+      password: fedora
+      oslabels:
+       - fedora26
+       - fedora27
+       - fedora28
+      osinfoname: "{{ oslabels[0] }}"
+
+  - name: Generate OpenSUSE templates
+    template:
+      src: opensuse.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: tiny, workload: generic, memsize: "1G", cores: 1, iothreads: False}
+    - {flavor: small, workload: generic, memsize: "2G", cores: 1, iothreads: False}
+    - {flavor: medium, workload: generic, memsize: "4G", cores: 1, iothreads: False}
+    - {flavor: large, workload: generic, memsize: "8G", cores: 2, iothreads: False}
+    vars:
+      os: opensuse
+      icon: opensuse
+      password: opensuse
+      oslabels:
+       - opensuse15.0
+      osinfoname: "{{ oslabels[0] }}"
+
+  - name: Generate Ubuntu templates
+    template:
+      src: ubuntu.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: tiny, workload: generic, memsize: "1G", cores: 1, iothreads: False}
+    - {flavor: small, workload: generic, memsize: "2G", cores: 1, iothreads: False}
+    - {flavor: medium, workload: generic, memsize: "4G", cores: 1, iothreads: False}
+    - {flavor: large, workload: generic, memsize: "8G", cores: 2, iothreads: False}
+    vars:
+      cpumodel: Conroe
+      os: ubuntu
+      icon: ubuntu
+      password: ubuntu
+      oslabels:
+       - ubuntu18.04
+      osinfoname: "{{ oslabels[0] }}"
+
+  - name: Generate Windows templates
+    template:
+      src: win2k12r2.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/win2k12r2-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: medium, workload: generic, memsize: "4G", cores: 1, iothreads: False}
+    - {flavor: large, workload: generic, memsize: "8G", cores: 2, iothreads: False}
+    vars:
+      osinfoname: win2k12r2
+
+

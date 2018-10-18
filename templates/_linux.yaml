@@ -1,17 +1,4 @@
-apiVersion: v1
-kind: Template
-metadata:
-  name: rhel-generic
-  annotations:
-    openshift.io/display-name: "Red Hat Enterprise Linux 7.0+ VM"
-    description: >-
-      This template can be used to create a VM suitable for
-      Red Hat Enterprise Linux 7 and newer. This template
-      can also be used for CentOS based VMs.
-      The template assumes that a PVC is available which is providing the
-      necessary RHEL disk image.
-    tags: "kubevirt,virtualmachine,linux,rhel"
-    iconClass: "icon-rhel"
+    iconClass: "icon-{{ icon }}"
     openshift.io/provider-display-name: "KubeVirt"
     openshift.io/documentation-url: "https://github.com/kubevirt/common-templates"
     openshift.io/support-url: "https://github.com/kubevirt/common-templates/issues"
@@ -27,16 +14,11 @@ metadata:
       /objects[0].spec.template.spec.networks
 
   labels:
-    os.template.cnv.io/centos7.0: "true"
-    os.template.cnv.io/rhel7.0: "true"
-    os.template.cnv.io/rhel7.1: "true"
-    os.template.cnv.io/rhel7.2: "true"
-    os.template.cnv.io/rhel7.3: "true"
-    os.template.cnv.io/rhel7.4: "true"
-    os.template.cnv.io/rhel7.5: "true"
-    workload.template.cnv.io/server: "true"
-    workload.template.cnv.io/desktop: "true"
-    flavor.template.cnv.io/small: "true"
+{% for osl in oslabels %}
+    os.template.cnv.io/{{ osl }}: "true"
+{% endfor %}
+    workload.template.cnv.io/{{ item.workload }}: "true"
+    flavor.template.cnv.io/{{ item.flavor }}: "true"
     template.cnv.io/type: "base"
 
 objects:
@@ -44,16 +26,20 @@ objects:
   kind: VirtualMachine
   metadata:
     name: ${NAME}
+    osinfoname: {{ lookup('osinfo', osinfoname).name }}
   spec:
     running: false
     template:
       spec:
         domain:
           cpu:
-            cores: 2
+            cores: {{ item.cores }}
+{% if cpumodel |default("") %}
+            model: {{ cpumodel }}
+{% endif %}
           resources:
             requests:
-              memory: 2G
+              memory: {{ item.memsize }}
           devices:
             rng: {}
             disks:
@@ -69,15 +55,15 @@ objects:
         - cloudInitNoCloud:
             userData: |-
               #cloud-config
-              password: redhat
+              password: {{ password }}
               chpasswd: { expire: False }
           name: cloudinitvolume
 
 parameters:
-- name: NAME
-  description: VM name
+- description: VM name
+  from: '{{ os }}-[A-Za-z0-9]{16}'
   generate: expression
-  from: "rhel75-[a-z0-9]{6}"
+  name: NAME
 - name: PVCNAME
   description: Name of the PVC with the disk image
   required: true
