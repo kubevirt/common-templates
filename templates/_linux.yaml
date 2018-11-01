@@ -12,6 +12,7 @@
       /objects[0].spec.template.spec.domain.devices.disks
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
+      /objects[0].spec.template.spec.ioThreadsPolicy
 
   labels:
 {% for osl in oslabels %}
@@ -32,6 +33,11 @@ objects:
     template:
       spec:
         domain:
+{%- if item.iothreads == true %} {{''}}
+          ioThreadsPolicy: shared
+{%- elif item.iothreads == false or item.iothreads is not defined %}
+{% endif %}
+
           cpu:
             cores: {{ item.cores }}
 {% if cpumodel |default("") %}
