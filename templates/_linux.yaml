@@ -27,6 +27,8 @@ objects:
   metadata:
     name: ${NAME}
     osinfoname: {{ lookup('osinfo', osinfoname).name }}
+    labels:
+      vm.cnv.io/template: {{ os }}-{{ item.workload }}-{{ item.flavor }}
   spec:
     running: false
     template:
