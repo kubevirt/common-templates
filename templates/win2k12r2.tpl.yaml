@@ -40,6 +40,8 @@ objects:
   kind: VirtualMachine
   metadata:
     name: ${NAME}
+    labels:
+      vm.cnv.io/template: win2k12r2-{{ item.workload }}-{{ item.flavor }}
   spec:
     running: false
     template:
