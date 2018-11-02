@@ -35,7 +35,6 @@ objects:
         domain:
 {%- if item.iothreads == true %} {{''}}
           ioThreadsPolicy: shared
-{%- elif item.iothreads == false or item.iothreads is not defined %}
 {% endif %}
 
           cpu:
