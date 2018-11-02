@@ -62,6 +62,7 @@ is-deployed:
 
 generate: generate-templates.yaml $(METASOURCES)
 	ansible-playbook generate-templates.yaml
+	bash automation/x-limit-ram-size.sh
 
 %-syntax-check: dist/templates/%.yaml
 	oc process --local -f "dist/templates/$*.yaml" NAME=$@ PVCNAME=$*-pvc
@@ -83,7 +84,7 @@ generate: generate-templates.yaml $(METASOURCES)
 	  kubectl apply -f -
 	virtctl start $*
 	$(TRAVIS_FOLD_START)
-	while ! kubectl get vmi $* -o yaml | grep "phase: Running" ; do make gather-env-of-$* ; sleep 3; done
+	while ! kubectl get vmi $* -o yaml | grep "phase: Running" ; do make gather-env-of-$* ; sleep 15; done
 	make gather-env-of-$*
 	$(TRAVIS_FOLD_END)
 	# Wait for a pretty universal magic word
@@ -103,7 +104,7 @@ raws: $(TESTABLE_GUESTS:%=%.raw)
 	$(TRAVIS_FOLD_START)
 	SIZEMB=$$(( $$(qemu-img info $< --output json | jq '.["virtual-size"]') / 1024 / 1024 + 128 )) && \
 	mkdir -p "$$PWD/pvs/$*" && \
-	ln $< $$PWD/pvs/$*/disk.img && \
+	cp $< $$PWD/pvs/$*/disk.img && \
 	sudo chown 107:107 $$PWD/pvs/$*/disk.img && \
 	sudo chmod -R a+X $$PWD/pvs && \
 	bash create-minikube-pvc.sh "$*" "$${SIZEMB}M" "$$PWD/pvs/$*/" | tee | kubectl apply -f -
