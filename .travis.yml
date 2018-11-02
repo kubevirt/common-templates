@@ -18,19 +18,19 @@ jobs:
     script: bash -x test.sh
 
   - name: Functional test of the Fedora template
-    env: TARGET=functional-tests TEST_FUNCTIONAL=fedora-generic-small
+    env: TARGET=functional-tests TEST_FUNCTIONAL="fedora-generic-tiny fedora-generic-small fedora-generic-medium fedora-generic-large"
     script: bash -x test.sh
 
   - name: Functional test of the Ubuntu template
-    env: TARGET=functional-tests TEST_FUNCTIONAL=ubuntu-generic-small
+    env: TARGET=functional-tests TEST_FUNCTIONAL="ubuntu-generic-tiny ubuntu-generic-small ubuntu-generic-medium ubuntu-generic-large"
     script: bash -x test.sh
 
   - name: Functional test of the RHEL template
-    env: TARGET=functional-tests TEST_FUNCTIONAL=rhel7-generic-small
+    env: TARGET=functional-tests TEST_FUNCTIONAL="rhel7-generic-tiny rhel7-generic-small rhel7-generic-medium rhel7-generic-large"
     script: bash -x test.sh
 
   - name: Functional test of the CentOS template
-    env: TARGET=functional-tests TEST_FUNCTIONAL=centos7-generic-small
+    env: TARGET=functional-tests TEST_FUNCTIONAL="centos7-generic-tiny centos7-generic-small centos7-generic-medium centos7-generic-large"
     script: bash -x test.sh
 
   - stage: Build and Deploy
