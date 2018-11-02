@@ -32,6 +32,10 @@ objects:
     template:
       spec:
         domain:
+{% if item.iothreads %}
+          ioThreadsPolicy: shared
+{% endif %}
+
           cpu:
             cores: {{ item.cores }}
 {% if cpumodel |default("") %}
