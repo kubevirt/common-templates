@@ -12,7 +12,6 @@
       /objects[0].spec.template.spec.domain.devices.disks
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
-      /objects[0].spec.template.spec.ioThreadsPolicy
 
   labels:
 {% for osl in oslabels %}
