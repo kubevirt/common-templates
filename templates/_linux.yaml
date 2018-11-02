@@ -33,7 +33,7 @@ objects:
     template:
       spec:
         domain:
-{%- if item.iothreads == true %} {{''}}
+{%- if item.iothreads %}
           ioThreadsPolicy: shared
 {% endif %}
 
