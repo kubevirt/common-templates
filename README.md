@@ -32,7 +32,8 @@ provided (i.e.`PVCNAME`).
 $ git clone https://github.com/kubevirt/common-templates
 
 # Pull all submodules
-$ git submodule init update
+$ git submodule init
+$ git submodule update
 
 # Generate the template matrix
 $ pushd common-templates/templates
