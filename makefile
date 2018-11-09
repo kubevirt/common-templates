@@ -91,6 +91,8 @@ generate: generate-templates.yaml $(METASOURCES)
 	virtctl console --timeout=5 $* | tee /dev/stderr | egrep -m 1 "Welcome|systemd"
 	oc process --local -f "dist/templates/$*.yaml" NAME=$* PVCNAME=$* | \
 	  kubectl delete -f -
+	# Wait for successful vmi deletion
+	while kubectl get vmi $* 2> >(grep "not found") ; do sleep 15; done
 
 pvs: $(TESTABLE_GUESTS:%=%.pv)
 raws: $(TESTABLE_GUESTS:%=%.raw)
