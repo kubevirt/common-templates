@@ -13,6 +13,10 @@
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
 
+{% for osl in oslabels %}
+    name.os.template.cnv.io/{{ osl }}: {{ lookup('osinfo', osl).name }}
+{% endfor %}
+
   labels:
 {% for osl in oslabels %}
     os.template.cnv.io/{{ osl }}: "true"
@@ -26,7 +30,6 @@ objects:
   kind: VirtualMachine
   metadata:
     name: ${NAME}
-    osinfoname: {{ lookup('osinfo', osinfoname).name }}
     labels:
       vm.cnv.io/template: {{ os }}-{{ item.workload }}-{{ item.flavor }}
   spec:

@@ -61,6 +61,8 @@ is-deployed:
 	kubectl api-versions | grep kubevirt.io
 
 generate: generate-templates.yaml $(METASOURCES)
+	# Just build the XML files, no need to export to tarball
+	make -C osinfo-db/ OSINFO_DB_EXPORT=echo
 	ansible-playbook generate-templates.yaml
 	bash automation/x-limit-ram-size.sh
 

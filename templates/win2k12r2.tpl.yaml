@@ -26,6 +26,11 @@ metadata:
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
 
+    name.os.template.cnv.io/win2k12r2: {{ lookup('osinfo', 'win2k12r2').name }}
+    name.os.template.cnv.io/win2k8r2: {{ lookup('osinfo', 'win2k8r2').name }}
+    name.os.template.cnv.io/win2k8: {{ lookup('osinfo', 'win2k8').name }}
+    name.os.template.cnv.io/win10: {{ lookup('osinfo', 'win10').name }}
+
   labels:
     os.template.cnv.io/win2k12r2: "true"
     os.template.cnv.io/win2k8r2: "true"
