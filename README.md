@@ -20,6 +20,8 @@ Is it necessary to install the following components to be able to run the Ansibl
 - ansible >= 2.4
 - libosinfo
 - python-gobject
+- osinfo-db-tools
+- intltool
 
 # Usage
 
@@ -34,6 +36,9 @@ $ git clone https://github.com/kubevirt/common-templates
 # Pull all submodules
 $ git submodule init
 $ git submodule update
+
+# Build osinfo database
+$ make -C osinfo-db
 
 # Generate the template matrix
 $ pushd common-templates/templates

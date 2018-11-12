@@ -64,6 +64,7 @@ addons:
     - python-gobject
     - libosinfo-1.0
     - gir1.2-libosinfo-1.0
+    - intltool
 before_script:
 - sudo mount --make-rshared /
 - bash -x ci/prepare-host $CPLATFORM $CVER
