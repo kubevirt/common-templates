@@ -77,6 +77,10 @@ metadata:
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
 
+    # You can add an extension useful for CNV aware tooling to allow
+    # expressing additional validation rules for this template.
+    # See the separate 'VALIDATION.md' document for the specification.
+
   labels:
     # The UI can show all possible template.cnv.io/* values in a nice way
     # and let the user filter down the available templates to the one
