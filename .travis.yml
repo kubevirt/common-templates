@@ -4,14 +4,13 @@ language: python
 branches:
   only:
   - master
-  - "/^v[0-9]/"
+  - /^v[0-9]/
 env:
   global:
   - KUBEVIRT_VER=v0.10.0
   - CPLATFORM=minikube CDIST=kubernetes CVER=1.11.2
 jobs:
   include:
-
   - stage: Tests
     name: Check syntax of all templates
     env: TARGET=syntax-tests
@@ -40,8 +39,8 @@ jobs:
     deploy:
       provider: releases
       api_key:
-        secure: "TKxavkyq4h4xmH5hLCMbl2w9gceWh9InTY9xomxrZM8DkhLozjeUCRXn6YubnPnI9V23iemLHucUMV/mIwxT3m3iU+L6IwIdl1E1SdYKGwWUvW5ZfMjYI2A1NEVCiR7yyRoo0rhMd7v00gavgAY9UhUhIerR/CduFqbyfik/Qvy80m6+XZ1D099Em+4uWlzZ9qBVHSj7kdEbhDlV2rvqd9A6sA/qO+eg+jdzirB2T5sRvNs0eSpoKl2M1qPRBilbeA7DWXvkHsA5LJlOuNO0p6DW/+vqMxXpKBE1BsfQQzHReCCrSi0CkM+1uPzbKDPYKHXkWFfwQP8s6mZf4pPx2EVmiuZ7nKtB+y1hUoTnaIQs0IdsOMzPJvTNC+5DMnldMn1+8uDzIXrPkxfPCC6z9vc4eenuBWuNR/3SVzWkmoB+JpsvMNC2+rCX7SB8yy93T9PlfyOBRnckKzr2YZmxcArGvLzb+wVHwukzmIyQYLq4pxjgMhh1BWMdobLPYhTgj1s1pWqgNnam54bdK+OLVt72Xh0VHVtPSZHrmtyE5m+Ifzz+DUu9NKeCdgzxNq+KrOmf9q3xn8iUYPOIbbI67tmWYaQ/UB6nGd2Np2dOGlhfAFau11Q9d8X2U/IKBn0u725cj/a/yaRYzATSzd2xJo29BYE8I0KTJq5pVaTAMzg="
-      file: "dist/common-templates-$TRAVIS_TAG.yaml"
+        secure: LSFqrJM8SJ00Quu7Ej9ctI09LLdqfjo8j7oBZWDgWr9vRo83rFFpEErtnzTOqI4RXFfi9TfDVqoScAQtRxJZ+YHOHkvbTftZ/TVTxnS7q1ydArFgrLNhHsO0UdiJYXXe8OmvmhuH0YvPcLSq/123BOGs13zscQx416AM2rCMY7n4ZVvolWHSLkVcm89fuEupJp4y9xFotCvjOxi4iGtFwHD3iVgfPpmJOZ+cciZeRw4MLsdIYo8JbbyDeX2M9ncUdisLVWSU5FmZA5xWs8gTi7w4P5RgzlTwwUPAu2U+GZa+nSD8XJCLDxDMVAJCN0GlB8yLIfmMHcfbmItwahv/OEBAnghDDmjWb/zgEZykBMUy0u/eZ+TncvBReutsIpaCaVci9ZvaRkAT2DCUtQMSAbhiM4c0vVD32xeF+f4LO9/M77u55u2AJTFPgF0EQOMxafj/P/UrhHZ8lbp7vlS7kiizVcY5CQM2cUk1icktkf9FBf6HiuCno4luoMsQcLD8/UhDH3fLgNe8lmGPC2movGUBNl1PiZEJ4wRuSxW9WHx6B64T97xgXWU+v2RX6Lwr79qd+sKFEj1LrRhFoVvA6N+9VgOFw/ti/p7kc2URrHaRNerZVTH7ZMKdQT805jiztLTpWRcxXElRdV3vx22uTAT8vv7ogbHgGIaFTxsZ+AE=
+      file: dist/common-templates-$TRAVIS_TAG.yaml
       skip_cleanup: true
       name: $TRAVIS_TAG
       on:
