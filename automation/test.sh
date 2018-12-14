@@ -17,50 +17,59 @@
 # Copyright 2018 Red Hat, Inc.
 #
 
-trap '{ release_download_lock $WINDOWS_LOCK_PATH; make cluster-down; }' EXIT SIGINT SIGTERM SIGSTOP
-
 set -ex
 
 export TARGET="windows2016"
 export WINDOWS_NFS_DIR=${WINDOWS_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/windows2016}
 export WINDOWS_LOCK_PATH=${WINDOWS_LOCK_PATH:-/var/lib/stdci/shared/download_windows_image.lock}
+export KUBEVIRT_MEMORY_SIZE=12288M
 
-wait_for_download_lock() {
-  local max_lock_attempts=60
-  local lock_wait_interval=60
+safe_download() (
+    # Download files into shared locations using a lock.
+    # The lock will be released as soon as this subprocess will exit
+    local lockfile="${1:?Lockfile was not specified}"
+    local download_from="${2:?Download from was not specified}"
+    local download_to="${3:?Download to was not specified}"
+    local timeout_sec="${4:-3600}"
 
-  for ((i = 0; i < $max_lock_attempts; i++)); do
-      if (set -o noclobber; > $1) 2> /dev/null; then
-          echo "Acquired lock: $1"
-          return
-      fi
-      sleep $lock_wait_interval
-  done
-  echo "Timed out waiting for lock: $1" >&2
-  exit 1
-}
+    touch "$lockfile"
+    exec {fd}< "$lockfile"
+    flock -e  -w "$timeout_sec" "$fd" || {
+        echo "ERROR: Timed out after $timeout_sec seconds waiting for lock" >&2
+        exit 1
+    }
 
-release_download_lock() { 
-  if [[ -e "$1" ]]; then
-    rm -f "$1"
-    echo "Released lock: $1"
-  fi
-}
+    local remote_sha1_url="${download_from}.sha1"
+    local local_sha1_file="${download_to}.sha1"
+    local remote_sha1
+    # Remote file includes only sha1 w/o filename suffix
+    remote_sha1="$(curl -s "${remote_sha1_url}")"
+    if [[ "$(cat "$local_sha1_file")" != "$remote_sha1" ]]; then
+        echo "${download_to} is not up to date, corrupted or doesn't exist."
+        echo "Downloading file from: ${remote_sha1_url}"
+        curl "$download_from" --output "$download_to"
+        sha1sum "$download_to" | cut -d " " -f1 > "$local_sha1_file"
+        [[ "$(cat "$local_sha1_file")" == "$remote_sha1" ]] || {
+            echo "${download_to} is corrupted"
+            return 1
+        }
+    else
+        echo "${download_to} is up to date"
+    fi
+)
+
 
 # Create images directory
 if [[ ! -d $WINDOWS_NFS_DIR ]]; then
   mkdir -p $WINDOWS_NFS_DIR
 fi
 
+readonly TEMPLATES_SERVER="https://templates.ovirt.org/kubevirt/"
+win_image_url="${TEMPLATES_SERVER}/win01.img"
+win_image="$WINDOWS_NFS_DIR/disk.img"
 # Download Windows image
-if wait_for_download_lock $WINDOWS_LOCK_PATH; then
-  if [[ ! -f "$WINDOWS_NFS_DIR/disk.img" ]]; then
-    curl http://templates.ovirt.org/kubevirt/win01.img > $WINDOWS_NFS_DIR/disk.img
-  fi
-  release_download_lock $WINDOWS_LOCK_PATH
-else
-  exit 1
-fi
+safe_download "$WINDOWS_LOCK_PATH" "$win_image_url" "$win_image" || exit 1
+
 
 _oc() { 
   cluster/kubectl.sh "$@"
@@ -72,8 +81,21 @@ ansible-playbook generate-templates.yaml
   
 cd automation/kubevirt
 
-export KUBEVIRT_PROVIDER="os-3.10.0"
-export VERSION=v0.9.1
+# Make sure that the VM is properly shut down on exit
+trap '{ make cluster-down; }' EXIT SIGINT SIGTERM SIGSTOP
+
+# If run on CI use random kubevirt system-namespaces
+if [ -n "${JOB_NAME}" ]; then
+  export NAMESPACE="kubevirt-system-$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)"
+  cat >hack/config-local.sh <<EOF
+namespace=${NAMESPACE}
+EOF
+else
+  export NAMESPACE="${NAMESPACE:-kubevirt}"
+fi
+
+export KUBEVIRT_PROVIDER="os-3.11.0"
+export VERSION=v0.11.0
 
 curl -Lo virtctl \
     https://github.com/kubevirt/kubevirt/releases/download/$VERSION/virtctl-$VERSION-linux-amd64
@@ -218,8 +240,6 @@ kubeconfig="cluster/$KUBEVIRT_PROVIDER/.kubeconfig"
 sizes=("medium" "large")
 for size in ${sizes[@]}; do
   windowsTemplatePath="../../dist/templates/win2k12r2-generic-$size.yaml"
-  # lower RAM size in windows template
-  sed -i -e 's/4G/2G/g; s/8G/2G/g' $windowsTemplatePath
 
   _oc process -o json --local -f $windowsTemplatePath NAME=win2k1r2-$size PVCNAME=disk-windows | \
   jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-windows"}}} | 
