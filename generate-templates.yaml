@@ -1,6 +1,7 @@
 ---
 - connection: local
   hosts: 127.0.0.1
+  gather_facts: no
   tasks:
   - name: Prepare dist directory
     file:
