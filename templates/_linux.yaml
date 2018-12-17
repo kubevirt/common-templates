@@ -7,7 +7,9 @@
     template.cnv.io/version: v1alpha1
     defaults.template.cnv.io/disk: rootdisk
     template.cnv.io/editable: |
+      /objects[0].spec.template.spec.domain.cpu.sockets
       /objects[0].spec.template.spec.domain.cpu.cores
+      /objects[0].spec.template.spec.domain.cpu.threads
       /objects[0].spec.template.spec.domain.resources.requests.memory
       /objects[0].spec.template.spec.domain.devices.disks
       /objects[0].spec.template.spec.volumes
@@ -43,7 +45,9 @@ objects:
 {% endif %}
 
           cpu:
-            cores: {{ item.cores }}
+            sockets: {{ item.cpus }}
+            cores: 1
+            threads: 1
 {% if cpumodel |default("") %}
             model: {{ cpumodel }}
 {% endif %}

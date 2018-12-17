@@ -64,7 +64,9 @@ objects:
                 tickPolicy: catchup
               hyperv: {}
           cpu:
-            cores: {{ item.cores }}
+            sockets: {{ item.cpus }}
+            cores: 1
+            threads: 1
           resources:
             requests:
               memory: {{ item.memsize }}
