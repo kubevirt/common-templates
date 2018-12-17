@@ -1,6 +1,6 @@
 # Template validation annotations
 
-Version 201812
+Version 201812-2
 
 ## Summary
 
