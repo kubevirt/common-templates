@@ -32,6 +32,7 @@ provided (i.e.`PVCNAME`).
 ```bash
 # Clone the repository
 $ git clone https://github.com/kubevirt/common-templates
+$ cd common-templates
 
 # Pull all submodules
 $ git submodule init
@@ -41,7 +42,6 @@ $ git submodule update
 $ make -C osinfo-db
 
 # Generate the template matrix
-$ pushd common-templates/templates
 $ ansible-playbook generate-templates.yaml
 
 # Pick a template by selecting
