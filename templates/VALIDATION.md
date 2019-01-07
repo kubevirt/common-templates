@@ -1,6 +1,6 @@
 # Template validation annotations
 
-Version 201812-2
+Version 201901-1
 
 ## Summary
 
@@ -11,7 +11,7 @@ In order to be backward and future compatible, consumers of these annotations sh
 
 ## Format
 
-The validation hints are encoded into another template annotation, called `validation`.
+The validations hints are encoded into another template annotation, called `validation`.
 The value of this annotation must be a multi-line string.
 The multi-line string must be valid JSON array of validation objects.
 The format of the validation objects is described below.
@@ -44,7 +44,7 @@ validations: |
 
 A validation rule is expressed as JSON object which have a number of mandatory and optional keys.
 The consumer of the rule should ignore any field it doesn't know how to handle.
-If a rule is meaningless, for example if it has no arguments, see below, its behaviour is *unspecified*, so the consumer is free to consider it satisfied or not.
+If a rule is meaningless, for example if it has no arguments (see below), its behaviour is *unspecified*, so the consumer is free to consider it satisfied or not.
 
 ### JSONPaths
 
