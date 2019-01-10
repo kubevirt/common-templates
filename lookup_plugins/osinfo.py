@@ -15,6 +15,11 @@ import subprocess
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
+try:
+    from builtins import int
+except ImportError:
+    from __builtin__ import int
+
 import gi
 gi.require_version('Libosinfo', '1.0')
 from gi.repository import Libosinfo as osinfo
@@ -39,7 +44,7 @@ class OsInfoGObjectProxy(object):
         if hasattr(self._obj, "get_" + str(key)):
             return True
         elif hasattr(self._obj, "get_length") and hasattr(self._obj, "get_nth"):
-            if type(key) == int or type(key) == long:
+            if type(key) == int:
                 return self._obj.get_length() > int(key)
             elif type(key) == str or type(key) == unicode:
                 conditions = [v.split("=", 1) for v in key.split(",")]
@@ -55,8 +60,8 @@ class OsInfoGObjectProxy(object):
             return False
 
     def _resolve(self, val, path):
-        if (type(val) == int or type(val) == long or type(val) == float or
-                type(val) == str or type(val) == unicode or type(val) == bool):
+        if (type(val) == int or type(val) == float or type(val) == str or
+                type(val) == unicode or type(val) == bool):
             return val
         else:
             return self.__class__(val, root_path = path)
@@ -78,7 +83,7 @@ class OsInfoGObjectProxy(object):
         return self._resolve(root, self._root_path + "." + name)
 
     def __getitem__(self, idx):
-        if type(idx) == int or type(idx) == long:
+        if type(idx) == int:
             idx = str(idx)
         root = self._obj
         root_path = [self._root_path]
