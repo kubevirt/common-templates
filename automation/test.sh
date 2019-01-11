@@ -86,7 +86,7 @@ trap '{ make cluster-down; }' EXIT SIGINT SIGTERM SIGSTOP
 
 # If run on CI use random kubevirt system-namespaces
 if [ -n "${JOB_NAME}" ]; then
-  export NAMESPACE="kubevirt-system-$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)"
+  export NAMESPACE="kubevirt-$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)"
   cat >hack/config-local.sh <<EOF
 namespace=${NAMESPACE}
 EOF
@@ -95,7 +95,7 @@ else
 fi
 
 export KUBEVIRT_PROVIDER="os-3.11.0"
-export VERSION=v0.11.0
+export VERSION="v0.12.0-alpha.3"
 
 curl -Lo virtctl \
     https://github.com/kubevirt/kubevirt/releases/download/$VERSION/virtctl-$VERSION-linux-amd64
@@ -121,17 +121,17 @@ _oc get nodes
 
 _oc describe nodes
 
-_oc adm policy add-scc-to-user privileged system:serviceaccount:kube-system:kubevirt-privileged
-_oc adm policy add-scc-to-user privileged system:serviceaccount:kube-system:kubevirt-controller
-_oc adm policy add-scc-to-user privileged system:serviceaccount:kube-system:kubevirt-apiserver
+_oc adm policy add-scc-to-user privileged system:serviceaccount:kubevirt:kubevirt-privileged
+_oc adm policy add-scc-to-user privileged system:serviceaccount:kubevirt:kubevirt-controller
+_oc adm policy add-scc-to-user privileged system:serviceaccount:kubevirt:kubevirt-apiserver
 
 _oc create \
     -f https://github.com/kubevirt/kubevirt/releases/download/$VERSION/kubevirt.yaml
 
-export NAMESPACE="${NAMESPACE:-kube-system}"
+export NAMESPACE="${NAMESPACE:-kubevirt}"
 # OpenShift is running important containers under default namespace
-namespaces=(kube-system default)
-if [[ $NAMESPACE != "kube-system" ]]; then
+namespaces=(kubevirt default)
+if [[ $NAMESPACE != "kubevirt" ]]; then
   namespaces+=($NAMESPACE)
 fi
 

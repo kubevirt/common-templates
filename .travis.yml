@@ -7,8 +7,8 @@ branches:
   - /^v[0-9]/
 env:
   global:
-  - KUBEVIRT_VER=v0.10.0
-  - CPLATFORM=minikube CDIST=kubernetes CVER=1.11.2
+  - KUBEVIRT_VER=v0.12.0-alpha.3
+  - CPLATFORM=minikube CVER=1.11.2
 jobs:
   include:
   - stage: Tests
@@ -70,8 +70,8 @@ before_script:
 - bash -x ci/prepare-host virtctl $KUBEVIRT_VER
 - bash -x ci/prepare-host oc 3.10.0
 - bash -x ci/start-cluster $CPLATFORM $CVER
-- bash -x ci/deploy-kubevirt $CDIST $KUBEVIRT_VER
+- bash -x ci/deploy-kubevirt $CPLATFORM $KUBEVIRT_VER
 - kubectl get pods --all-namespaces
 - kubectl describe nodes
-- kubectl describe -n kube-system daemonset virt-handler
-- kubectl -n kube-system logs -l kubevirt.io=virt-handler
+- kubectl describe -n kubevirt daemonset virt-handler
+- kubectl -n kubevirt logs -l kubevirt.io=virt-handler

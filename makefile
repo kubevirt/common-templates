@@ -55,7 +55,7 @@ gather-env-of-%:
 	kubectl describe vm $*
 	kubectl describe vmi $*
 	kubectl describe pods
-	kubectl -n kube-system logs -l kubevirt.io=virt-handler --tail=20
+	kubectl -n kubevirt logs -l kubevirt.io=virt-handler --tail=20
 
 is-deployed:
 	kubectl api-versions | grep kubevirt.io
