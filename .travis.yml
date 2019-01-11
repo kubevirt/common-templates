@@ -38,8 +38,7 @@ jobs:
     script: make release "VERSION=$TRAVIS_TAG"
     deploy:
       provider: releases
-      api_key:
-        secure: LSFqrJM8SJ00Quu7Ej9ctI09LLdqfjo8j7oBZWDgWr9vRo83rFFpEErtnzTOqI4RXFfi9TfDVqoScAQtRxJZ+YHOHkvbTftZ/TVTxnS7q1ydArFgrLNhHsO0UdiJYXXe8OmvmhuH0YvPcLSq/123BOGs13zscQx416AM2rCMY7n4ZVvolWHSLkVcm89fuEupJp4y9xFotCvjOxi4iGtFwHD3iVgfPpmJOZ+cciZeRw4MLsdIYo8JbbyDeX2M9ncUdisLVWSU5FmZA5xWs8gTi7w4P5RgzlTwwUPAu2U+GZa+nSD8XJCLDxDMVAJCN0GlB8yLIfmMHcfbmItwahv/OEBAnghDDmjWb/zgEZykBMUy0u/eZ+TncvBReutsIpaCaVci9ZvaRkAT2DCUtQMSAbhiM4c0vVD32xeF+f4LO9/M77u55u2AJTFPgF0EQOMxafj/P/UrhHZ8lbp7vlS7kiizVcY5CQM2cUk1icktkf9FBf6HiuCno4luoMsQcLD8/UhDH3fLgNe8lmGPC2movGUBNl1PiZEJ4wRuSxW9WHx6B64T97xgXWU+v2RX6Lwr79qd+sKFEj1LrRhFoVvA6N+9VgOFw/ti/p7kc2URrHaRNerZVTH7ZMKdQT805jiztLTpWRcxXElRdV3vx22uTAT8vv7ogbHgGIaFTxsZ+AE=
+      api_key: "$GITHUB_TOKEN"
       file: dist/common-templates-$TRAVIS_TAG.yaml
       skip_cleanup: true
       name: $TRAVIS_TAG
