@@ -48,7 +48,7 @@ If a rule is meaningless, for example if it has no arguments (see below), its be
 
 ### JSONPaths
 
-TODO: clarify the root of the JSONPaths.
+For every jsonpath mentioned in this document, unless specified otherwise, the root is the objects: element of the template.
 
 ### Validation rules
 
