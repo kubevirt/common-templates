@@ -22,22 +22,24 @@ validations: |
   [
     {
       "name": "validation-rule-01",
-      "valid": "/some/json/path",
-      "path”: "/some/json/path/*/leaf",
+      "valid": "/some.json.path",
+      "path”: "/some.json.path[*].leaf",
       "rule”: "integer",
-      "message”: "/some/json/path/*/leaf must exists",
+      "message”: "/some.json.path[*].leaf must exists",
       "min”: 1
     },
     {
       "name": "validation-rule-02",
-      "valid": "/another/json/path",
-      "path": "/another/json/path/item",
+      "valid": "/another.json.path",
+      "path": "/another.json.path.item",
       "rule": "integer",
-      "message": "/another/json/path/item must be below a threshold",
-      "max": "/yet/another/json/path/defines/the/limit"
+      "message": "/another.json.path.item must be below a threshold",
+      "max": "/yet.another.json.path.defines.the.limit"
     }
   ]
 ```
+
+See below for a list of realistic, well formed examples
 
 
 ## Rule Format
@@ -81,8 +83,8 @@ kind: Template
         [
           {
             "name": "core-limits",
-            "path": "/VM/domain/cpu/cores",
-            "message": "cpu cores must be limited"
+            "path": "/spec.domain.cpu.cores",
+            "message": "cpu cores must be limited",
             "min": 1,
             "max": 8
           }
@@ -100,7 +102,7 @@ kind: Template
         [
           {
             “rule”: “integer”,
-            "path": "/VM/domain/cpu/cores",
+            "path": "/spec.domain.cpu.cores",
             "min": 1,
             "max": 8
           }
@@ -119,7 +121,7 @@ kind: Template
           {
             "rule": "integer",
             "name": "core-limits",
-            "message": "cpu cores must be limited"
+            "message": "cpu cores must be limited",
             "min": 1,
             "max": 8
           }
@@ -157,8 +159,8 @@ kind: Template
         [
           {
             "name": "core-limits",
-            "valid": "/VM/domain/cpu/cores",
-            "path": "/VM/domain/cpu/cores",
+            "valid": "/spec.domain.cpu.cores",
+            "path": "/spec.domain.cpu.cores",
             "rule": "integer",
             "message": "cpu cores must be limited"
             "min": 1,
@@ -183,7 +185,7 @@ kind: Template
         [
           {
             "name": "supported-bus",
-            "path": "/VM/disk/*/type",
+            "path": "/spec.devices.disks[*].type",
             "rule": "enum",
             "message": "the disk bus type must be one of the supported values",
             "values": ["virtio", "scsi"]
@@ -210,7 +212,7 @@ kind: Template
         [
           {
             "name": "non-empty-net",
-            "path": "/VM/network/*/name",
+            "path": "/spec.devices.interfaces[*].name",
             "rule": "string",
             "message": "the network name must be non-empty",
             "minLength": 1
@@ -218,3 +220,46 @@ kind: Template
         ]
 
 ```
+
+### Examples
+
+The following examples are meant to describe realistic well formed annotations.
+
+```yaml
+apiVersion: v1
+kind: Template
+  metadata:
+    name: windows-10
+    annotations:
+      validations: |
+        [
+          {
+            "name": "core-limits",
+            "path": "spec.domain.cpu.cores",
+            "message": "cpu cores must be limited",
+            "rule": "integer",
+            "min": 1,
+            "max": 8
+          }
+        ]
+```
+
+```yaml
+apiVersion: v1
+kind: Template
+  metadata:
+    name: linux-bus-types
+    annotations:
+      validations: |
+        [
+          {
+            "name": "supported-bus",
+            "valid": "spec.domain.devices.disks[*].disk",
+            "path": "spec.domain.devices.disks[*].disk.bus",
+            "rule": "enum",
+            "message": "the disk bus type must be one of the supported values",
+            "values": ["virtio", "scsi"]
+          }
+        ]
+```
+
