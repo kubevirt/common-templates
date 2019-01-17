@@ -41,7 +41,7 @@ metadata:
     template.cnv.io/type: "base"
 
 objects:
-- apiVersion: kubevirt.io/v1alpha2
+- apiVersion: kubevirt.io/v1alpha3
   kind: VirtualMachine
   metadata:
     name: ${NAME}
@@ -83,14 +83,13 @@ objects:
             - disk:
                 bus: sata
               name: rootdisk
-              volumeName: rootvolume
             interfaces:
             - bridge: {}
               model: e1000e
               name: default
         terminationGracePeriodSeconds: 0
         volumes:
-        - name: rootvolume
+        - name: rootdisk
           persistentVolumeClaim:
             claimName: ${PVCNAME}
         networks:

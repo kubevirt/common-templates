@@ -28,7 +28,7 @@
     template.cnv.io/type: "base"
 
 objects:
-- apiVersion: kubevirt.io/v1alpha2
+- apiVersion: kubevirt.io/v1alpha3
   kind: VirtualMachine
   metadata:
     name: ${NAME}
@@ -60,10 +60,9 @@ objects:
             - disk:
                 bus: virtio
               name: rootdisk
-              volumeName: rootvolume
         terminationGracePeriodSeconds: 0
         volumes:
-        - name: rootvolume
+        - name: rootdisk
           persistentVolumeClaim:
             claimName: ${PVCNAME}
         - cloudInitNoCloud:
