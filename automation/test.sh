@@ -95,7 +95,7 @@ else
 fi
 
 export KUBEVIRT_PROVIDER="os-3.11.0"
-export VERSION="v0.12.0-alpha.3"
+export VERSION="v0.13.0"
 
 curl -Lo virtctl \
     https://github.com/kubevirt/kubevirt/releases/download/$VERSION/virtctl-$VERSION-linux-amd64
