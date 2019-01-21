@@ -211,6 +211,12 @@ metadata:
     # "baked" and not linked to any template.
     vm.cnv.io/template: windows
 
+    # This optional label will link the VM to a template
+    # namespace that was used to create it.
+    # If this label is not defined, the template is 
+    # expected to belong to the same namespace as the VM.
+    vm.cnv.io/template-namespace: openshift
+
 # The requested state of the VM that will always match what
 # the user asked for exactly. When the UI pushes edits it
 # simply replaces the whole spec: with the current version
