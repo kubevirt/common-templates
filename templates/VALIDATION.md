@@ -83,7 +83,7 @@ kind: Template
         [
           {
             "name": "core-limits",
-            "path": "/spec.domain.cpu.cores",
+            "path": "spec.domain.cpu.cores",
             "message": "cpu cores must be limited",
             "min": 1,
             "max": 8
@@ -102,7 +102,7 @@ kind: Template
         [
           {
             “rule”: “integer”,
-            "path": "/spec.domain.cpu.cores",
+            "path": "spec.domain.cpu.cores",
             "min": 1,
             "max": 8
           }
@@ -159,8 +159,8 @@ kind: Template
         [
           {
             "name": "core-limits",
-            "valid": "/spec.domain.cpu.cores",
-            "path": "/spec.domain.cpu.cores",
+            "valid": "spec.domain.cpu.cores",
+            "path": "spec.domain.cpu.cores",
             "rule": "integer",
             "message": "cpu cores must be limited"
             "min": 1,
@@ -185,7 +185,7 @@ kind: Template
         [
           {
             "name": "supported-bus",
-            "path": "/spec.devices.disks[*].type",
+            "path": "spec.devices.disks[*].type",
             "rule": "enum",
             "message": "the disk bus type must be one of the supported values",
             "values": ["virtio", "scsi"]
@@ -212,7 +212,7 @@ kind: Template
         [
           {
             "name": "non-empty-net",
-            "path": "/spec.devices.interfaces[*].name",
+            "path": "spec.devices.interfaces[*].name",
             "rule": "string",
             "message": "the network name must be non-empty",
             "minLength": 1
