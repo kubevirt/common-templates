@@ -14,12 +14,16 @@
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
     - {flavor: tiny, workload: generic, memsize: "1G", cpus: 1, iothreads: False}
+    - {flavor: tiny, workload: desktop, memsize: "1G", cpus: 1, iothreads: False}
     - {flavor: tiny, workload: highperformance, memsize: "1G", cpus: 1, iothreads: True}
     - {flavor: small, workload: generic, memsize: "2G", cpus: 1, iothreads: False}
+    - {flavor: small, workload: desktop, memsize: "2G", cpus: 1, iothreads: False}
     - {flavor: small, workload: highperformance, memsize: "2G", cpus: 1, iothreads: True}
     - {flavor: medium, workload: generic, memsize: "4G", cpus: 1, iothreads: False}
+    - {flavor: medium, workload: desktop, memsize: "4G", cpus: 1, iothreads: False}
     - {flavor: medium, workload: highperformance, memsize: "4G", cpus: 1, iothreads: True}
     - {flavor: large, workload: generic, memsize: "8G", cpus: 2, iothreads: False}
+    - {flavor: large, workload: desktop, memsize: "8G", cpus: 2, iothreads: False}
     - {flavor: large, workload: highperformance, memsize: "8G", cpus: 2, iothreads: True}
     vars:
       os: rhel7
@@ -41,9 +45,13 @@
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
     - {flavor: tiny, workload: generic, memsize: "1G", cpus: 1, iothreads: False}
+    - {flavor: tiny, workload: desktop, memsize: "1G", cpus: 1, iothreads: False}
     - {flavor: small, workload: generic, memsize: "2G", cpus: 1, iothreads: False}
+    - {flavor: small, workload: desktop, memsize: "2G", cpus: 1, iothreads: False}
     - {flavor: medium, workload: generic, memsize: "4G", cpus: 1, iothreads: False}
+    - {flavor: medium, workload: desktop, memsize: "4G", cpus: 1, iothreads: False}
     - {flavor: large, workload: generic, memsize: "8G", cpus: 2, iothreads: False}
+    - {flavor: large, workload: desktop, memsize: "8G", cpus: 2, iothreads: False}
     vars:
       os: centos7
       icon: centos
@@ -116,8 +124,8 @@
       dest: "{{ playbook_dir }}/dist/templates/win2k12r2-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
     - {flavor: medium, workload: generic, memsize: "4G", cpus: 1, iothreads: False}
+    - {flavor: medium, workload: desktop, memsize: "4G", cpus: 1, iothreads: False}
     - {flavor: large, workload: generic, memsize: "8G", cpus: 2, iothreads: False}
+    - {flavor: large, workload: desktop, memsize: "8G", cpus: 2, iothreads: False}
     vars:
       osinfoname: win2k12r2
-
-
