@@ -238,63 +238,66 @@ _oc exec -it winrmcli -- yum install -y iproute iputils
 
 kubeconfig="cluster/$KUBEVIRT_PROVIDER/.kubeconfig"
 sizes=("medium" "large")
+workloads=("generic", "desktop")
 for size in ${sizes[@]}; do
-  windowsTemplatePath="../../dist/templates/win2k12r2-generic-$size.yaml"
+  for workload in ${workloads[@]}; do
+    windowsTemplatePath="../../dist/templates/win2k12r2-$workload-$size.yaml"
 
-  _oc process -o json --local -f $windowsTemplatePath NAME=win2k1r2-$size PVCNAME=disk-windows | \
-  jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-windows"}}} | 
-  del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim)' | \
-  _oc apply -f -
+    _oc process -o json --local -f $windowsTemplatePath NAME=win2k1r2-$workload-$size PVCNAME=disk-windows | \
+    jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-windows"}}} | 
+    del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim)' | \
+    _oc apply -f -
 
-  # start vm
-  ./virtctl --kubeconfig=$kubeconfig start win2k1r2-$size
+    # start vm
+    ./virtctl --kubeconfig=$kubeconfig start win2k1r2-$workload-$size
 
-  set +e
-  current_time=0
-  while [[ $(_oc get vmi win2k1r2-$size -o json | jq '.status.phase') != *Running* ]] ; do 
-    _oc describe vmi win2k1r2-$size
-    current_time=$((current_time + sample))
-    if [ $current_time -gt $timeout ]; then
-      exit 1
-    fi
-    sleep $sample;
+    set +e
+    current_time=0
+    while [[ $(_oc get vmi win2k1r2-$workload-$size -o json | jq '.status.phase') != *Running* ]] ; do 
+      _oc describe vmi win2k1r2-$workload-$size
+      current_time=$((current_time + sample))
+      if [ $current_time -gt $timeout ]; then
+        exit 1
+      fi
+      sleep $sample;
+    done
+    set -e
+
+    _oc describe vm win2k1r2-$workload-$size
+    _oc describe vmi win2k1r2-$workload-$size
+
+    # get ip address of vm
+    ipAddressVMI=$(_oc get vmi win2k1r2-$workload-$size -o yaml | grep ipAddress | awk '{print $3}')
+
+    set +e
+    timeout=600
+    current_time=0
+    # Make sure vm is ready
+    while _oc exec -it winrmcli -- ping -c1 $ipAddressVMI| grep "Destination Host Unreachable" ; do 
+      current_time=$((current_time + 10))
+      if [ $current_time -gt $timeout ]; then
+        exit 1
+      fi
+      sleep 10;
+    done
+
+    timeout=300
+    current_time=0
+    # run ipconfig /all command on windows vm
+    while [[ $(_oc exec -it winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all") != *"$ipAddressVMI"* ]] ; do 
+      current_time=$((current_time + 10))
+      if [ $current_time -gt $timeout ]; then
+        exit 1
+      fi
+      sleep 10;
+    done
+
+    ./virtctl --kubeconfig=$kubeconfig stop win2k1r2-$workload-$size 
+    set -e
+
+    _oc process -o json --local -f $windowsTemplatePath NAME=win2k1r2-$workload-$size PVCNAME=disk-windows | \
+    jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-windows"}}} | 
+    del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim)' | \
+    _oc delete -f -
   done
-  set -e
-
-  _oc describe vm win2k1r2-$size
-  _oc describe vmi win2k1r2-$size
-
-  # get ip address of vm
-  ipAddressVMI=$(_oc get vmi win2k1r2-$size -o yaml | grep ipAddress | awk '{print $3}')
-
-  set +e
-  timeout=600
-  current_time=0
-  # Make sure vm is ready
-  while _oc exec -it winrmcli -- ping -c1 $ipAddressVMI| grep "Destination Host Unreachable" ; do 
-    current_time=$((current_time + 10))
-    if [ $current_time -gt $timeout ]; then
-      exit 1
-    fi
-    sleep 10;
-  done
-
-  timeout=300
-  current_time=0
-  # run ipconfig /all command on windows vm
-  while [[ $(_oc exec -it winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all") != *"$ipAddressVMI"* ]] ; do 
-    current_time=$((current_time + 10))
-    if [ $current_time -gt $timeout ]; then
-      exit 1
-    fi
-    sleep 10;
-  done
-
-  ./virtctl --kubeconfig=$kubeconfig stop win2k1r2-$size 
-  set -e
-
-  _oc process -o json --local -f $windowsTemplatePath NAME=win2k1r2-$size PVCNAME=disk-windows | \
-  jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-windows"}}} | 
-  del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim)' | \
-  _oc delete -f -
 done
