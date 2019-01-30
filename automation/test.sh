@@ -238,7 +238,7 @@ _oc exec -it winrmcli -- yum install -y iproute iputils
 
 kubeconfig="cluster/$KUBEVIRT_PROVIDER/.kubeconfig"
 sizes=("medium" "large")
-workloads=("generic", "desktop")
+workloads=("generic" "desktop")
 for size in ${sizes[@]}; do
   for workload in ${workloads[@]}; do
     windowsTemplatePath="../../dist/templates/win2k12r2-$workload-$size.yaml"

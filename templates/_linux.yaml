@@ -56,6 +56,12 @@ objects:
               memory: {{ item.memsize }}
           devices:
             rng: {}
+{% if item.tablet %}
+            inputs:
+              - type: tablet
+                bus: virtio
+                name: tablet
+{% endif %}
             disks:
             - disk:
                 bus: virtio
