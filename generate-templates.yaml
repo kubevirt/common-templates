@@ -123,9 +123,9 @@
       src: win2k12r2.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/win2k12r2-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: medium, workload: generic, memsize: "4G", cpus: 1, iothreads: False}
-    - {flavor: medium, workload: desktop, memsize: "4G", cpus: 1, iothreads: False}
-    - {flavor: large, workload: generic, memsize: "8G", cpus: 2, iothreads: False}
-    - {flavor: large, workload: desktop, memsize: "8G", cpus: 2, iothreads: False}
+    - {flavor: medium, workload: generic, memsize: "4G", cpus: 1, iothreads: False, tablet: False}
+    - {flavor: medium, workload: desktop, memsize: "4G", cpus: 1, iothreads: False, tablet: True}
+    - {flavor: large, workload: generic, memsize: "8G", cpus: 2, iothreads: False, tablet: False}
+    - {flavor: large, workload: desktop, memsize: "8G", cpus: 2, iothreads: False, tablet: True}
     vars:
       osinfoname: win2k12r2

@@ -87,6 +87,12 @@ objects:
             - bridge: {}
               model: e1000e
               name: default
+{% if item.tablet %}
+            inputs:
+              - type: tablet
+                bus: usb
+                name: tablet
+{% endif %}
         terminationGracePeriodSeconds: 0
         volumes:
         - name: rootdisk
