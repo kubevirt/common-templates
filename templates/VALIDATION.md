@@ -1,6 +1,6 @@
 # Template validation annotations
 
-Version 201901-1
+Version 201902-2
 
 ## Summary
 
@@ -22,19 +22,19 @@ validations: |
   [
     {
       "name": "validation-rule-01",
-      "valid": "/some.json.path",
-      "path”: "/some.json.path[*].leaf",
+      "valid": "$.some.json.path",
+      "path”: "$.some.json.path[*].leaf",
       "rule”: "integer",
-      "message”: "/some.json.path[*].leaf must exists",
+      "message”: "$.some.json.path[*].leaf must exists",
       "min”: 1
     },
     {
       "name": "validation-rule-02",
-      "valid": "/another.json.path",
-      "path": "/another.json.path.item",
+      "valid": "$.another.json.path",
+      "path": "$.another.json.path.item",
       "rule": "integer",
-      "message": "/another.json.path.item must be below a threshold",
-      "max": "/yet.another.json.path.defines.the.limit"
+      "message": "$./another.json.path.item must be below a threshold",
+      "max": "$.yet.another.json.path.defines.the.limit"
     }
   ]
 ```
@@ -51,6 +51,18 @@ If a rule is meaningless, for example if it has no arguments (see below), its be
 ### JSONPaths
 
 For every jsonpath mentioned in this document, unless specified otherwise, the root is the objects: element of the template.
+Unless otherwise specified, the jsonpath must be enclosed in double brackets - this is to disambiguate plain strings from jsonpaths.
+Example:
+
+good:
+```
+{{.spec.domain.resources.requests.memory}}
+```
+
+bad:
+```
+.spec.domain.resources.requests.memory
+```
 
 ### Validation rules
 
@@ -83,7 +95,7 @@ kind: Template
         [
           {
             "name": "core-limits",
-            "path": "spec.domain.cpu.cores",
+            "path": ".spec.domain.cpu.cores",
             "message": "cpu cores must be limited",
             "min": 1,
             "max": 8
@@ -102,7 +114,7 @@ kind: Template
         [
           {
             “rule”: “integer”,
-            "path": "spec.domain.cpu.cores",
+            "path": ".spec.domain.cpu.cores",
             "min": 1,
             "max": 8
           }
@@ -159,8 +171,8 @@ kind: Template
         [
           {
             "name": "core-limits",
-            "valid": "spec.domain.cpu.cores",
-            "path": "spec.domain.cpu.cores",
+            "valid": ".spec.domain.cpu.cores",
+            "path": ".spec.domain.cpu.cores",
             "rule": "integer",
             "message": "cpu cores must be limited"
             "min": 1,
@@ -169,7 +181,7 @@ kind: Template
         ]
 ```
 
-#### included:
+#### values:
 The rule is satisfied if the path item is exactly one of the element listed in the value of this key, case sensitive. Due to current limitations of the annotations:
 - the path item must be rendered as string for the purpose of the check.
 - the value must be a JSON array of values.
@@ -185,7 +197,7 @@ kind: Template
         [
           {
             "name": "supported-bus",
-            "path": "spec.devices.disks[*].type",
+            "path": ".spec.devices.disks[*].type",
             "rule": "enum",
             "message": "the disk bus type must be one of the supported values",
             "values": ["virtio", "scsi"]
@@ -212,7 +224,7 @@ kind: Template
         [
           {
             "name": "non-empty-net",
-            "path": "spec.devices.interfaces[*].name",
+            "path": ".spec.devices.interfaces[*].name",
             "rule": "string",
             "message": "the network name must be non-empty",
             "minLength": 1
@@ -220,6 +232,28 @@ kind: Template
         ]
 
 ```
+
+### regex:
+The rule is satisfied if the path item matches the Perl-Compatible Regular Expression which is the value of this key.
+Example:
+```yaml
+apiVersion: v1
+kind: Template
+  metadata:
+    name: windows-10
+    annotations:
+      validations: |
+        [
+          {
+            "name": "supported-bus",
+            "path": ".spec.devices.disks[*].type",
+            "rule": "enum",
+            "message": "the disk bus type must be one of the supported values",
+            "regex": "(?mi)^virtio|scsi$"
+          }
+        ]
+```
+
 
 ### Examples
 
@@ -235,7 +269,7 @@ kind: Template
         [
           {
             "name": "core-limits",
-            "path": "spec.domain.cpu.cores",
+            "path": ".spec.domain.cpu.cores",
             "message": "cpu cores must be limited",
             "rule": "integer",
             "min": 1,
@@ -254,8 +288,8 @@ kind: Template
         [
           {
             "name": "supported-bus",
-            "valid": "spec.domain.devices.disks[*].disk",
-            "path": "spec.domain.devices.disks[*].disk.bus",
+            "valid": ".spec.domain.devices.disks[*].disk",
+            "path": ".spec.domain.devices.disks[*].disk.bus",
             "rule": "enum",
             "message": "the disk bus type must be one of the supported values",
             "values": ["virtio", "scsi"]
