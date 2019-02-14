@@ -22,19 +22,19 @@ validations: |
   [
     {
       "name": "validation-rule-01",
-      "valid": "$.some.json.path",
-      "path”: "$.some.json.path[*].leaf",
+      "valid": ".some.json.path",
+      "path”: ".some.json.path[*].leaf",
       "rule”: "integer",
-      "message”: "$.some.json.path[*].leaf must exists",
+      "message”: ".some.json.path[*].leaf must exists",
       "min”: 1
     },
     {
       "name": "validation-rule-02",
-      "valid": "$.another.json.path",
-      "path": "$.another.json.path.item",
+      "valid": ".another.json.path",
+      "path": ".another.json.path.item",
       "rule": "integer",
-      "message": "$./another.json.path.item must be below a threshold",
-      "max": "$.yet.another.json.path.defines.the.limit"
+      "message": "./another.json.path.item must be below a threshold",
+      "max": ".yet.another.json.path.defines.the.limit"
     }
   ]
 ```
@@ -51,12 +51,12 @@ If a rule is meaningless, for example if it has no arguments (see below), its be
 ### JSONPaths
 
 For every jsonpath mentioned in this document, unless specified otherwise, the root is the objects: element of the template.
-Unless otherwise specified, the jsonpath must be enclosed in double brackets - this is to disambiguate plain strings from jsonpaths.
-Example:
+Unless otherwise specified, the value to be used as jsonpath must be prefixed with the "jsonpath::" literal.
+Otherwise, the value will be interpreted as string literal.
 
 good:
 ```
-{{.spec.domain.resources.requests.memory}}
+jsonpath::.spec.domain.resources.requests.memory
 ```
 
 bad:
@@ -144,6 +144,8 @@ kind: Template
 ### Optional Keys
 
 * `valid`: the rule must be *ignored* if the jsonpath given as value doesn't exist.
+*PLEASE NOTE* that even if values of this key are required to be JSONPaths, you still need to use the `jsonpath::` prefix
+as explained above.
 
 ### Rule arguments (optional keys)
 
@@ -247,7 +249,7 @@ kind: Template
           {
             "name": "supported-bus",
             "path": ".spec.devices.disks[*].type",
-            "rule": "enum",
+            "rule": "regex",
             "message": "the disk bus type must be one of the supported values",
             "regex": "(?mi)^virtio|scsi$"
           }
