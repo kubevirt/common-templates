@@ -22,19 +22,19 @@ validations: |
   [
     {
       "name": "validation-rule-01",
-      "valid": ".some.json.path",
-      "path”: ".some.json.path[*].leaf",
+      "valid": "jsonpath::.some.json.path",
+      "path”: "jsonpath::.some.json.path[*].leaf",
       "rule”: "integer",
       "message”: ".some.json.path[*].leaf must exists",
       "min”: 1
     },
     {
       "name": "validation-rule-02",
-      "valid": ".another.json.path",
-      "path": ".another.json.path.item",
+      "valid": "jsonpath::.another.json.path",
+      "path": "jsonpath::.another.json.path.item",
       "rule": "integer",
-      "message": "./another.json.path.item must be below a threshold",
-      "max": ".yet.another.json.path.defines.the.limit"
+      "message": "jsonpath::./another.json.path.item must be below a threshold",
+      "max": "jsonpath::.yet.another.json.path.defines.the.limit"
     }
   ]
 ```
@@ -51,8 +51,10 @@ If a rule is meaningless, for example if it has no arguments (see below), its be
 ### JSONPaths
 
 For every jsonpath mentioned in this document, unless specified otherwise, the root is the objects: element of the template.
-Unless otherwise specified, the value to be used as jsonpath must be prefixed with the "jsonpath::" literal.
+Unless otherwise specified, the value to be used as jsonpath must be prefixed with the `jsonpath::` literal.
 Otherwise, the value will be interpreted as string literal.
+Please note: this rule is universal. Fields that *require* a JSONPath -not a string literal- like the "Path" key, still *must* have
+the `jsonpath::` prefix.
 
 good:
 ```
@@ -95,7 +97,7 @@ kind: Template
         [
           {
             "name": "core-limits",
-            "path": ".spec.domain.cpu.cores",
+            "path": "jsonpath::.spec.domain.cpu.cores",
             "message": "cpu cores must be limited",
             "min": 1,
             "max": 8
@@ -114,7 +116,7 @@ kind: Template
         [
           {
             “rule”: “integer”,
-            "path": ".spec.domain.cpu.cores",
+            "path": "jsonpath::.spec.domain.cpu.cores",
             "min": 1,
             "max": 8
           }
@@ -173,8 +175,8 @@ kind: Template
         [
           {
             "name": "core-limits",
-            "valid": ".spec.domain.cpu.cores",
-            "path": ".spec.domain.cpu.cores",
+            "valid": "jsonpath::.spec.domain.cpu.cores",
+            "path": "jsonpath::.spec.domain.cpu.cores",
             "rule": "integer",
             "message": "cpu cores must be limited"
             "min": 1,
@@ -199,7 +201,7 @@ kind: Template
         [
           {
             "name": "supported-bus",
-            "path": ".spec.devices.disks[*].type",
+            "path": "jsonpath::.spec.devices.disks[*].type",
             "rule": "enum",
             "message": "the disk bus type must be one of the supported values",
             "values": ["virtio", "scsi"]
@@ -226,7 +228,7 @@ kind: Template
         [
           {
             "name": "non-empty-net",
-            "path": ".spec.devices.interfaces[*].name",
+            "path": "jsonpath::.spec.devices.interfaces[*].name",
             "rule": "string",
             "message": "the network name must be non-empty",
             "minLength": 1
@@ -248,7 +250,7 @@ kind: Template
         [
           {
             "name": "supported-bus",
-            "path": ".spec.devices.disks[*].type",
+            "path": "jsonpath::.spec.devices.disks[*].type",
             "rule": "regex",
             "message": "the disk bus type must be one of the supported values",
             "regex": "(?mi)^virtio|scsi$"
@@ -271,7 +273,7 @@ kind: Template
         [
           {
             "name": "core-limits",
-            "path": ".spec.domain.cpu.cores",
+            "path": "jsonpath::.spec.domain.cpu.cores",
             "message": "cpu cores must be limited",
             "rule": "integer",
             "min": 1,
@@ -290,8 +292,8 @@ kind: Template
         [
           {
             "name": "supported-bus",
-            "valid": ".spec.domain.devices.disks[*].disk",
-            "path": ".spec.domain.devices.disks[*].disk.bus",
+            "valid": "jsonpath::.spec.domain.devices.disks[*].disk",
+            "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
             "rule": "enum",
             "message": "the disk bus type must be one of the supported values",
             "values": ["virtio", "scsi"]
