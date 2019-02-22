@@ -58,7 +58,6 @@ safe_download() (
     fi
 )
 
-
 # Create images directory
 if [[ ! -d $WINDOWS_NFS_DIR ]]; then
   mkdir -p $WINDOWS_NFS_DIR
@@ -95,7 +94,7 @@ else
 fi
 
 export KUBEVIRT_PROVIDER="os-3.11.0"
-export VERSION="v0.13.0"
+export VERSION="v0.15.0-alpha.0"
 
 curl -Lo virtctl \
     https://github.com/kubevirt/kubevirt/releases/download/$VERSION/virtctl-$VERSION-linux-amd64
@@ -119,13 +118,12 @@ set -e
 echo "Nodes are ready:"
 _oc get nodes
 
-_oc describe nodes
-
 _oc adm policy add-scc-to-user privileged system:serviceaccount:kubevirt:kubevirt-privileged
 _oc adm policy add-scc-to-user privileged system:serviceaccount:kubevirt:kubevirt-controller
 _oc adm policy add-scc-to-user privileged system:serviceaccount:kubevirt:kubevirt-apiserver
+_oc adm policy add-scc-to-user privileged system:serviceaccount:kubevirt:kubevirt-handler
 
-_oc create \
+_oc apply \
     -f https://github.com/kubevirt/kubevirt/releases/download/$VERSION/kubevirt.yaml
 
 export NAMESPACE="${NAMESPACE:-kubevirt}"
