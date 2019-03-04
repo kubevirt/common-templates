@@ -11,5 +11,7 @@ metadata:
       necessary CentOS disk image.
     tags: "kubevirt,virtualmachine,linux,centos"
 
+{% set diskbus = diskbus |default("sata") %}
+
 {% include "_linux.yaml" %}
 

@@ -11,5 +11,7 @@ metadata:
       necessary RHEL disk image.
     tags: "kubevirt,virtualmachine,linux,rhel"
 
+{% set diskbus = diskbus |default("sata") %}
+
 {% include "_linux.yaml" %}
 
