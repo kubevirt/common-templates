@@ -1,6 +1,8 @@
 *.swp
 *.raw
 *.qcow2
+*.retry
+dist
 pvs
 openshift.local.clusterup/
 common-templates*.yaml
