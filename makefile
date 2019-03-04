@@ -135,6 +135,13 @@ centos7.qcow2:
 rhel7.raw: centos7.raw
 	ln $< $@
 
+centos6.qcow2:
+	curl -L http://cloud.centos.org/centos/6/images/CentOS-6-x86_64-GenericCloud.qcow2.xz | xz -d > $@
+
+# For now we test the RHEL75 template with the CentOS image
+rhel6.raw: centos6.raw
+	ln $< $@
+
 clean:
 	rm -v *.raw *.qcow2
 
