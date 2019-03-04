@@ -64,7 +64,7 @@ objects:
 {% endif %}
             disks:
             - disk:
-                bus: virtio
+                bus: {{ diskbus | default("virtio") }}
               name: rootdisk
         terminationGracePeriodSeconds: 0
         volumes:
