@@ -39,6 +39,32 @@
        - rhel7.6
       osinfoname: "{{ oslabels[0] }}"
 
+  - name: Generate RHEL 6 templates
+    template:
+      src: rhel6.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: tiny, workload: generic, memsize: "1G", cpus: 1, iothreads: False, tablet: False}
+    - {flavor: small, workload: generic, memsize: "2G", cpus: 1, iothreads: False, tablet: False}
+    - {flavor: medium, workload: generic, memsize: "4G", cpus: 1, iothreads: False, tablet: False}
+    - {flavor: large, workload: generic, memsize: "8G", cpus: 2, iothreads: False, tablet: False}
+    vars:
+      os: rhel6
+      icon: rhel
+      password: redhat
+      oslabels:
+       - rhel6.0
+       - rhel6.1
+       - rhel6.2
+       - rhel6.3
+       - rhel6.4
+       - rhel6.5
+       - rhel6.6
+       - rhel6.7
+       - rhel6.8
+       - rhel6.9
+      osinfoname: "{{ oslabels[0] }}"
+
   - name: Generate CentOS 7 templates
     template:
       src: centos7.tpl.yaml
@@ -58,6 +84,32 @@
       password: centos
       oslabels:
        - centos7.0
+      osinfoname: "{{ oslabels[0] }}"
+
+  - name: Generate CentOS 6 templates
+    template:
+      src: centos6.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: tiny, workload: generic, memsize: "1G", cpus: 1, iothreads: False, tablet: False}
+    - {flavor: small, workload: generic, memsize: "2G", cpus: 1, iothreads: False, tablet: False}
+    - {flavor: medium, workload: generic, memsize: "4G", cpus: 1, iothreads: False, tablet: False}
+    - {flavor: large, workload: generic, memsize: "8G", cpus: 2, iothreads: False, tablet: False}
+    vars:
+      os: centos6
+      icon: centos
+      password: centos
+      oslabels:
+       - centos6.0
+       - centos6.1
+       - centos6.2
+       - centos6.3
+       - centos6.4
+       - centos6.5
+       - centos6.6
+       - centos6.7
+       - centos6.8
+       - centos6.9
       osinfoname: "{{ oslabels[0] }}"
 
   - name: Generate Fedora templates

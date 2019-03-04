@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
+  annotations:
+    openshift.io/display-name: "Red Hat Enterprise Linux 6.0+ VM"
+    description: >-
+      This template can be used to create a VM suitable for
+      Red Hat Enterprise Linux 6 and newer.
+      The template assumes that a PVC is available which is providing the
+      necessary RHEL disk image.
+    tags: "kubevirt,virtualmachine,linux,rhel"
+
+{% include "_linux.yaml" %}
+
