@@ -46,23 +46,23 @@ $ ansible-playbook generate-templates.yaml
 
 # Pick a template by selecting
 # - the guest OS - win2k12r2
-# - the workload type - generic
+# - the workload type - desktop
 # - the size - medium
 
 # Use the template
-$ oc process --local -f dist/templates/win2k1r2-generic-medium.dist.yaml
-The Template "win2k1r2-generic-medium" is invalid: template.parameters[1]: Required value:
+$ oc process --local -f dist/templates/win2k1r2-desktop-medium.dist.yaml
+The Template "win2k1r2-desktop-medium" is invalid: template.parameters[1]: Required value:
 template.parameters[1]: parameter PVCNAME is required and must be specified
 
-$ oc process --local -f dist/templates/win2k1r2-generic-medium.dist.yaml  --parameters
+$ oc process --local -f dist/templates/win2k1r2-desktop-medium.dist.yaml  --parameters
 NAME      DESCRIPTION                           GENERATOR   VALUE
 NAME      Name of the new VM                    expression  windows2012r2-[a-z0-9]{6}
 PVCNAME   Name of the PVC with the disk image
 
-$ oc process --local -f dist/templates/win2k1r2-generic-medium.dist.yaml PVCNAME=mydisk
+$ oc process --local -f dist/templates/win2k1r2-desktop-medium.dist.yaml PVCNAME=mydisk
 …
 
-$ oc process --local -f dist/templates/win2k1r2-generic-medium.dist.yaml PVCNAME=mydisk | kubectl apply -f -
+$ oc process --local -f dist/templates/win2k1r2-desktop-medium.dist.yaml PVCNAME=mydisk | kubectl apply -f -
 virtualmachine.kubevirt.io/windows2012r2-rt1ap2 created
 
 $
