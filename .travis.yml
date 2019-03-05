@@ -17,15 +17,15 @@ jobs:
     script: bash -x test.sh
 
   - name: Functional test of the Fedora template
-    env: TARGET=functional-tests TEST_FUNCTIONAL="fedora-generic-tiny fedora-generic-small fedora-generic-medium fedora-generic-large"
+    env: TARGET=functional-tests TEST_FUNCTIONAL="fedora-desktop-tiny fedora-desktop-small fedora-desktop-medium fedora-desktop-large"
     script: bash -x test.sh
 
   - name: Functional test of the Ubuntu template
-    env: TARGET=functional-tests TEST_FUNCTIONAL="ubuntu-generic-tiny ubuntu-generic-small ubuntu-generic-medium ubuntu-generic-large"
+    env: TARGET=functional-tests TEST_FUNCTIONAL="ubuntu-desktop-tiny ubuntu-desktop-small ubuntu-desktop-medium ubuntu-desktop-large"
     script: bash -x test.sh
 
   - name: Functional test of the RHEL 8 template
-    env: TARGET=functional-tests TEST_FUNCTIONAL="rhel8-generic-tiny rhel8-generic-small rhel8-generic-medium rhel8-generic-large"
+    env: TARGET=functional-tests TEST_FUNCTIONAL="rhel8-server-tiny rhel8-server-small rhel8-server-medium rhel8-server-large"
     script: bash -x test.sh
 
   - name: Functional test of the desktop RHEL 8 template
@@ -33,7 +33,7 @@ jobs:
     script: bash -x test.sh
 
   - name: Functional test of the CentOS 8 template
-    env: TARGET=functional-tests TEST_FUNCTIONAL="centos8-generic-tiny centos8-generic-small centos8-generic-medium centos8-generic-large"
+    env: TARGET=functional-tests TEST_FUNCTIONAL="centos8-server-tiny centos8-server-small centos8-server-medium centos8-server-large"
     script: bash -x test.sh
 
   - name: Functional test of the desktop CentOS 8 template
@@ -41,7 +41,7 @@ jobs:
     script: bash -x test.sh
 
   - name: Functional test of the RHEL 7 template
-    env: TARGET=functional-tests TEST_FUNCTIONAL="rhel7-generic-tiny rhel7-generic-small rhel7-generic-medium rhel7-generic-large"
+    env: TARGET=functional-tests TEST_FUNCTIONAL="rhel7-server-tiny rhel7-server-small rhel7-server-medium rhel7-server-large"
     script: bash -x test.sh
 
   - name: Functional test of the desktop RHEL 7 template
@@ -49,7 +49,7 @@ jobs:
     script: bash -x test.sh
 
   - name: Functional test of the CentOS 7 template
-    env: TARGET=functional-tests TEST_FUNCTIONAL="centos7-generic-tiny centos7-generic-small centos7-generic-medium centos7-generic-large"
+    env: TARGET=functional-tests TEST_FUNCTIONAL="centos7-server-tiny centos7-server-small centos7-server-medium centos7-server-large"
     script: bash -x test.sh
 
   - name: Functional test of the desktop CentOS 7 template
@@ -57,11 +57,15 @@ jobs:
     script: bash -x test.sh
 
   - name: Functional test of the RHEL 6 template
-    env: TARGET=functional-tests TEST_FUNCTIONAL="rhel6-generic-tiny rhel6-generic-small rhel6-generic-medium rhel6-generic-large"
+    env: TARGET=functional-tests TEST_FUNCTIONAL="rhel6-server-tiny rhel6-server-small rhel6-server-medium rhel6-server-large"
+    script: bash -x test.sh
+
+  - name: Functional test of the desktop RHEL 6 template
+    env: TARGET=functional-tests TEST_FUNCTIONAL="rhel6-desktop-tiny rhel6-desktop-small rhel6-desktop-medium rhel6-desktop-large"
     script: bash -x test.sh
 
   - name: Functional test of the CentOS 6 template
-    env: TARGET=functional-tests TEST_FUNCTIONAL="centos6-generic-tiny centos6-generic-small centos6-generic-medium centos6-generic-large"
+    env: TARGET=functional-tests TEST_FUNCTIONAL="centos6-server-tiny centos6-server-small centos6-server-medium centos6-server-large"
     script: bash -x test.sh
 
   - stage: Build and Deploy

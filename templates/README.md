@@ -27,7 +27,7 @@ kind: Template # Openshift kind of template or something "better"
 metadata:
   name: windows-10
   annotations:
-    openshift.io/display-name: "Generic Microsoft Windows 7+ template"
+    openshift.io/display-name: "Desktop Microsoft Windows 7+ template"
     description: "Basic windows template long description with details"
     openshift.io/long-description: >-
       Long description of the template
@@ -92,7 +92,7 @@ metadata:
     # {os,flavor,size}.template.cnv.io/{value}: true (or false for exclusion)
     # OS names should match the libosinfo identifiers
     # flavors are tiny, medium, large, etc.
-    # workloads are generic, high-performance, io-intensive,
+    # workloads are desktop, server, high-performance, io-intensive,
     #               oracle-db, sap-hana...
     os.template.cnv.io/windows2k12r2: "true"
     os.template.cnv.io/windows8: "true"

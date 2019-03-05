@@ -118,10 +118,9 @@ set -e
 echo "Nodes are ready:"
 _oc get nodes
 
-_oc adm policy add-scc-to-user privileged system:serviceaccount:kubevirt:kubevirt-privileged
+_oc adm policy add-scc-to-user privileged system:serviceaccount:kubevirt:kubevirt-handler
 _oc adm policy add-scc-to-user privileged system:serviceaccount:kubevirt:kubevirt-controller
 _oc adm policy add-scc-to-user privileged system:serviceaccount:kubevirt:kubevirt-apiserver
-_oc adm policy add-scc-to-user privileged system:serviceaccount:kubevirt:kubevirt-handler
 
 _oc apply \
     -f https://github.com/kubevirt/kubevirt/releases/download/$VERSION/kubevirt.yaml
@@ -236,7 +235,7 @@ _oc exec -it winrmcli -- yum install -y iproute iputils
 
 kubeconfig="cluster/$KUBEVIRT_PROVIDER/.kubeconfig"
 sizes=("medium" "large")
-workloads=("generic" "desktop")
+workloads=("server" "desktop")
 for size in ${sizes[@]}; do
   for workload in ${workloads[@]}; do
     windowsTemplatePath="../../dist/templates/win2k12r2-$workload-$size.yaml"
