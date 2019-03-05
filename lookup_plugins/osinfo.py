@@ -27,6 +27,7 @@ from gi.repository import Libosinfo as osinfo
 loader = osinfo.Loader()
 #loader.process_default_path()
 loader.process_path("osinfo-db/data")
+loader.process_path("osinfo-db-override")
 db = loader.get_db()
 
 class OsInfoGObjectProxy(object):

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<libosinfo version="0.0.1">
+
+  <os id="http://centos.org/centos/8.0">
+    <short-id>centos8.0</short-id>
+    <name>CentOS 8.0</name>
+    <version>8.0</version>
+    <vendor>CentOS</vendor>
+    <vendor xml:lang="ca">CentOS</vendor>
+    <vendor xml:lang="de">CentOS</vendor>
+    <vendor xml:lang="es">CentOS</vendor>
+    <vendor xml:lang="fr">CentOS</vendor>
+    <vendor xml:lang="id">CentOS</vendor>
+    <vendor xml:lang="it">CentOS</vendor>
+    <vendor xml:lang="ja">CentOS</vendor>
+    <vendor xml:lang="pl">CentOS</vendor>
+    <vendor xml:lang="pt_BR">CentOS</vendor>
+    <vendor xml:lang="uk">CentOS</vendor>
+    <family>linux</family>
+    <distro>centos</distro>
+    <upgrades id="http://centos.org/centos/7.0"/>
+    <clones id="http://redhat.com/rhel/8.0"/>
+
+    <resources arch="all">
+      <minimum>
+        <n-cpus>1</n-cpus>
+        <cpu>1000000000</cpu>
+        <ram>1073741824</ram>
+        <storage>10737418240</storage>
+      </minimum>
+
+      <recommended>
+        <cpu>1000000000</cpu>
+        <ram>1073741824</ram>
+        <storage>10737418240</storage>
+      </recommended>
+    </resources>
+
+    <installer>
+      <script id='http://redhat.com/rhel/kickstart/jeos'/>
+      <script id='http://redhat.com/rhel/kickstart/desktop'/>
+    </installer>
+  </os>
+</libosinfo>
