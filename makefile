@@ -138,9 +138,18 @@ rhel7.raw: centos7.raw
 centos6.qcow2:
 	curl -L http://cloud.centos.org/centos/6/images/CentOS-6-x86_64-GenericCloud.qcow2.xz | xz -d > $@
 
-# For now we test the RHEL75 template with the CentOS image
+# For now we test the RHEL6 template with the CentOS image
 rhel6.raw: centos6.raw
 	ln $< $@
+
+# For now we test the RHEL8 template with the CentOS image
+rhel8.raw: centos8.raw
+	ln $< $@
+
+centos8.qcow2:
+# For now we test the CentOS 8 image using Fedora as that is the branch source
+# TODO fix this once CentOS 8 is released
+	curl -L -o $@ https://download.fedoraproject.org/pub/fedora/linux/releases/28/Cloud/x86_64/images/Fedora-Cloud-Base-28-1.1.x86_64.qcow2
 
 clean:
 	rm -v *.raw *.qcow2
