@@ -43,7 +43,6 @@ objects:
 {% if item.iothreads %}
           ioThreadsPolicy: shared
 {% endif %}
-
           cpu:
             sockets: {{ item.cpus }}
             cores: 1
