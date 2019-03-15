@@ -16,29 +16,29 @@ metadata:
     openshift.io/support-url: "https://github.com/kubevirt/common-templates/issues"
     template.openshift.io/bindable: "false"
 
-    template.cnv.io/version: v1alpha1
-    defaults.template.cnv.io/disk: rootdisk
-    defaults.template.cnv.io/network: default
-    template.cnv.io/editable: |
+    template.kubevirt.io/version: v1alpha1
+    defaults.template.kubevirt.io/disk: rootdisk
+    defaults.template.kubevirt.io/network: default
+    template.kubevirt.io/editable: |
       /objects[0].spec.template.spec.domain.cpu.cores
       /objects[0].spec.template.spec.domain.resources.requests.memory
       /objects[0].spec.template.spec.domain.devices.disks
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
 
-    name.os.template.cnv.io/win2k12r2: {{ lookup('osinfo', 'win2k12r2').name }}
-    name.os.template.cnv.io/win2k8r2: {{ lookup('osinfo', 'win2k8r2').name }}
-    name.os.template.cnv.io/win2k8: {{ lookup('osinfo', 'win2k8').name }}
-    name.os.template.cnv.io/win10: {{ lookup('osinfo', 'win10').name }}
+    name.os.template.kubevirt.io/win2k12r2: {{ lookup('osinfo', 'win2k12r2').name }}
+    name.os.template.kubevirt.io/win2k8r2: {{ lookup('osinfo', 'win2k8r2').name }}
+    name.os.template.kubevirt.io/win2k8: {{ lookup('osinfo', 'win2k8').name }}
+    name.os.template.kubevirt.io/win10: {{ lookup('osinfo', 'win10').name }}
 
   labels:
-    os.template.cnv.io/win2k12r2: "true"
-    os.template.cnv.io/win2k8r2: "true"
-    os.template.cnv.io/win2k8: "true"
-    os.template.cnv.io/win10: "true"
-    workload.template.cnv.io/{{ item.workload }}: "true"
-    flavor.template.cnv.io/{{ item.flavor }}: "true"
-    template.cnv.io/type: "base"
+    os.template.kubevirt.io/win2k12r2: "true"
+    os.template.kubevirt.io/win2k8r2: "true"
+    os.template.kubevirt.io/win2k8: "true"
+    os.template.kubevirt.io/win10: "true"
+    workload.template.kubevirt.io/{{ item.workload }}: "true"
+    flavor.template.kubevirt.io/{{ item.flavor }}: "true"
+    template.kubevirt.io/type: "base"
 
 objects:
 - apiVersion: kubevirt.io/v1alpha3
@@ -46,7 +46,7 @@ objects:
   metadata:
     name: ${NAME}
     labels:
-      vm.cnv.io/template: win2k12r2-{{ item.workload }}-{{ item.flavor }}
+      vm.kubevirt.io/template: win2k12r2-{{ item.workload }}-{{ item.flavor }}
       app: ${NAME}
   spec:
     running: false

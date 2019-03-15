@@ -6,7 +6,7 @@ Since the templates will contain lots of redundancies, there should be a build t
 
 Also, there might be multiple different OSes, flavors, sizes mentioned by any single template file if they share the same configuration.
 
-Please note that the cnv.io suffix used in labels and annotations is temporary and is likely to change.
+Please note that the kubevirt.io suffix used in labels and annotations is temporary and is likely to change.
 
 ## User Experience
 
@@ -32,12 +32,12 @@ metadata:
     openshift.io/long-description: >-
       Long description of the template
     openshift.io/provider-display-name: "Red Hat, Inc."
-    openshift.io/documentation-url: "https://cnv.io/..."
+    openshift.io/documentation-url: "https://kubevirt.io/..."
     openshift.io/support-url: "https://access.redhat.com"
     iconClass: icon-windows    
 
     # Template structure version
-    template.cnv.io/version: v1alpha1
+    template.kubevirt.io/version: v1alpha1
 
     # The `defaults` set of annotations is meant as a hint only
     # and is not going to be processed by the stock openshift templating
@@ -49,28 +49,28 @@ metadata:
     # The goal of default disk is to define what kind of disk
     # is supported by the OS mainly in terms of bus (ide, scsi,
     # sata, virtio, ...)
-    defaults.template.cnv.io/disk: default-disk
+    defaults.template.kubevirt.io/disk: default-disk
 
     # The goal of default volume is to be able to configure mostly
     # performance parameters like caches if those are exposed
     # by the underlying volume implementation.
-    defaults.template.cnv.io/volume: default-volume
+    defaults.template.kubevirt.io/volume: default-volume
 
     # The goal of default network is similar to default-disk
     # and should be used as a template to ensure OS compatibility
     # and performance
-    defaults.template.cnv.io/nic: default-nic
+    defaults.template.kubevirt.io/nic: default-nic
 
     # The goal of default network is similar to default-volume
     # and should be used as a template that specifies performance
     # and connection parameters (L2 bridge for example)
-    defaults.template.cnv.io/network: default-network
+    defaults.template.kubevirt.io/network: default-network
 
     # Extension for hinting at which elements should be
     # considered editable. The content is a line separated
     # list of jsonpath selectors.
     # The jsonpath root is the objects: element of the template
-    template.cnv.io/editable: |
+    template.kubevirt.io/editable: |
       /objects[0].spec.template.spec.domain.cpu.cores
       /objects[0].spec.template.spec.domain.resources.requests.memory
       /objects[0].spec.template.spec.domain.devices.disks
@@ -82,34 +82,34 @@ metadata:
     # See the separate 'VALIDATION.md' document for the specification.
 
   labels:
-    # The UI can show all possible template.cnv.io/* values in a nice way
+    # The UI can show all possible template.kubevirt.io/* values in a nice way
     # and let the user filter down the available templates to the one
     # the user actually wants:
     # A single selected template only means no conflicts and no smart
     # merging code. This has to be done using labels to allow efficient
     # searching.
     # The format has the following meaning:
-    # {os,flavor,size}.template.cnv.io/{value}: true (or false for exclusion)
+    # {os,flavor,size}.template.kubevirt.io/{value}: true (or false for exclusion)
     # OS names should match the libosinfo identifiers
     # flavors are tiny, medium, large, etc.
     # workloads are desktop, server, high-performance, io-intensive,
     #               oracle-db, sap-hana...
-    os.template.cnv.io/windows2k12r2: "true"
-    os.template.cnv.io/windows8: "true"
-    os.template.cnv.io/windows7: "true"
-    workload.template.cnv.io/minimal: "true"
-    workload.template.cnv.io/io-intensive: "true"
-    # flavor.template.cnv.io/* not specified means all
+    os.template.kubevirt.io/windows2k12r2: "true"
+    os.template.kubevirt.io/windows8: "true"
+    os.template.kubevirt.io/windows7: "true"
+    workload.template.kubevirt.io/minimal: "true"
+    workload.template.kubevirt.io/io-intensive: "true"
+    # flavor.template.kubevirt.io/* not specified means all
     # And example of not specifying any positive requirement
     # but listing the exclusions instead (matches all except
     # the listed false valued labels).
-    flavor.template.cnv.io/tiny: "false"
+    flavor.template.kubevirt.io/tiny: "false"
 
     # CNV Template type to separate the use cases for base OS,
     # flavor, sizing templates and templates created from
     # running or imported VMs.
     # The supported values are currently: base and vm
-    template.cnv.io/type: "base"
+    template.kubevirt.io/type: "base"
 
 # Parameters must come from a subset of well known names
 # so the UI can properly work with those.
@@ -140,7 +140,7 @@ objects:
           devices:
             disks:
             # This should be interpreted as a template disk by the UI,
-            # thanks to the template.cnv.io/default annotations
+            # thanks to the template.kubevirt.io/default annotations
             # This must still result in a bootable VM when used as is.
             # This way we can both use Templates for creating new VM as well
             # as for converting an existing VM to a template
@@ -151,7 +151,7 @@ objects:
 
             interfaces:
             # This should be interpreted as a template network by the UI,
-            # thanks to the template.cnv.io/default annotations
+            # thanks to the template.kubevirt.io/default annotations
             # This must still result in a bootable VM when used as is.
             # This way we can both use Templates for creating new VM as well
             # as for converting an existing VM to a template
@@ -167,7 +167,7 @@ objects:
 
         volumes:
             # This should be interpreted as a template volume by the UI,
-            # thanks to the template.cnv.io/default annotations
+            # thanks to the template.kubevirt.io/default annotations
             # This must still result in a bootable VM when used as is.
             # This way we can both use Templates for creating new VM as well
             # as for converting an existing VM to a template
@@ -192,7 +192,7 @@ metadata:
     # Arbitrary format as needed to be able to
     # repopulate the UI or the template processor
     # and get the same output
-    parameters.template.cnv.io/MEMORY_SIZE: 8
+    parameters.template.kubevirt.io/MEMORY_SIZE: 8
 
     # Extension for specifying which elements were customized.
     # The idea is to record fields that need to be preserved
@@ -200,7 +200,7 @@ metadata:
     # editing or upgrade.
     # The content is a line separated list of jsonpath selectors.
     # The jsonpath root is the spec: element of the VM object
-    template.cnv.io/keep: |
+    template.kubevirt.io/keep: |
       /template.spec.domain.cpu.cores
       /template.spec.domain.resources.requests.memory
       /template.spec.domain.devices.disks
@@ -213,13 +213,13 @@ metadata:
     # or UI for recomputing the VM.spec using updated
     # template. A VM without this label can be considered
     # "baked" and not linked to any template.
-    vm.cnv.io/template: windows
+    vm.kubevirt.io/template: windows
 
     # This optional label will link the VM to the namespace
     # of a template that was used to create it.
     # If this label is not defined, the template is 
     # expected to belong to the same namespace as the VM.
-    vm.cnv.io/template-namespace: openshift
+    vm.kubevirt.io/template-namespace: openshift
 
 # The requested state of the VM that will always match what
 # the user asked for exactly. When the UI pushes edits it

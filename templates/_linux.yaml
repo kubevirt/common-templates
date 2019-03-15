@@ -4,9 +4,9 @@
     openshift.io/support-url: "https://github.com/kubevirt/common-templates/issues"
     template.openshift.io/bindable: "false"
 
-    template.cnv.io/version: v1alpha1
-    defaults.template.cnv.io/disk: rootdisk
-    template.cnv.io/editable: |
+    template.kubevirt.io/version: v1alpha1
+    defaults.template.kubevirt.io/disk: rootdisk
+    template.kubevirt.io/editable: |
       /objects[0].spec.template.spec.domain.cpu.sockets
       /objects[0].spec.template.spec.domain.cpu.cores
       /objects[0].spec.template.spec.domain.cpu.threads
@@ -16,16 +16,16 @@
       /objects[0].spec.template.spec.networks
 
 {% for osl in oslabels %}
-    name.os.template.cnv.io/{{ osl }}: {{ lookup('osinfo', osl).name }}
+    name.os.template.kubevirt.io/{{ osl }}: {{ lookup('osinfo', osl).name }}
 {% endfor %}
 
   labels:
 {% for osl in oslabels %}
-    os.template.cnv.io/{{ osl }}: "true"
+    os.template.kubevirt.io/{{ osl }}: "true"
 {% endfor %}
-    workload.template.cnv.io/{{ item.workload }}: "true"
-    flavor.template.cnv.io/{{ item.flavor }}: "true"
-    template.cnv.io/type: "base"
+    workload.template.kubevirt.io/{{ item.workload }}: "true"
+    flavor.template.kubevirt.io/{{ item.flavor }}: "true"
+    template.kubevirt.io/type: "base"
 
 objects:
 - apiVersion: kubevirt.io/v1alpha3
@@ -33,7 +33,7 @@ objects:
   metadata:
     name: ${NAME}
     labels:
-      vm.cnv.io/template: {{ os }}-{{ item.workload }}-{{ item.flavor }}
+      vm.kubevirt.io/template: {{ os }}-{{ item.workload }}-{{ item.flavor }}
       app: ${NAME}
   spec:
     running: false
