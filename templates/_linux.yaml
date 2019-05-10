@@ -19,6 +19,17 @@
     name.os.template.kubevirt.io/{{ osl }}: {{ lookup('osinfo', osl).name }}
 {% endfor %}
 
+    validations: |
+      [
+        {
+          "name": "minimal-required-memory",
+          "path": "jsonpath::.spec.domain.resources.requests.memory",
+          "rule": "integer",
+          "message": "This VM requires more memory.",
+          "min": {{ lookup('osinfo', osinfoname)["minimum_resources.0.ram"] }}
+        },
+      ]
+
   labels:
 {% for osl in oslabels %}
     os.template.kubevirt.io/{{ osl }}: "true"

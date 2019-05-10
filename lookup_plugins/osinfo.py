@@ -61,7 +61,8 @@ class OsInfoGObjectProxy(object):
             return False
 
     def _resolve(self, val, path):
-        if (type(val) == int or type(val) == float or type(val) == str or
+        if (type(val) == int or type(val) == long or
+                type(val) == float or type(val) == str or
                 type(val) == unicode or type(val) == bool):
             return val
         else:
@@ -104,6 +105,7 @@ class LookupModule(LookupBase):
                 os = OsInfoGObjectProxy(oses.get_nth(0), root_path = "[" + term + "]")
                 ret.append(os)
             else:
+                print("OS {} not found".format(term))
                 ret.append({"name": term})
 
         return ret
