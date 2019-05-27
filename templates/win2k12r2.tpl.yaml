@@ -94,6 +94,7 @@ objects:
                 name: tablet
 {% endif %}
         terminationGracePeriodSeconds: 0
+        evictionStrategy: LiveMigrate
         volumes:
         - name: rootdisk
           persistentVolumeClaim:
