@@ -1,9 +1,8 @@
 ---
-stage: check-patch
 sub-stages:
-  - windows2016-release
-script:
-  from-file: automation/test.sh
+  - windows2016
+  - rhel8
+
 runtime_requirements:
   support_nesting_level: 2
   isolation_level: container
