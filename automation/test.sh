@@ -19,10 +19,30 @@
 
 set -ex
 
-export TARGET="windows2016"
+readonly TEMPLATES_SERVER="https://templates.ovirt.org/kubevirt/"
+
+export RHEL_NFS_DIR=${RHEL_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/rhel7}
+export RHEL_LOCK_PATH=${RHEL_LOCK_PATH:-/var/lib/stdci/shared/download_rhel_image.lock}
 export WINDOWS_NFS_DIR=${WINDOWS_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/windows2016}
 export WINDOWS_LOCK_PATH=${WINDOWS_LOCK_PATH:-/var/lib/stdci/shared/download_windows_image.lock}
-export KUBEVIRT_MEMORY_SIZE=12288M
+export KUBEVIRT_MEMORY_SIZE=16384M
+export KUBEVIRT_PROVIDER="os-3.11.0"
+export VERSION="v0.18.0"
+
+wait_for_download_lock() {
+  local max_lock_attempts=60
+  local lock_wait_interval=60
+
+  for ((i = 0; i < $max_lock_attempts; i++)); do
+      if (set -o noclobber; > $1) 2> /dev/null; then
+          echo "Acquired lock: $1"
+          return
+      fi
+      sleep $lock_wait_interval
+  done
+  echo "Timed out waiting for lock: $1" >&2
+  exit 1
+}
 
 safe_download() (
     # Download files into shared locations using a lock.
@@ -42,8 +62,16 @@ safe_download() (
     local remote_sha1_url="${download_from}.sha1"
     local local_sha1_file="${download_to}.sha1"
     local remote_sha1
+    local retry=3
     # Remote file includes only sha1 w/o filename suffix
-    remote_sha1="$(curl -s "${remote_sha1_url}")"
+    for i in $(seq 1 $retry);
+    do
+      remote_sha1="$(curl -s "${remote_sha1_url}")"
+      if [[ "$remote_sha1" != "" ]]; then
+        break
+      fi
+    done
+
     if [[ "$(cat "$local_sha1_file")" != "$remote_sha1" ]]; then
         echo "${download_to} is not up to date, corrupted or doesn't exist."
         echo "Downloading file from: ${remote_sha1_url}"
@@ -58,59 +86,74 @@ safe_download() (
     fi
 )
 
-# Create images directory
-if [[ ! -d $WINDOWS_NFS_DIR ]]; then
-  mkdir -p $WINDOWS_NFS_DIR
+original_target=$TARGET
+
+if [[ $TARGET =~ rhel8.* ]]; then
+    # Create images directory
+    if [[ ! -d $RHEL_NFS_DIR ]]; then
+        mkdir -p $RHEL_NFS_DIR
+    fi
+
+    # Download RHEL image
+    rhel_image_url="${TEMPLATES_SERVER}/rhel7.img"
+    rhel_image="$RHEL_NFS_DIR/disk.img"
+    safe_download "$RHEL_LOCK_PATH" "$rhel_image_url" "$rhel_image" || exit 1
+
+    # Hack to correctly set rhel nfs directory for kubevirt
+    # https://github.com/kubevirt/kubevirt/blob/master/cluster/ephemeral-provider-common.sh#L38
+    export TARGET="os-3.11.0"
 fi
 
-readonly TEMPLATES_SERVER="https://templates.ovirt.org/kubevirt/"
-win_image_url="${TEMPLATES_SERVER}/win01.img"
-win_image="$WINDOWS_NFS_DIR/disk.img"
-# Download Windows image
-safe_download "$WINDOWS_LOCK_PATH" "$win_image_url" "$win_image" || exit 1
+if [[ $TARGET =~ windows.* ]]; then
+  # Create images directory
+  if [[ ! -d $WINDOWS_NFS_DIR ]]; then
+    mkdir -p $WINDOWS_NFS_DIR
+  fi
 
+  # Download Windows image
+  win_image_url="${TEMPLATES_SERVER}/win01.img"
+  win_image="$WINDOWS_NFS_DIR/disk.img"
+  safe_download "$WINDOWS_LOCK_PATH" "$win_image_url" "$win_image" || exit 1
+fi
 
-_oc() { 
-  cluster/kubectl.sh "$@"
-}
+_oc() { cluster/kubectl.sh "$@"; }
 
 git submodule update --init
 
 ansible-playbook generate-templates.yaml
+
+cp automation/connect_to_rhel_console.exp automation/kubevirt/connect_to_rhel_console.exp 
   
 cd automation/kubevirt
-
-# Make sure that the VM is properly shut down on exit
-trap '{ make cluster-down; }' EXIT SIGINT SIGTERM SIGSTOP
-
-# If run on CI use random kubevirt system-namespaces
-if [ -n "${JOB_NAME}" ]; then
-  export NAMESPACE="kubevirt-$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)"
-  cat >hack/config-local.sh <<EOF
-namespace=${NAMESPACE}
-EOF
-else
-  export NAMESPACE="${NAMESPACE:-kubevirt}"
-fi
-
-export KUBEVIRT_PROVIDER="os-3.11.0"
-export VERSION="v0.15.0-alpha.0"
 
 curl -Lo virtctl \
     https://github.com/kubevirt/kubevirt/releases/download/$VERSION/virtctl-$VERSION-linux-amd64
 chmod +x virtctl
 
+
+export NAMESPACE="${NAMESPACE:-kubevirt}"
+
+# Make sure that the VM is properly shut down on exit
+trap '{ make cluster-down; }' EXIT SIGINT SIGTERM SIGSTOP
+
+
+# Check if we are on a pull request in jenkins.
+export KUBEVIRT_CACHE_FROM=${PULL_BASE_REF}
+if [ -n "${KUBEVIRT_CACHE_FROM}" ]; then
+    make pull-cache
+fi
+
 make cluster-down
-make cluster-up 
+make cluster-up
 
 # Wait for nodes to become ready
-_oc get nodes --no-headers
 set +e
-kubectl_rc=$?
-while [ $kubectl_rc -ne 0 ] || [ -n "$(_oc get nodes --no-headers | grep NotReady)" ]; do
+_oc get nodes --no-headers
+oc_rc=$?
+while [ $oc_rc -ne 0 ] || [ -n "$(_oc get nodes --no-headers | grep NotReady)" ]; do
     echo "Waiting for all nodes to become ready ..."
     _oc get nodes --no-headers
-    kubectl_rc=$?
+    oc_rc=$?
     sleep 10
 done
 set -e
@@ -118,22 +161,17 @@ set -e
 echo "Nodes are ready:"
 _oc get nodes
 
-_oc adm policy add-scc-to-user privileged system:serviceaccount:kubevirt:kubevirt-handler
-_oc adm policy add-scc-to-user privileged system:serviceaccount:kubevirt:kubevirt-controller
-_oc adm policy add-scc-to-user privileged system:serviceaccount:kubevirt:kubevirt-apiserver
+_oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-operator.yaml
+_oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-cr.yaml
 
-_oc apply \
-    -f https://github.com/kubevirt/kubevirt/releases/download/$VERSION/kubevirt.yaml
-
-export NAMESPACE="${NAMESPACE:-kubevirt}"
 # OpenShift is running important containers under default namespace
 namespaces=(kubevirt default)
 if [[ $NAMESPACE != "kubevirt" ]]; then
   namespaces+=($NAMESPACE)
 fi
 
-sample=30
 timeout=300
+sample=30
 
 for i in ${namespaces[@]}; do
   # Wait until kubevirt pods are running
@@ -164,43 +202,7 @@ for i in ${namespaces[@]}; do
   _oc get pods -n $i
 done
 
-# Prepare PV and PVC for Windows testing, create winrmcli pod
-
 _oc create -f - <<EOF
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: disk-windows
-  labels:
-    kubevirt.io/os: "windows"
-spec:
-  capacity:
-    storage: 30Gi
-  accessModes:
-    - ReadWriteOnce
-  nfs:
-    server: "nfs"
-    path: /
-  storageClassName: local
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: disk-windows
-  labels:
-    kubevirt.io: ""
-spec:
-  storageClassName: local
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 30Gi
-
-  selector:
-    matchLabels:
-      kubevirt.io/os: "windows"
 ---
 apiVersion: v1
 kind: Pod
@@ -216,12 +218,13 @@ spec:
     imagePullPolicy: Always
     name: winrmcli
 restartPolicy: Always
+---
 EOF
 
 # Make sure winrmcli pod is ready
 set +e
 current_time=0
-while [[ $(_oc get pod winrmcli -o json | jq '.status.phase') != *Running* ]]  ; do 
+while [ $(_oc get pod winrmcli -o json | jq -r '.status.phase') != "Running" ]  ; do 
   _oc get pod winrmcli -o yaml
   current_time=$((current_time + sample))
   if [ $current_time -gt $timeout ]; then
@@ -233,68 +236,15 @@ set -e
 
 _oc exec -it winrmcli -- yum install -y iproute iputils
 
-kubeconfig="cluster/$KUBEVIRT_PROVIDER/.kubeconfig"
-sizes=("medium" "large")
-workloads=("server" "desktop")
-for size in ${sizes[@]}; do
-  for workload in ${workloads[@]}; do
-    windowsTemplatePath="../../dist/templates/win2k12r2-$workload-$size.yaml"
 
-    _oc process -o json --local -f $windowsTemplatePath NAME=win2k1r2-$workload-$size PVCNAME=disk-windows | \
-    jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-windows"}}} | 
-    del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim)' | \
-    _oc apply -f -
+#switch back original target
+export TARGET=$original_target
 
-    # start vm
-    ./virtctl --kubeconfig=$kubeconfig start win2k1r2-$workload-$size
 
-    set +e
-    current_time=0
-    while [[ $(_oc get vmi win2k1r2-$workload-$size -o json | jq '.status.phase') != *Running* ]] ; do 
-      _oc describe vmi win2k1r2-$workload-$size
-      current_time=$((current_time + sample))
-      if [ $current_time -gt $timeout ]; then
-        exit 1
-      fi
-      sleep $sample;
-    done
-    set -e
+if [[ $TARGET =~ rhel8.* ]]; then
+  ../test-rhel8.sh
+fi
 
-    _oc describe vm win2k1r2-$workload-$size
-    _oc describe vmi win2k1r2-$workload-$size
-
-    # get ip address of vm
-    ipAddressVMI=$(_oc get vmi win2k1r2-$workload-$size -o yaml | grep ipAddress | awk '{print $3}')
-
-    set +e
-    timeout=600
-    current_time=0
-    # Make sure vm is ready
-    while _oc exec -it winrmcli -- ping -c1 $ipAddressVMI| grep "Destination Host Unreachable" ; do 
-      current_time=$((current_time + 10))
-      if [ $current_time -gt $timeout ]; then
-        exit 1
-      fi
-      sleep 10;
-    done
-
-    timeout=300
-    current_time=0
-    # run ipconfig /all command on windows vm
-    while [[ $(_oc exec -it winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all") != *"$ipAddressVMI"* ]] ; do 
-      current_time=$((current_time + 10))
-      if [ $current_time -gt $timeout ]; then
-        exit 1
-      fi
-      sleep 10;
-    done
-
-    ./virtctl --kubeconfig=$kubeconfig stop win2k1r2-$workload-$size 
-    set -e
-
-    _oc process -o json --local -f $windowsTemplatePath NAME=win2k1r2-$workload-$size PVCNAME=disk-windows | \
-    jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-windows"}}} | 
-    del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim)' | \
-    _oc delete -f -
-  done
-done
+if [[ $TARGET =~ windows.* ]]; then
+  ../test-windows.sh
+fi
