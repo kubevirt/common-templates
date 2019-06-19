@@ -27,7 +27,7 @@ export WINDOWS_NFS_DIR=${WINDOWS_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/
 export WINDOWS_LOCK_PATH=${WINDOWS_LOCK_PATH:-/var/lib/stdci/shared/download_windows_image.lock}
 export KUBEVIRT_MEMORY_SIZE=16384M
 export KUBEVIRT_PROVIDER="os-3.11.0"
-export VERSION="v0.18.0"
+export VERSION=$(curl https://api.github.com/repos/kubevirt/kubevirt/releases/latest | jq -r '.tag_name')
 
 wait_for_download_lock() {
   local max_lock_attempts=60
