@@ -140,6 +140,7 @@ _oc() { cluster/kubectl.sh "$@"; }
 
 git submodule update --init
 
+make -C osinfo-db/ OSINFO_DB_EXPORT=echo
 ansible-playbook generate-templates.yaml
 
 cp automation/connect_to_rhel_console.exp automation/kubevirt/connect_to_rhel_console.exp 
