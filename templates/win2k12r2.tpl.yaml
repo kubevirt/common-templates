@@ -89,8 +89,11 @@ objects:
             hyperv:
               relaxed: {}
               vapic: {}
+              vpindex: {}
               spinlocks:
                 spinlocks: 8191
+              synic: {}
+              synictimer: {}
           devices:
             disks:
             - disk:
