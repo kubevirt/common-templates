@@ -32,14 +32,6 @@ jobs:
     env: TARGET=functional-tests TEST_FUNCTIONAL="centos8-desktop-tiny centos8-desktop-small centos8-desktop-medium centos8-desktop-large"
     script: bash -x test.sh
 
-  - name: Functional test of the RHEL 7 template
-    env: TARGET=functional-tests TEST_FUNCTIONAL="rhel7-server-tiny rhel7-server-small rhel7-server-medium rhel7-server-large"
-    script: bash -x test.sh
-
-  - name: Functional test of the desktop RHEL 7 template
-    env: TARGET=functional-tests TEST_FUNCTIONAL="rhel7-desktop-tiny rhel7-desktop-small rhel7-desktop-medium rhel7-desktop-large"
-    script: bash -x test.sh
-
   - name: Functional test of the CentOS 7 template
     env: TARGET=functional-tests TEST_FUNCTIONAL="centos7-server-tiny centos7-server-small centos7-server-medium centos7-server-large"
     script: bash -x test.sh
