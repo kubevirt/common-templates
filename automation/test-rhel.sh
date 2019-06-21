@@ -4,7 +4,7 @@ _oc() {
   cluster/kubectl.sh "$@"
 }
 
-template_name="rhel8"
+template_name=$1
 
 # Prepare PV and PVC for rhel8 testing
 

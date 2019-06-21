@@ -1,6 +1,7 @@
 ---
 sub-stages:
   - windows2016
+  - rhel7
   - rhel8
 
 runtime_requirements:
