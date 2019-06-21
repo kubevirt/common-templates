@@ -21,13 +21,24 @@ set -ex
 
 readonly TEMPLATES_SERVER="https://templates.ovirt.org/kubevirt/"
 
-export RHEL_NFS_DIR=${RHEL_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/rhel7}
+export RHEL_NFS_DIR=${RHEL_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/rhel}
 export RHEL_LOCK_PATH=${RHEL_LOCK_PATH:-/var/lib/stdci/shared/download_rhel_image.lock}
 export WINDOWS_NFS_DIR=${WINDOWS_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/windows2016}
 export WINDOWS_LOCK_PATH=${WINDOWS_LOCK_PATH:-/var/lib/stdci/shared/download_windows_image.lock}
 export KUBEVIRT_MEMORY_SIZE=16384M
 export KUBEVIRT_PROVIDER="os-3.11.0"
-export VERSION=$(curl https://api.github.com/repos/kubevirt/kubevirt/releases/latest | jq -r '.tag_name')
+
+_curl() {
+	# this dupes the baseline "curl" command line, but is simpler
+	# wrt shell quoting/expansion.
+	if [ -n "${GITHUB_TOKEN}" ]; then
+		curl -H "Authorization: token ${GITHUB_TOKEN}" $@
+	else
+		curl $@
+	fi
+}
+
+export VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt/releases/latest | jq -r '.tag_name')
 
 wait_for_download_lock() {
   local max_lock_attempts=60
@@ -95,7 +106,7 @@ if [[ $TARGET =~ rhel8.* ]]; then
     fi
 
     # Download RHEL image
-    rhel_image_url="${TEMPLATES_SERVER}/rhel7.img"
+    rhel_image_url="${TEMPLATES_SERVER}/rhel8.qcow2"
     rhel_image="$RHEL_NFS_DIR/disk.img"
     safe_download "$RHEL_LOCK_PATH" "$rhel_image_url" "$rhel_image" || exit 1
 
