@@ -121,8 +121,22 @@ if [[ $TARGET =~ windows.* ]]; then
     mkdir -p $WINDOWS_NFS_DIR
   fi
 
+  win_image_url=""
+
+  if [[ $TARGET =~ windows2012.* ]]; then
+    win_image_url="${TEMPLATES_SERVER}/win_12.qcow2"
+  fi
+
+  if [[ $TARGET =~ windows2016.* ]]; then
+    win_image_url="${TEMPLATES_SERVER}/win_16.img"
+  fi
+
+  if [[ $TARGET =~ windows10.* ]]; then
+    win_image_url="${TEMPLATES_SERVER}/win_10.qcow2"
+  fi
+
+
   # Download Windows image
-  win_image_url="${TEMPLATES_SERVER}/win01.img"
   win_image="$WINDOWS_NFS_DIR/disk.img"
   safe_download "$WINDOWS_LOCK_PATH" "$win_image_url" "$win_image" || exit 1
 fi
@@ -131,6 +145,7 @@ _oc() { cluster/kubectl.sh "$@"; }
 
 git submodule update --init
 
+make -C osinfo-db/ OSINFO_DB_EXPORT=echo
 ansible-playbook generate-templates.yaml
 
 cp automation/connect_to_rhel_console.exp automation/kubevirt/connect_to_rhel_console.exp 
