@@ -58,6 +58,7 @@ objects:
     name: ${NAME}
     labels:
       vm.kubevirt.io/template: win2k12r2-{{ item.workload }}-{{ item.flavor }}
+      vm.kubevirt.io/template.version: "{{ lookup('env', 'VERSION') | regex_replace('^v?(?P<version>\d+\.\d+\.\d+)$', '\\g<version>') }}"
       app: ${NAME}
   spec:
     running: false
