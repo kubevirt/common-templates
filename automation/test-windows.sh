@@ -12,7 +12,7 @@ _oc create -f - <<EOF
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: disk-win2k12r2
+  name: disk-win
   labels:
     kubevirt.io/os: "windows"
 spec:
@@ -28,7 +28,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: disk-win2k12r2
+  name: disk-win
   labels:
     kubevirt.io: ""
 spec:
@@ -59,7 +59,7 @@ for size in ${sizes[@]}; do
     templatePath="../../dist/templates/$template_name-$workload-$size.yaml"
 
     _oc process -o json --local -f $templatePath NAME=$template_name-$workload-$size PVCNAME=disk-$template_name | \
-    jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-win2k12r2"}}} | 
+    jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-win"}}} | 
     del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim)' | \
     _oc apply -f -
 
