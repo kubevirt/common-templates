@@ -3,6 +3,7 @@ sub-stages:
   - windows2012
   - windows2016
   - windows10
+  - rhel7
   - rhel8
 
 runtime_requirements:

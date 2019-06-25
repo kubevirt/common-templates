@@ -99,14 +99,23 @@ safe_download() (
 
 original_target=$TARGET
 
-if [[ $TARGET =~ rhel8.* ]]; then
+if [[ $TARGET =~ rhel.* ]]; then
     # Create images directory
     if [[ ! -d $RHEL_NFS_DIR ]]; then
         mkdir -p $RHEL_NFS_DIR
     fi
 
+    rhel_image_url=""
+
+    if [[ $TARGET =~ rhel7.* ]]; then
+      rhel_image_url="${TEMPLATES_SERVER}/rhel7.img"
+    fi
+
+    if [[ $TARGET =~ rhel8.* ]]; then
+      rhel_image_url="${TEMPLATES_SERVER}/rhel8.qcow2"
+    fi
+
     # Download RHEL image
-    rhel_image_url="${TEMPLATES_SERVER}/rhel8.qcow2"
     rhel_image="$RHEL_NFS_DIR/disk.img"
     safe_download "$RHEL_LOCK_PATH" "$rhel_image_url" "$rhel_image" || exit 1
 
@@ -267,8 +276,8 @@ _oc exec -it winrmcli -- yum install -y iproute iputils
 export TARGET=$original_target
 
 
-if [[ $TARGET =~ rhel8.* ]]; then
-  ../test-rhel8.sh
+if [[ $TARGET =~ rhel.* ]]; then
+  ../test-rhel.sh $TARGET
 fi
 
 if [[ $TARGET =~ windows.* ]]; then
