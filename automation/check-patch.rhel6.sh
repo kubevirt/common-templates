@@ -1,0 +1,1 @@
+check-patch.rhel8.sh
