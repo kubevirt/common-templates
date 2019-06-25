@@ -107,6 +107,10 @@ if [[ $TARGET =~ rhel.* ]]; then
 
     rhel_image_url=""
 
+    if [[ $TARGET =~ rhel6.* ]]; then
+      rhel_image_url="${TEMPLATES_SERVER}/rhel6.qcow2"
+    fi
+
     if [[ $TARGET =~ rhel7.* ]]; then
       rhel_image_url="${TEMPLATES_SERVER}/rhel7.img"
     fi
@@ -236,41 +240,6 @@ for i in ${namespaces[@]}; do
   done
   _oc get pods -n $i
 done
-
-_oc create -f - <<EOF
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: winrmcli
-  namespace: default
-spec:
-  containers:
-  - image: kubevirt/winrmcli
-    command:
-      - sleep
-      - "3600"
-    imagePullPolicy: Always
-    name: winrmcli
-restartPolicy: Always
----
-EOF
-
-# Make sure winrmcli pod is ready
-set +e
-current_time=0
-while [ $(_oc get pod winrmcli -o json | jq -r '.status.phase') != "Running" ]  ; do 
-  _oc get pod winrmcli -o yaml
-  current_time=$((current_time + sample))
-  if [ $current_time -gt $timeout ]; then
-    exit 1
-  fi
-  sleep $sample;
-done
-set -e
-
-_oc exec -it winrmcli -- yum install -y iproute iputils
-
 
 #switch back original target
 export TARGET=$original_target

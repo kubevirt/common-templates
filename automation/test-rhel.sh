@@ -28,8 +28,6 @@ spec:
 ---
 EOF
 
-sleep 10
-
 _oc create -f - <<EOF
 ---
 apiVersion: v1
@@ -52,14 +50,19 @@ spec:
       kubevirt.io/test: "rhel"
 ---
 EOF
-
+sleep 10
 timeout=600
-sample=30
+sample=10
 
 kubeconfig="cluster/$KUBEVIRT_PROVIDER/.kubeconfig"
 
 sizes=("tiny" "small" "medium" "large")
 workloads=("desktop" "server" "highperformance")
+
+if [[ $TARGET =~ rhel6.* ]]; then
+  workloads=("desktop" "server")
+fi
+
 for size in ${sizes[@]}; do
   for workload in ${workloads[@]}; do
     templatePath="../../dist/templates/$template_name-$workload-$size.yaml"
@@ -82,31 +85,18 @@ for size in ${sizes[@]}; do
       fi
       sleep $sample;
     done
-    set -e
 
-
-    # get ip address of vm
-    ipAddressVMI=$(_oc get vmi $template_name-$workload-$size -o json| jq -r '.status.interfaces[0].ipAddress')
-
-    set +e
     current_time=0
-    # Make sure vm is ready
-    while _oc exec -it winrmcli -- ping -c1 $ipAddressVMI| grep "Destination Host Unreachable" ; do 
-      current_time=$((current_time + 10))
+    while [  $(./connect_to_rhel_console.exp $kubeconfig $template_name-$workload-$size | grep login | wc -l) -lt 1 ] ; do 
+      echo "waiting for vm to be ready"
+
+      current_time=$((current_time + sample))
       if [ $current_time -gt $timeout ]; then
+        echo "It should show login prompt"
         exit 1
       fi
-      sleep 10;
+      sleep $sample;
     done
-    set -e
-
-    sleep 5
-
-    if [ $(./connect_to_rhel_console.exp $kubeconfig $template_name-$workload-$size | grep login | wc -l) -lt 1 ]; then
-      echo "It should show login prompt"
-      exit 1
-    fi
-    set +e
 
     ./virtctl --kubeconfig=$kubeconfig stop "$template_name-$workload-$size" 
 
