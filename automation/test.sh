@@ -38,7 +38,7 @@ _curl() {
 	fi
 }
 
-export VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt/releases/latest | jq -r '.tag_name')
+export VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt/tags| jq -r '.[].name' | sort -r | head -1 )
 
 wait_for_download_lock() {
   local max_lock_attempts=60
