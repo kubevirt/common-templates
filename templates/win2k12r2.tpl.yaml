@@ -1,7 +1,7 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: win2k12r2-{{ item.workload }}-{{ item.flavor }}
+  name: win2k12r2-{{ item.workload }}-{{ item.flavor }}-{{ lookup('env', 'VERSION') | default('devel', true) }}
   annotations:
     openshift.io/display-name: "Microsoft Windows Server 2012 R2 VM"
     description: >-
@@ -47,7 +47,8 @@ objects:
     name: ${NAME}
     labels:
       vm.kubevirt.io/template: win2k12r2-{{ item.workload }}-{{ item.flavor }}
-      vm.kubevirt.io/template.version: "{{ lookup('env', 'VERSION') | regex_replace('^v?(?P<version>\d+\.\d+\.\d+)$', '\\g<version>') }}"
+      vm.kubevirt.io/template.version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
+      vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
       app: ${NAME}
   spec:
     running: false

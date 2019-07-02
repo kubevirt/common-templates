@@ -63,7 +63,8 @@ jobs:
   - stage: Build and Deploy
     name: Build and Deploy to GitHub
     before_script: skip
-    script: make release "VERSION=$TRAVIS_TAG"
+    # released artifacts MUST always have REVISION=1
+    script: make release "VERSION=$TRAVIS_TAG" REVISION=1
     deploy:
       provider: releases
       api_key: "$GITHUB_TOKEN"
