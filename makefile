@@ -10,8 +10,8 @@ METASOURCES=$(ALL_META_TEMPLATES) $(ALL_PRESETS)
 ALL_GUESTS=$(ALL_TEMPLATES:dist/templates/%.yaml=%)
 
 # Make sure the version is defined
-VERSION=unknown
-
+export VERSION=$(shell ./version.sh)
+export REVISION=$(shell ./revision.sh)
 
 TEST_SYNTAX=$(ALL_GUESTS)
 TEST_UNIT=$(ALL_GUESTS)

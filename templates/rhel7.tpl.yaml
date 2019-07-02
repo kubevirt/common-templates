@@ -1,7 +1,7 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
+  name: {{ os }}-{{ item.workload }}-{{ item.flavor }}-{{ lookup('env', 'VERSION') | default('devel', true) }}
   annotations:
     openshift.io/display-name: "Red Hat Enterprise Linux 7.0+ VM"
     description: >-
