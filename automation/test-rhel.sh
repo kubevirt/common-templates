@@ -3,7 +3,7 @@
 set -ex
 
 _oc() { 
-  cluster/kubectl.sh "$@"
+  cluster-up/kubectl.sh "$@"
 }
 
 template_name=$1
@@ -56,7 +56,7 @@ sleep 10
 timeout=600
 sample=10
 
-kubeconfig="cluster/$KUBEVIRT_PROVIDER/.kubeconfig"
+kubeconfig=$( cluster-up/kubeconfig.sh )
 
 sizes=("tiny" "small" "medium" "large")
 workloads=("desktop" "server" "highperformance")
