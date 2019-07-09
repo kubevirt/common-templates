@@ -154,16 +154,16 @@ if [[ $TARGET =~ windows.* ]]; then
   safe_download "$WINDOWS_LOCK_PATH" "$win_image_url" "$win_image" || exit 1
 fi
 
-_oc() { cluster/kubectl.sh "$@"; }
+_oc() { cluster-up/kubectl.sh "$@"; }
 
 git submodule update --init
 
 make -C osinfo-db/ OSINFO_DB_EXPORT=echo
 ansible-playbook generate-templates.yaml
 
-cp automation/connect_to_rhel_console.exp automation/kubevirt/connect_to_rhel_console.exp 
+cp automation/connect_to_rhel_console.exp automation/kubevirtci/connect_to_rhel_console.exp
   
-cd automation/kubevirt
+cd automation/kubevirtci
 
 curl -Lo virtctl \
     https://github.com/kubevirt/kubevirt/releases/download/$VERSION/virtctl-$VERSION-linux-amd64

@@ -3,7 +3,7 @@
 set -ex
 
 _oc() { 
-  cluster/kubectl.sh "$@"
+  cluster-up/kubectl.sh "$@"
 }
 
 template_name="win2k12r2"
@@ -84,7 +84,7 @@ set -e
 
 _oc exec -it winrmcli -- yum install -y iproute iputils
 
-kubeconfig="cluster/$KUBEVIRT_PROVIDER/.kubeconfig"
+kubeconfig=$( cluster-up/kubeconfig.sh )
 
 sizes=("medium" "large")
 workloads=("server" "desktop")
