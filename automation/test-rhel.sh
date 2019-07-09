@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 _oc() { 
   cluster/kubectl.sh "$@"
 }
