@@ -117,6 +117,11 @@ for size in ${sizes[@]}; do
     _oc describe vm $template_name-$workload-$size
     _oc describe vmi $template_name-$workload-$size
 
+    _oc get pods --all-namespaces -l "kubevirt.io=virt-launcher" -o=go-template --template='{{ range .items }}-n {{.metadata.namespace}} {{.metadata.name}}{{ "\n" }}{{ end }}' | while read vmPodId; do
+       _oc exec -ti $vmPodId -- virsh -r dumpxml 1
+       _oc logs $vmPodId
+    done
+
     # get ip address of vm
     ipAddressVMI=$(_oc get vmi $template_name-$workload-$size -o json| jq -r '.status.interfaces[0].ipAddress')
 
