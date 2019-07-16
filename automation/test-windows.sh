@@ -94,7 +94,7 @@ for size in ${sizes[@]}; do
   for workload in ${workloads[@]}; do
     templatePath="../../dist/templates/$template_name-$workload-$size.yaml"
 
-    _oc process -o json --local -f $templatePath NAME=$template_name-$workload-$size PVCNAME=disk-$template_name | \
+    _oc process -o json --local -f $templatePath NAME=$template_name-$workload-$size PVCNAME=disk-win | \
     jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-win"}}} | 
     del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim)' | \
     _oc apply -f -
@@ -122,22 +122,10 @@ for size in ${sizes[@]}; do
 
     set +e
     current_time=0
-    # Make sure vm is ready
-    while _oc exec -it winrmcli -- ping -c1 $ipAddressVMI| grep "Destination Host Unreachable" ; do 
-      current_time=$((current_time + 10))
-      if [ $current_time -gt $timeout ]; then
-        exit 1
-      fi
-      sleep 10;
-    done
-
-
-    timeout=300
-    current_time=0
     # run ipconfig /all command on windows vm
-    while [ $(_oc exec -it winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all") != *"$ipAddressVMI"* ] ; do 
+    while [[ $(_oc exec -it winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all") != *"$ipAddressVMI"* ]] ; do 
       current_time=$((current_time + 10))
-      if [ $current_time -gt $timeout ]; then
+      if [[ $current_time -gt $timeout ]]; then
         exit 1
       fi
       sleep 10;
