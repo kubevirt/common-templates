@@ -144,6 +144,10 @@ if [[ $TARGET =~ windows.* ]]; then
     win_image_url="${TEMPLATES_SERVER}/win_16.img"
   fi
 
+  if [[ $TARGET =~ windows2019.* ]]; then
+    win_image_url="${TEMPLATES_SERVER}/win_19.img"
+  fi
+
   if [[ $TARGET =~ windows10.* ]]; then
     win_image_url="${TEMPLATES_SERVER}/win_10.qcow2"
   fi
