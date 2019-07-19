@@ -123,7 +123,7 @@ for size in ${sizes[@]}; do
     set +e
     current_time=0
     # run ipconfig /all command on windows vm
-    while [[ $(_oc exec -it winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all") != *"$ipAddressVMI"* ]] ; do 
+    while [[ $(_oc exec -it winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all" | grep "IPv4 Address") != *"$ipAddressVMI"* ]] ; do 
       current_time=$((current_time + 10))
       if [[ $current_time -gt $timeout ]]; then
         exit 1
