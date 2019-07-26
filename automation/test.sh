@@ -122,9 +122,8 @@ if [[ $TARGET =~ rhel.* ]]; then
     # Download RHEL image
     rhel_image="$RHEL_NFS_DIR/disk.img"
     safe_download "$RHEL_LOCK_PATH" "$rhel_image_url" "$rhel_image" || exit 1
-
-    # Hack to correctly set rhel nfs directory for kubevirt
-    # https://github.com/kubevirt/kubevirt/blob/master/cluster/ephemeral-provider-common.sh#L38
+    # Hack to correctly set rhel nfs directory for kubevirtci
+    # https://github.com/kubevirt/kubevirtci/blob/master/cluster-up/cluster/ephemeral-provider-common.sh#L33
     export TARGET="os-3.11.0"
 fi
 
@@ -254,5 +253,5 @@ if [[ $TARGET =~ rhel.* ]]; then
 fi
 
 if [[ $TARGET =~ windows.* ]]; then
-  ../test-windows.sh
+  ../test-windows.sh $TARGET
 fi
