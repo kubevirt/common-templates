@@ -1,12 +1,12 @@
 ---
 sub-stages:
-  - windows2012
-  - windows2016
-#  - windows2019
-  - windows10
-  - rhel6
-  - rhel7
-  - rhel8
+#  - windows2012
+#  - windows2016
+  - windows2019
+#  - windows10
+#  - rhel6
+#  - rhel7
+#  - rhel8
 
 runtime_requirements:
   support_nesting_level: 2

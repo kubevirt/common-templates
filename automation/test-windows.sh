@@ -166,6 +166,7 @@ run_vm(){
   done
 
   if ! $running ; then
+    sleep 2000
     exit 1 
   fi
 }
