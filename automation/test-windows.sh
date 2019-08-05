@@ -134,6 +134,7 @@ for size in ${sizes[@]}; do
         exit 1
       fi
       sleep 10;
+      _oc exec -it winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all"
     done
 
     ./virtctl --kubeconfig=$kubeconfig stop $template_name-$workload-$size 
