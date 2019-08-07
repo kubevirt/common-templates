@@ -39,6 +39,19 @@ metadata:
           "rule": "integer",
           "message": "This VM requires more memory.",
           "min": {{ lookup('osinfo', osinfoname)["minimum_resources.0.ram"] }}
+        }, {
+          "name": "windows-virtio-bus",
+          "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+          "rule": "enum",
+          "message": "virto disk bus type has better performance, install virtio drivers in VM and change bus type",
+          "values": ["virtio"],
+          "justWarning": true
+        }, {
+          "name": "windows-disk-bus",
+          "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+          "rule": "enum",
+          "message": "disk bus has to be either virtio or sata",
+          "values": ["virtio", "sata"]
         }
       ]
 
