@@ -26,7 +26,8 @@ validations: |
       "path”: "jsonpath::.some.json.path[*].leaf",
       "rule”: "integer",
       "message”: ".some.json.path[*].leaf must exists",
-      "min”: 1
+      "min”: 1,
+      "justWarning": true
     },
     {
       "name": "validation-rule-02",
@@ -148,6 +149,7 @@ kind: Template
 * `valid`: the rule must be *ignored* if the jsonpath given as value doesn't exist.
 *PLEASE NOTE* that even if values of this key are required to be JSONPaths, you still need to use the `jsonpath::` prefix
 as explained above.
+* `justWarning`: violating rule with justWarning field set will emit a warning only instead of failing the validation.
 
 ### Rule arguments (optional keys)
 
@@ -258,6 +260,28 @@ kind: Template
         ]
 ```
 
+### justWarning:
+The validation normally fails when a rule is not satisfied. The behaviour can be changed per rule by setting the `justWarning` property of the rule. The validator will then emit a warning only and the overall result of the validation will be unaffected by the rule.
+Example:
+```yaml
+apiVersion: v1
+kind: Template
+  metadata:
+    name: windows-10
+    annotations:
+      validations: |
+        [
+          {
+            "name": "supported-bus",
+            "valid": "jsonpath::.spec.domain.devices.disks[*].disk",
+            "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+            "rule": "enum",
+            "message": "the disk bus type must be one of the supported values",
+            "values": ["virtio", "scsi"],
+            "justWarning": true
+          }
+        ]
+```
 
 ### Examples
 
@@ -296,7 +320,8 @@ kind: Template
             "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
             "rule": "enum",
             "message": "the disk bus type must be one of the supported values",
-            "values": ["virtio", "scsi"]
+            "values": ["virtio", "scsi"],
+            "justWarning": true
           }
         ]
 ```
