@@ -2,7 +2,7 @@
 sub-stages:
   - windows2012
   - windows2016
-  - windows2019
+#  - windows2019
   - windows10
   - rhel6
   - rhel7
