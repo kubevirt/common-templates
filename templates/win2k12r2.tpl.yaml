@@ -112,7 +112,7 @@ objects:
                 bus: sata
               name: rootdisk
             interfaces:
-            - bridge: {}
+            - masquerade: {}
               model: e1000e
               name: default
 {% if item.tablet %}

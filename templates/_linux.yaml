@@ -87,7 +87,7 @@ objects:
                 bus: {{ diskbus | default("virtio") }}
               name: cloudinitdisk
             interfaces:
-            - bridge: {}
+            - masquerade: {}
               name: default
         terminationGracePeriodSeconds: 0
         networks:
