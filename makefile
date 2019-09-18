@@ -120,7 +120,7 @@ raws: $(TESTABLE_GUESTS:%=%.raw)
 	qemu-img convert -p -O raw $< $@
 
 fedora.qcow2:
-	curl -L -o $@ https://download.fedoraproject.org/pub/fedora/linux/releases/28/Cloud/x86_64/images/Fedora-Cloud-Base-28-1.1.x86_64.qcow2
+	curl -L -o $@ https://download.fedoraproject.org/pub/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2
 
 ubuntu.qcow2:
 	curl -L -o $@ http://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img
@@ -149,7 +149,7 @@ rhel8.raw: centos8.raw
 centos8.qcow2:
 # For now we test the CentOS 8 image using Fedora as that is the branch source
 # TODO fix this once CentOS 8 is released
-	curl -L -o $@ https://download.fedoraproject.org/pub/fedora/linux/releases/28/Cloud/x86_64/images/Fedora-Cloud-Base-28-1.1.x86_64.qcow2
+	curl -L -o $@ https://download.fedoraproject.org/pub/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2
 
 clean:
 	rm -v *.raw *.qcow2
