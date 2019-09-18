@@ -147,7 +147,7 @@ run_vm(){
     pod_name=$(_oc get pods | egrep -i '*virt-launcher*' | cut -d " " -f1)
     current_time=0
     # run ipconfig /all command on windows vm
-    while [[ $(_oc exec -it winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all" | grep "IPv4 Address") != *"$ipAddressVMI"* ]] ; do 
+    while [[ $(_oc exec -it winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all" | grep "IPv4 Address" | wc -l ) -eq 0 ]] ; do 
       current_time=$((current_time + 10))
       if [[ $current_time -gt $timeout ]]; then
         error=true
