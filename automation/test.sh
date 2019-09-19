@@ -25,8 +25,8 @@ export RHEL_NFS_DIR=${RHEL_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/rhel}
 export RHEL_LOCK_PATH=${RHEL_LOCK_PATH:-/var/lib/stdci/shared/download_rhel_image.lock}
 export WINDOWS_NFS_DIR=${WINDOWS_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/windows2016}
 export WINDOWS_LOCK_PATH=${WINDOWS_LOCK_PATH:-/var/lib/stdci/shared/download_windows_image.lock}
-export KUBEVIRT_MEMORY_SIZE=16384M
-export KUBEVIRT_PROVIDER="os-3.11.0"
+export KUBEVIRT_MEMORY_SIZE=24576M
+export KUBEVIRT_PROVIDER="okd-4.1"
 
 _curl() {
 	# this dupes the baseline "curl" command line, but is simpler
@@ -124,7 +124,7 @@ if [[ $TARGET =~ rhel.* ]]; then
     safe_download "$RHEL_LOCK_PATH" "$rhel_image_url" "$rhel_image" || exit 1
     # Hack to correctly set rhel nfs directory for kubevirtci
     # https://github.com/kubevirt/kubevirtci/blob/master/cluster-up/cluster/ephemeral-provider-common.sh#L33
-    export TARGET="os-3.11.0"
+    export TARGET="okd-4.1"
 fi
 
 if [[ $TARGET =~ windows.* ]]; then
