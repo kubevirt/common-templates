@@ -69,6 +69,8 @@ EOF
 timeout=400
 sample=30
 
+sleep 30
+
 # Make sure winrmcli pod is ready
 set +e
 current_time=0

@@ -25,7 +25,7 @@ export RHEL_NFS_DIR=${RHEL_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/rhel}
 export RHEL_LOCK_PATH=${RHEL_LOCK_PATH:-/var/lib/stdci/shared/download_rhel_image.lock}
 export WINDOWS_NFS_DIR=${WINDOWS_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/windows2016}
 export WINDOWS_LOCK_PATH=${WINDOWS_LOCK_PATH:-/var/lib/stdci/shared/download_windows_image.lock}
-export KUBEVIRT_MEMORY_SIZE=24576M
+export KUBEVIRT_MEMORY_SIZE=29576M
 export KUBEVIRT_PROVIDER="okd-4.1"
 
 _curl() {
@@ -215,20 +215,25 @@ fi
 timeout=300
 sample=30
 
+# Wait until kubevirt pods are running
+current_time=0
+while true; do
+  pods=$(_oc get pods --no-headers -n kubevirt)
+  if [[  $(echo $pods | grep "virt-api.*Running.*" | wc -l) -gt 0  && $(echo $pods | grep "virt-handler.*Running.*" | wc -l) -gt 0  &&  $(echo $pods | grep "virt-controller.*Running.*" | wc -l) -gt 0 ]]; then
+    break
+  fi
+
+  echo "Waiting for kubevirt pods to enter the Running state ..."
+  _oc get pods -n kubevirt --no-headers
+  sleep $sample
+
+  current_time=$((current_time + sample))
+  if [ $current_time -gt $timeout ]; then
+    exit 1
+  fi
+done
+
 for i in ${namespaces[@]}; do
-  # Wait until kubevirt pods are running
-  current_time=0
-  while [ -n "$(_oc get pods -n $i --no-headers | grep -v Running)" ]; do
-    echo "Waiting for kubevirt pods to enter the Running state ..."
-    _oc get pods -n $i --no-headers | >&2 grep -v Running || true
-    sleep $sample
-
-    current_time=$((current_time + sample))
-    if [ $current_time -gt $timeout ]; then
-      exit 1
-    fi
-  done
-
   # Make sure all containers are ready
   current_time=0
   while [ -n "$(_oc get pods -n $i -o'custom-columns=status:status.containerStatuses[*].ready' --no-headers | grep false)" ]; do
@@ -244,6 +249,7 @@ for i in ${namespaces[@]}; do
   _oc get pods -n $i
 done
 
+_oc get pods -n kubevirt
 #switch back original target
 export TARGET=$original_target
 

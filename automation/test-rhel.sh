@@ -55,6 +55,7 @@ EOF
 timeout=300
 sample=10
 
+
 kubeconfig=$( cluster-up/kubeconfig.sh )
 
 sizes=("tiny" "small" "medium" "large")
@@ -91,6 +92,8 @@ run_vm(){
 
     # start vm
     ./virtctl --kubeconfig=$kubeconfig start $vm_name
+
+    sleep 10
 
     set +e
     current_time=0
