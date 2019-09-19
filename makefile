@@ -120,36 +120,24 @@ raws: $(TESTABLE_GUESTS:%=%.raw)
 	qemu-img convert -p -O raw $< $@
 
 fedora.qcow2:
-	curl -L -o $@ https://download.fedoraproject.org/pub/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2
+	curl -fL -o $@ https://download.fedoraproject.org/pub/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2
 
 ubuntu.qcow2:
-	curl -L -o $@ http://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img
+	curl -fL -o $@ http://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img
 
 opensuse.qcow2:
-	curl -L -o $@ https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.0/images/openSUSE-Leap-15.0-OpenStack.x86_64-0.0.4-Buildlp150.12.12.qcow2
+	curl -fL -o $@ https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.0/images/openSUSE-Leap-15.0-OpenStack.x86_64-0.0.4-Buildlp150.12.12.qcow2
 
 centos7.qcow2:
-	curl -L http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2.xz | xz -d > $@
-
-# For now we test the RHEL75 template with the CentOS image
-rhel7.raw: centos7.raw
-	ln $< $@
+	curl -fL http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2.xz | xz -d > $@
 
 centos6.qcow2:
-	curl -L http://cloud.centos.org/centos/6/images/CentOS-6-x86_64-GenericCloud.qcow2.xz | xz -d > $@
-
-# For now we test the RHEL6 template with the CentOS image
-rhel6.raw: centos6.raw
-	ln $< $@
-
-# For now we test the RHEL8 template with the CentOS image
-rhel8.raw: centos8.raw
-	ln $< $@
+	curl -fL http://cloud.centos.org/centos/6/images/CentOS-6-x86_64-GenericCloud.qcow2.xz | xz -d > $@
 
 centos8.qcow2:
 # For now we test the CentOS 8 image using Fedora as that is the branch source
 # TODO fix this once CentOS 8 is released
-	curl -L -o $@ https://download.fedoraproject.org/pub/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2
+	curl -fL -o $@ https://download.fedoraproject.org/pub/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2
 
 clean:
 	rm -v *.raw *.qcow2
