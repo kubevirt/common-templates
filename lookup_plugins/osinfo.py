@@ -2,7 +2,7 @@
 # that allows querying the libosinfo database
 #
 # Example usage:
-# {{ lookup('osinfo', 'fedora15')["minimum_resources.0.ram"] }}
+# {{ lookup('osinfo', 'fedora15')["minimum_resources.architecture=x86_64|all.ram"] }}
 # {% if "name=virtio-scsi2" in lookup('osinfo', 'fedora15').all_devices %} 
 #
 # The code is distributed under the Apache 2 license
@@ -42,6 +42,24 @@ class OsInfoGObjectProxy(object):
     def __bool__(self):
         return bool(self._obj)
 
+    def _search(self, root, root_path, condition_string):
+        conditions = [v.split("=", 1) for v in condition_string.split(",")]
+        conditions = {v[0] : v[1] for v in conditions}
+
+        root_path = ".".join(root_path.split(".")[:-1])
+
+        matches = []
+        for c_idx in range(root.get_length()):
+            raw_obj = root.get_nth(c_idx)
+            obj = self.__class__(raw_obj,
+                    root_path + "." + str(c_idx))
+            if all([any([obj[k] == v_part
+                         for v_part in v.split("|")])
+                    for k,v in conditions.items()]):
+                matches.append(raw_obj)
+
+        return matches
+
     def __contains__(self, key):
         if hasattr(self._obj, "get_" + str(key)):
             return True
@@ -49,15 +67,8 @@ class OsInfoGObjectProxy(object):
             if isinstance(key, six.integer_types):
                 return self._obj.get_length() > int(key)
             elif isinstance(key, six.string_types):
-                conditions = [v.split("=", 1) for v in key.split(",")]
-                conditions = {v[0] : v[1] for v in conditions}
-                matches = 0
-                for idx in range(self._obj.get_length()):
-                    obj = self.__class__(self._obj.get_nth(idx),
-                            self._root_path + "." + str(idx))
-                    if all([obj[k] == v for k,v in conditions.items()]):
-                        matches += 1
-                return matches > 0
+                matches = self._search(self._obj, self._root_path, key)
+                return len(matches) > 0
         else:
             return False
 
@@ -73,12 +84,17 @@ class OsInfoGObjectProxy(object):
         if hasattr(root, "get_" + str(idx)):
             return getattr(root, "get_" + str(idx))()
         elif hasattr(root, "get_length") and hasattr(root, "get_nth"):
-            if root.get_length() <= int(idx):
-                raise IndexError("%s[%s]" % (self._obj, root_path + "." + idx))
+            if "=" in idx:
+                matches = self._search(root, root_path, idx)
+                if matches:
+                    return matches[0]
+                raise AttributeError("%s[%s][%s]" % (self._obj, root_path, idx))
+            elif root.get_length() <= int(idx):
+                raise IndexError("%s[%s]" % (self._obj, root_path))
             else:
                 return root.get_nth(int(idx))
         else:
-            raise AttributeError("%s[%s]" % (self._obj, root_path + "." + idx))
+            raise AttributeError("%s[%s]" % (self._obj, root_path))
 
     def __getattr__(self, name):
         root = self._obj
@@ -90,7 +106,8 @@ class OsInfoGObjectProxy(object):
             idx = str(idx)
         root = self._obj
         root_path = [self._root_path]
-        for i in idx.split("."):
+        idx_parts = idx.split(".")
+        for i in idx_parts:
             root_path.append(i)
             root = self._get(root, ".".join(root_path), i)
         return self._resolve(root, ".".join(root_path))
