@@ -26,7 +26,7 @@
           "path": "jsonpath::.spec.domain.resources.requests.memory",
           "rule": "integer",
           "message": "This VM requires more memory.",
-          "min": {{ lookup('osinfo', osinfoname)["minimum_resources.0.ram"] }}
+          "min": {{ lookup('osinfo', osinfoname)["minimum_resources.architecture=x86_64|all.ram"] }}
         },
       ]
 
