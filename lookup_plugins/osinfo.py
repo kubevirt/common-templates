@@ -10,6 +10,7 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+import six
 import subprocess
 
 from ansible.errors import AnsibleError
@@ -45,9 +46,9 @@ class OsInfoGObjectProxy(object):
         if hasattr(self._obj, "get_" + str(key)):
             return True
         elif hasattr(self._obj, "get_length") and hasattr(self._obj, "get_nth"):
-            if type(key) == int:
+            if isinstance(key, six.integer_types):
                 return self._obj.get_length() > int(key)
-            elif type(key) == str or type(key) == unicode:
+            elif isinstance(key, six.string_types):
                 conditions = [v.split("=", 1) for v in key.split(",")]
                 conditions = {v[0] : v[1] for v in conditions}
                 matches = 0
@@ -61,9 +62,9 @@ class OsInfoGObjectProxy(object):
             return False
 
     def _resolve(self, val, path):
-        if (type(val) == int or type(val) == long or
-                type(val) == float or type(val) == str or
-                type(val) == unicode or type(val) == bool):
+        if (isinstance(val, six.integer_types) or
+                type(val) == float or type(val) == bool or
+                isinstance(val, six.string_types)):
             return val
         else:
             return self.__class__(val, root_path = path)
