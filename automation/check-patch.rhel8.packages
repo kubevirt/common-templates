@@ -7,3 +7,4 @@ osinfo-db-tools
 libosinfo
 expect
 python-gobject
+python-six

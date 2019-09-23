@@ -73,6 +73,7 @@ addons:
     - jq
     - ansible
     - python-gobject
+      python-six
     - libosinfo-1.0
     - gir1.2-libosinfo-1.0
     - intltool

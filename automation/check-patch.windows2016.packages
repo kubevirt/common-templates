@@ -6,3 +6,4 @@ intltool
 osinfo-db-tools
 libosinfo
 python-gobject
+python-six
