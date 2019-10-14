@@ -7,8 +7,7 @@ branches:
   - /^v[0-9]/
 env:
   global:
-  - KUBEVIRT_VER=v0.15.0-alpha.0
-  - CPLATFORM=minikube CVER=1.11.2
+  - CPLATFORM=minishift
 jobs:
   include:
   - stage: Tests
@@ -78,12 +77,9 @@ addons:
     - intltool
 before_script:
 - sudo mount --make-rshared /
-- bash -x ci/prepare-host $CPLATFORM $CVER
-- bash -x ci/prepare-host virtctl $KUBEVIRT_VER
-- bash -x ci/prepare-host oc 3.10.0
-- bash -x ci/start-cluster $CPLATFORM $CVER
-- bash -x ci/deploy-kubevirt $CPLATFORM $KUBEVIRT_VER
-- kubectl get pods --all-namespaces
-- kubectl describe nodes
-- kubectl describe -n kubevirt daemonset virt-handler
-- kubectl -n kubevirt logs -l kubevirt.io=virt-handler
+- bash -x ci/ci/extra/get-kubevirt-releases
+- bash -x ci/prepare-host $CPLATFORM
+- bash -x ci/prepare-host virtctl $(bash -x ci/ci/extra/cat-kubevirt-release last)
+- bash -x ci/start-cluster $CPLATFORM
+- bash -x ci/deploy-kubevirt $CPLATFORM
+

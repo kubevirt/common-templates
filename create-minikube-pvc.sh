@@ -9,15 +9,14 @@ apiVersion: "v1"
 kind: "PersistentVolume"
 metadata:
   name: "$PV_NAME"
+  labels:
+    kubevirt.io/os: "$PV_NAME"
 spec:
   capacity:
     storage: "$PV_SIZE"
   accessModes:
     - "ReadWriteOnce"
   persistentVolumeReclaimPolicy: Delete
-  claimRef:
-    namespace: default
-    name: "$PV_NAME"
   hostPath:
     path: "$PV_PATH"
 ---
@@ -31,4 +30,7 @@ spec:
   resources:
     requests:
       storage: "$PV_SIZE"
+  selector:
+    matchLabels:
+      kubevirt.io/os: "$PV_NAME"
 EOF

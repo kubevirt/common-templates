@@ -52,13 +52,11 @@ TRAVIS_FOLD_START=echo -e "travis_fold:start:details\033[33;1mDetails\033[0m"
 TRAVIS_FOLD_END=echo -e "\ntravis_fold:end:details\r"
 
 gather-env-of-%:
-	kubectl describe vm $*
-	kubectl describe vmi $*
-	kubectl describe pods
-	kubectl -n kubevirt logs -l kubevirt.io=virt-handler --tail=20
+	oc describe vm $*
+	oc describe vmi $*
 
 is-deployed:
-	kubectl api-versions | grep kubevirt.io
+	oc api-versions | grep kubevirt.io
 
 generate: generate-templates.yaml $(METASOURCES)
 	# Just build the XML files, no need to export to tarball
@@ -71,36 +69,37 @@ generate: generate-templates.yaml $(METASOURCES)
 
 %-apply-and-remove: dist/templates/%.yaml
 	oc process --local -f "dist/templates/$*.yaml" NAME=$@ PVCNAME=$*-pvc | \
-	  kubectl apply -f -
+	  oc apply -f -
 	oc process --local -f "dist/templates/$*.yaml" NAME=$@ PVCNAME=$*-pvc | \
-	  kubectl delete -f -
+	  oc delete -f -
 
 %-generated-name-apply-and-remove:
 	oc process --local -f "dist/templates/$*.yaml" PVCNAME=$*-pvc > $@.yaml
-	kubectl apply -f $@.yaml
-	kubectl delete -f $@.yaml
+	oc apply -f $@.yaml
+	oc delete -f $@.yaml
 	rm -v $@.yaml
 
 %-start-wait-for-systemd-and-stop: %.pvc
 	oc process --local -f "dist/templates/$*.yaml" NAME=$* PVCNAME=$* | \
-	  kubectl apply -f -
+	  oc apply -f -
 	virtctl start $*
 	$(TRAVIS_FOLD_START)
-	while ! kubectl get vmi $* -o yaml | grep "phase: Running" ; do make gather-env-of-$* ; sleep 15; done
+	while ! oc get vmi $* -o yaml | grep "phase: Running" ; do make gather-env-of-$* ; sleep 15; done
 	make gather-env-of-$*
 	$(TRAVIS_FOLD_END)
 	# Wait for a pretty universal magic word
 	virtctl console --timeout=5 $* | tee /dev/stderr | egrep -m 1 "Welcome|systemd"
 	oc process --local -f "dist/templates/$*.yaml" NAME=$* PVCNAME=$* | \
-	  kubectl delete -f -
+	  oc delete -f -
 	# Wait for successful vmi deletion
-	while kubectl get vmi $* 2> >(grep "not found") ; do sleep 15; done
+	while oc get vmi $* 2> >(grep "not found") ; do sleep 15; done
 
 pvs: $(TESTABLE_GUESTS:%=%.pv)
 raws: $(TESTABLE_GUESTS:%=%.raw)
 
 %.pvc: %.pv
-	kubectl get pvc $*
+	oc describe pv $*
+	oc describe pvc $*
 
 # fedora-desktop-small.pv will use fedora.raw
 .SECONDEXPANSION:
@@ -111,9 +110,9 @@ raws: $(TESTABLE_GUESTS:%=%.raw)
 	cp $< $$PWD/pvs/$*/disk.img && \
 	sudo chown 107:107 $$PWD/pvs/$*/disk.img && \
 	sudo chmod -R a+X $$PWD/pvs && \
-	bash create-minikube-pvc.sh "$*" "$${SIZEMB}M" "$$PWD/pvs/$*/" | tee | kubectl apply -f -
+	bash create-minikube-pvc.sh "$*" "$${SIZEMB}M" "$$PWD/pvs/$*/" | tee | oc apply -f -
+	oc describe pv $*
 	find $$PWD/pvs
-	kubectl get -o yaml pv $*
 	$(TRAVIS_FOLD_END)
 
 %.raw: %.qcow2
