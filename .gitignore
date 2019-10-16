@@ -6,3 +6,5 @@ dist
 pvs
 openshift.local.clusterup/
 common-templates*.yaml
+releases.json
+versionsrc
