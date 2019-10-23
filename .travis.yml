@@ -8,6 +8,9 @@ branches:
 env:
   global:
   - CPLATFORM=minishift
+  - SSP_REPO="kubevirt-ssp-operator"
+  - SSP_OWNER="MarSik"
+  - SSP_REPO_URL="git@github.com:${SSP_OWNER}/${SSP_REPO}.git"
 jobs:
   include:
   - stage: Tests
@@ -40,16 +43,28 @@ jobs:
     before_script: skip
     # released artifacts MUST always have REVISION=1
     script: make release "VERSION=$TRAVIS_TAG" REVISION=1
+    before_deploy:
+      - private_key_name=$(mktemp private-key-XXX)
+      - openssl aes-256-cbc -K ${encrypted_92ba4a770b95_key} -iv ${encrypted_92ba4a770b95_iv} -in travis_ci/private-key.enc -out travis_ci/${private_key_name} -d
+      - eval "$(ssh-agent -s)"
+      - chmod 600 travis_ci/${private_key_name}
+      - ssh-add travis_ci/${private_key_name}
     deploy:
-      provider: releases
-      api_key: "$GITHUB_TOKEN"
-      file: dist/common-templates-$TRAVIS_TAG.yaml
-      skip_cleanup: true
-      name: $TRAVIS_TAG
-      on:
-        tags: true
-        repo: kubevirt/common-templates
-
+      - provider: releases
+        api_key: "$GITHUB_TOKEN"
+        file: dist/common-templates-$TRAVIS_TAG.yaml
+        skip_cleanup: true
+        name: $TRAVIS_TAG
+        on:
+          tags: true
+          repo: kubevirt/common-templates
+      - provider: script
+        script: bash -x travis_ci/release-templates-ssp-operator.sh
+        skip_cleanup: true
+        name: Deploy to SSP-operator
+        on:
+          tags: true
+          repo: kubevirt/common-templates
 cache:
   directories:
   - cache
