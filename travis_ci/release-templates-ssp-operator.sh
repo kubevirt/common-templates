@@ -29,10 +29,6 @@ fi
 git clone ${SSP_REPO_URL}
 cd ${SSP_REPO}
 
-# Configure github repo
-git config user.email ${GH_USER_EMAIL}
-git config user.name ${GH_USER_NAME}
-
 branch="update-common-templates-${TRAVIS_TAG}"
 git checkout -b $branch
 git reset origin/master --hard

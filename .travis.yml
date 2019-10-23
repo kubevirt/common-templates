@@ -44,11 +44,11 @@ jobs:
     # released artifacts MUST always have REVISION=1
     script: make release "VERSION=$TRAVIS_TAG" REVISION=1
     before_deploy:
-      - private_key_name=$(mktemp private-key-XXX)
-      - openssl aes-256-cbc -K ${encrypted_92ba4a770b95_key} -iv ${encrypted_92ba4a770b95_iv} -in travis_ci/private-key.enc -out travis_ci/${private_key_name} -d
+      - touch ssp-operator-deploy-key
+      - openssl aes-256-cbc -K ${encrypted_02d89e1b05ff_key} -iv ${encrypted_02d89e1b05ff_iv} -in ssp-operator-deploy-key.enc -out ssp-operator-deploy-key -d
       - eval "$(ssh-agent -s)"
-      - chmod 600 travis_ci/${private_key_name}
-      - ssh-add travis_ci/${private_key_name}
+      - chmod 600 ssp-operator-deploy-key
+      - ssh-add ssp-operator-deploy-key
     deploy:
       - provider: releases
         api_key: "$GITHUB_TOKEN"
@@ -89,6 +89,5 @@ before_script:
 - bash -x ci/prepare-host virtctl $(bash -x ci/ci/extra/cat-kubevirt-release last)
 - bash -x ci/start-cluster $CPLATFORM
 - bash -x ci/deploy-kubevirt $CPLATFORM
-before_deploy:
-- openssl aes-256-cbc -K $encrypted_02d89e1b05ff_key -iv $encrypted_02d89e1b05ff_iv -in ssp-operator-deploy-key.enc -out ssp-operator-deploy-key -d
+
 
