@@ -8,3 +8,4 @@ openshift.local.clusterup/
 common-templates*.yaml
 releases.json
 versionsrc
+ssp-operator-deploy-key
