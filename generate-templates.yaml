@@ -31,6 +31,7 @@
       password: redhat
       oslabels:
        - rhel8.0
+       - rhel8.1
       osinfoname: "{{ oslabels[0] }}"
 
   - name: Generate RHEL 7 templates

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<libosinfo version="0.0.1">
+
+  <os id="http://redhat.com/rhel/8.1">
+    <short-id>rhel8.1</short-id>
+    <name>Red Hat Enterprise Linux 8.1</name>
+    <version>8.1</version>
+    <vendor>Red Hat, Inc</vendor>
+    <vendor xml:lang="ca">Red Hat, Inc</vendor>
+    <vendor xml:lang="de">Red Hat, Inc</vendor>
+    <vendor xml:lang="es">Red Hat, Inc</vendor>
+    <vendor xml:lang="fr">Red Hat, Inc</vendor>
+    <vendor xml:lang="id">Red Hat, Inc</vendor>
+    <vendor xml:lang="it">Red Hat, Inc</vendor>
+    <vendor xml:lang="ja">Red Hat, Inc</vendor>
+    <vendor xml:lang="pl">Red Hat, Inc</vendor>
+    <vendor xml:lang="pt_BR">Red Hat, Inc</vendor>
+    <vendor xml:lang="uk">Red Hat, Inc</vendor>
+    <family>linux</family>
+    <distro>rhel</distro>
+    <upgrades id="http://redhat.com/rhel/8.0"/>
+  
+    <resources arch="all">
+      <minimum>
+        <n-cpus>1</n-cpus>
+        <cpu>1000000000</cpu>
+        <ram>1073741824</ram>
+        <storage>10737418240</storage>
+      </minimum>
+
+      <recommended>
+        <cpu>1000000000</cpu>
+        <ram>1073741824</ram>
+        <storage>10737418240</storage>
+      </recommended>
+    </resources>
+  </os>
+</libosinfo>
