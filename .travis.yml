@@ -45,7 +45,7 @@ jobs:
     script: make release "VERSION=$TRAVIS_TAG" REVISION=1
     before_deploy:
       - touch ssp-operator-deploy-key
-      - openssl aes-256-cbc -K ${encrypted_02d89e1b05ff_key} -iv ${encrypted_02d89e1b05ff_iv} -in ssp-operator-deploy-key.enc -out ssp-operator-deploy-key -d
+      - openssl aes-256-cbc -K $encrypted_02d89e1b05ff_key -iv $encrypted_02d89e1b05ff_iv -in ssp-operator-deploy-key.enc -out ssp-operator-deploy-key -d
       - eval "$(ssh-agent -s)"
       - chmod 600 ssp-operator-deploy-key
       - ssh-add ssp-operator-deploy-key
