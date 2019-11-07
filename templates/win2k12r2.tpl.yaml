@@ -81,6 +81,10 @@ objects:
   spec:
     running: false
     template:
+      metadata:
+        labels:
+          kubevirt.io/domain: ${NAME}
+          kubevirt.io/size: {{ item.flavor }}
       spec:
         domain:
           clock:
