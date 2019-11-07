@@ -1,8 +1,9 @@
 #!/usr/bin/expect -f
 
+set timeout 300
+
 set kubeconfig [lindex $argv 0]
 set vm_name [lindex $argv 1]
+
 spawn ./virtctl --kubeconfig=$kubeconfig console $vm_name
-expect "Successfully connected to*\r"
-send -- "\r"
-expect "*login*\r"
+expect default { exit 1 } "*Welcome*\r"

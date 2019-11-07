@@ -116,18 +116,10 @@ run_vm(){
     _oc describe vmi $vm_name
 
     set +e
-    current_time=0
-    while [  $(./connect_to_rhel_console.exp $kubeconfig $vm_name | grep login | wc -l) -lt 1 ] ; do 
-      echo "waiting for vm to be ready"
-
-      current_time=$((current_time + sample))
-      if [ $current_time -gt $timeout ]; then
-        echo "It should shown login prompt"
-        error=true
-        break
-      fi
-      sleep $sample;
-    done
+    ./connect_to_rhel_console.exp $kubeconfig $vm_name
+    if [ $? -ne 0 ] ; then 
+      error=true
+    fi
     set -e
   
     delete_vm $vm_name $template_path
