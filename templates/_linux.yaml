@@ -73,6 +73,7 @@ objects:
               memory: {{ item.memsize }}
           devices:
             rng: {}
+            networkInterfaceMultiqueue: true
 {% if item.tablet %}
             inputs:
               - type: tablet
