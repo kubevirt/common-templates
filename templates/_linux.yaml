@@ -37,6 +37,7 @@
     workload.template.kubevirt.io/{{ item.workload }}: "true"
     flavor.template.kubevirt.io/{{ item.flavor }}: "true"
     template.kubevirt.io/type: "base"
+    template.kubevirt.io/version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
 
 objects:
 - apiVersion: kubevirt.io/v1alpha3

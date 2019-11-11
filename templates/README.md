@@ -8,6 +8,10 @@ Also, there might be multiple different OSes, flavors, sizes mentioned by any si
 
 Please note that the kubevirt.io suffix used in labels and annotations is temporary and is likely to change.
 
+## Template edits
+
+When an incompatible change is needed, a copy of a template should be created, given new name and edited as needed. The original must stay backwards compatible forever!
+
 ## User Experience
 
 The flow should be the same as usual with regards to openshift templates. The user either takes a local template and generates a VM object.
