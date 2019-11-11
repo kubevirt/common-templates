@@ -1,7 +1,7 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
+  name: {{ os }}-{{ item.workload }}-{{ item.flavor }}-v0.7.0
   annotations:
     openshift.io/display-name: "OpenSUSE Leap 15.0 VM"
     description: >-
