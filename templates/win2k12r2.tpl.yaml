@@ -1,7 +1,7 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: win2k12r2-{{ item.workload }}-{{ item.flavor }}
+  name: win2k12r2-{{ item.workload }}-{{ item.flavor }}-v0.7.0
   annotations:
     openshift.io/display-name: "Microsoft Windows Server 2012 R2 VM"
     description: >-
