@@ -8,6 +8,10 @@
       path: "{{ playbook_dir }}/dist/templates"
       state: directory
 
+  - name: Load RHEL 8 versions
+    set_fact:
+      rhel8_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel8') |list }}"
+
   - name: Generate RHEL 8 templates
     template:
       src: rhel7.tpl.yaml
@@ -29,10 +33,14 @@
       os: rhel8
       icon: rhel
       password: redhat
-      oslabels:
-       - rhel8.0
-       - rhel8.1
+      oslabels: "{{ rhel8_labels }}"
       osinfoname: "{{ oslabels[0] }}"
+
+  - name: Load RHEL 7 versions
+    set_fact:
+      rhel7_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel7') |list }}"
+
+  - debug: msg="{{ rhel7_labels }}"
 
   - name: Generate RHEL 7 templates
     template:
@@ -55,16 +63,12 @@
       os: rhel7
       icon: rhel
       password: redhat
-      oslabels:
-       - rhel7.0
-       - rhel7.1
-       - rhel7.2
-       - rhel7.3
-       - rhel7.4
-       - rhel7.5
-       - rhel7.6
-       - rhel7.7
+      oslabels: "{{ rhel7_labels }}"
       osinfoname: "{{ oslabels[0] }}"
+
+  - name: Load RHEL 6 versions
+    set_fact:
+      rhel6_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel6') |list }}"
 
   - name: Generate RHEL 6 templates
     template:
@@ -83,17 +87,7 @@
       os: rhel6
       icon: rhel
       password: redhat
-      oslabels:
-       - rhel6.0
-       - rhel6.1
-       - rhel6.2
-       - rhel6.3
-       - rhel6.4
-       - rhel6.5
-       - rhel6.6
-       - rhel6.7
-       - rhel6.8
-       - rhel6.9
+      oslabels: "{{ rhel6_labels }}"
       osinfoname: "{{ oslabels[0] }}"
 
   - name: Generate CentOS 8 templates
@@ -138,6 +132,10 @@
        - centos7.0
       osinfoname: "{{ oslabels[0] }}"
 
+  - name: Load CentOS 6 versions
+    set_fact:
+      centos6_labels: "{{ lookup('osinfo', 'distro=centos') |map(attribute='short_id') |select('match', '^centos6') |list }}"
+
   - name: Generate CentOS 6 templates
     template:
       src: centos6.tpl.yaml
@@ -151,18 +149,12 @@
       os: centos6
       icon: centos
       password: centos
-      oslabels:
-       - centos6.0
-       - centos6.1
-       - centos6.2
-       - centos6.3
-       - centos6.4
-       - centos6.5
-       - centos6.6
-       - centos6.7
-       - centos6.8
-       - centos6.9
+      oslabels: "{{ centos6_labels }}"
       osinfoname: "{{ oslabels[0] }}"
+
+  - name: Load Fedora versions
+    set_fact:
+      fedora_labels: "{{ lookup('osinfo', 'distro=fedora') |select('osinfo_active') |map(attribute='short_id') |list }}"
 
   - name: Generate Fedora templates
     template:
@@ -185,12 +177,7 @@
       os: fedora
       icon: fedora
       password: fedora
-      oslabels:
-       - fedora26
-       - fedora27
-       - fedora28
-       - fedora29
-       - fedora30
+      oslabels: "{{ fedora_labels }}"
       osinfoname: "{{ oslabels[0] }}"
 
   - name: Generate OpenSUSE templates
