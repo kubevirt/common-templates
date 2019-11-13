@@ -10,7 +10,7 @@
 
   - name: Load RHEL 8 versions
     set_fact:
-      rhel8_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel8') |list }}"
+      rhel8_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel8\\.') |list |sort }}"
 
   - name: Generate RHEL 8 templates
     template:
@@ -38,9 +38,7 @@
 
   - name: Load RHEL 7 versions
     set_fact:
-      rhel7_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel7') |list }}"
-
-  - debug: msg="{{ rhel7_labels }}"
+      rhel7_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel7\\.') |list |sort }}"
 
   - name: Generate RHEL 7 templates
     template:
@@ -68,7 +66,7 @@
 
   - name: Load RHEL 6 versions
     set_fact:
-      rhel6_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel6') |list }}"
+      rhel6_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel6\\.') |list |sort }}"
 
   - name: Generate RHEL 6 templates
     template:
@@ -134,7 +132,7 @@
 
   - name: Load CentOS 6 versions
     set_fact:
-      centos6_labels: "{{ lookup('osinfo', 'distro=centos') |map(attribute='short_id') |select('match', '^centos6') |list }}"
+      centos6_labels: "{{ lookup('osinfo', 'distro=centos') |map(attribute='short_id') |select('match', '^centos6\\.') |list |sort }}"
 
   - name: Generate CentOS 6 templates
     template:
@@ -154,7 +152,7 @@
 
   - name: Load Fedora versions
     set_fact:
-      fedora_labels: "{{ lookup('osinfo', 'distro=fedora') |select('osinfo_active') |map(attribute='short_id') |list }}"
+      fedora_labels: "{{ lookup('osinfo', 'distro=fedora') |select('osinfo_active') |map(attribute='short_id') |list |sort }}"
 
   - name: Generate Fedora templates
     template:
