@@ -33,7 +33,10 @@ db = loader.get_db()
 
 class OsInfoGObjectProxy(object):
     def __str__(self):
-        return "<%s @ %s obj=%s>" % (self.__class__.__name__, self._root_path, str(self._obj))
+        return "<%s @ %s %s=%s>" % (self.__class__.__name__, self._root_path, str(type(self._obj)), str(self._obj))
+
+    def __repr__(self):
+        return "<%s @ %s %s=%s>" % (self.__class__.__name__, self._root_path, str(type(self._obj)), str(self._obj))
 
     def __init__(self, obj, root_path=""):
         self._obj = obj
@@ -99,7 +102,8 @@ class OsInfoGObjectProxy(object):
         """
         if (isinstance(val, six.integer_types) or
                 type(val) == float or type(val) == bool or
-                isinstance(val, six.string_types)):
+                isinstance(val, six.string_types) or
+                val is None):
             return val
         else:
             return self.__class__(val, root_path = path)
@@ -176,11 +180,16 @@ class LookupModule(LookupBase):
         ret = []
         for term in terms:
             filter = osinfo.Filter()
-            filter.add_constraint(osinfo.PRODUCT_PROP_SHORT_ID, term)
+            if "=" in term:
+                prop, value = term.split("=", 1)
+                filter.add_constraint(prop, value)
+            else:
+                filter.add_constraint(osinfo.PRODUCT_PROP_SHORT_ID, term)
             oses = db.get_os_list().new_filtered(filter)
             if oses.get_length() > 0:
-                os = OsInfoGObjectProxy(oses.get_nth(0), root_path = "[" + term + "]")
-                ret.append(os)
+                for idx in range(oses.get_length()):
+                    os = OsInfoGObjectProxy(oses.get_nth(idx), root_path = "[" + term + "]")
+                    ret.append(os)
             else:
                 print("OS {} not found".format(term))
                 ret.append({"name": term})
