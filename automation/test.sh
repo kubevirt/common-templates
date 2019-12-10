@@ -21,10 +21,11 @@ set -ex
 
 readonly TEMPLATES_SERVER="https://templates.ovirt.org/kubevirt/"
 
-export RHEL_NFS_DIR=${RHEL_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/rhel}
-export RHEL_LOCK_PATH=${RHEL_LOCK_PATH:-/var/lib/stdci/shared/download_rhel_image.lock}
-export WINDOWS_NFS_DIR=${WINDOWS_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/windows2016}
-export WINDOWS_LOCK_PATH=${WINDOWS_LOCK_PATH:-/var/lib/stdci/shared/download_windows_image.lock}
+export RHEL_NFS_DIR=${RHEL_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/$TARGET}
+export lock_name="download_${TARGET}_image.lock"
+export RHEL_LOCK_PATH=${RHEL_LOCK_PATH:-/var/lib/stdci/shared/$lock_name}
+export WINDOWS_NFS_DIR=${WINDOWS_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/$TARGET}
+export WINDOWS_LOCK_PATH=${WINDOWS_LOCK_PATH:-/var/lib/stdci/shared/$lock_name}
 export KUBEVIRT_MEMORY_SIZE=16384M
 export KUBEVIRT_PROVIDER="os-3.11.0"
 
