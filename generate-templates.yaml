@@ -115,7 +115,7 @@
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
     - {flavor: tiny, workload: server, memsize: "1G", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: tiny, workload: desktop, memsize: "1G", cpus: 1, iothreads: False, tablet: True}
+    - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True}
     - {flavor: small, workload: server, memsize: "2G", cpus: 1, iothreads: False, tablet: False}
     - {flavor: small, workload: desktop, memsize: "2G", cpus: 1, iothreads: False, tablet: True}
     - {flavor: medium, workload: server, memsize: "4G", cpus: 1, iothreads: False, tablet: False}
