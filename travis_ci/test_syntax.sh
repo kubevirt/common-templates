@@ -25,3 +25,5 @@ templates=("dist/templates/*.yaml")
 for template in $templates; do
     oc process -f "$template" NAME=test PVCNAME=test || exit 1;
 done
+
+python3 travis_ci/check-validations.py
