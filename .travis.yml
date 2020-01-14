@@ -79,11 +79,13 @@ addons:
     - jq
     - ansible
     - python-gobject
-      python-six
+    - python-six
+    - python3-pip
     - libosinfo-1.0
     - gir1.2-libosinfo-1.0
     - intltool
 before_script:
+- pip install PyYAML
 - sudo mount --make-rshared /
 - bash -x ci/ci/extra/get-kubevirt-releases
 - bash -x ci/prepare-host $CPLATFORM
