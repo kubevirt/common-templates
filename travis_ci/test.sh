@@ -59,9 +59,7 @@ case "$name" in
 	curl -fL http://cloud.centos.org/centos/6/images/CentOS-6-x86_64-GenericCloud.qcow2.xz | xz -d > "$name"
     ;;
 "centos8")
-# For now we test the CentOS 8 image using Fedora as that is the branch source
-# TODO fix this once CentOS 8 is released
-	curl -fL -o "$name" https://download.fedoraproject.org/pub/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2
+	curl -fL -o "$name" https://cloud.centos.org/centos/8/x86_64/images/CentOS-8-ec2-8.1.1911-20200113.3.x86_64.qcow2
     ;;
 esac
 
