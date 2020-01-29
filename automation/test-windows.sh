@@ -6,7 +6,7 @@ _oc() {
   cluster-up/kubectl.sh "$@"
 }
 
-template_name="win2k12r2"
+template_name="windows"
 # Prepare PV and PVC for Windows testing
 
 _oc create -f - <<EOF

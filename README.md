@@ -45,25 +45,25 @@ $ make -C osinfo-db
 $ ansible-playbook generate-templates.yaml
 
 # Pick a template by selecting
-# - the guest OS - win2k12r2
+# - the guest OS - windows
 # - the workload type - desktop
 # - the size - medium
 
 # Use the template
-$ oc process --local -f dist/templates/win2k12r2-desktop-medium.yaml
-The Template "win2k12r2-desktop-medium" is invalid: template.parameters[1]: Required value:
+$ oc process --local -f dist/templates/windows-desktop-medium.yaml
+The Template "windows-desktop-medium" is invalid: template.parameters[1]: Required value:
 template.parameters[1]: parameter PVCNAME is required and must be specified
 
-$ oc process --local -f dist/templates/win2k12r2-desktop-medium.yaml  --parameters
+$ oc process --local -f dist/templates/windows-desktop-medium.yaml  --parameters
 NAME      DESCRIPTION                           GENERATOR   VALUE
-NAME      Name of the new VM                    expression  windows2012r2-[a-z0-9]{6}
+NAME      Name of the new VM                    expression  windows-[a-z0-9]{6}
 PVCNAME   Name of the PVC with the disk image
 
-$ oc process --local -f dist/templates/win2k12r2-desktop-medium.yaml PVCNAME=mydisk
+$ oc process --local -f dist/templates/windows-desktop-medium.yaml PVCNAME=mydisk
 …
 
-$ oc process --local -f dist/templates/win2k12r2-desktop-medium.yaml PVCNAME=mydisk | kubectl apply -f -
-virtualmachine.kubevirt.io/windows2012r2-rt1ap2 created
+$ oc process --local -f dist/templates/windows-desktop-medium.yaml PVCNAME=mydisk | kubectl apply -f -
+virtualmachine.kubevirt.io/windows-rt1ap2 created
 
 $
 ```
@@ -78,7 +78,7 @@ The table below lists the guest operating systems that are covered by the templa
 
 | Guest OS | Meta-template |
 |---|---|
-| Microsoft Windows Server 2012 R2 (no CI) | [win2k12r2](templates/win2k12r2.tpl.yaml) |
+| Microsoft Windows Server 2012 R2 (no CI) | [windows](templates/windows.tpl.yaml) |
 | Fedora 28 | [fedora](templates/fedora.tpl.yaml) |
 | Red Hat Enterprise Linux 7.5 | [rhel7](templates/rhel7.tpl.yaml) |
 | Ubuntu 18.04 LTS | [ubuntu](templates/ubuntu.tpl.yaml) |
