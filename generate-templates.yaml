@@ -215,7 +215,19 @@
 
   - name: Generate Windows templates
     template:
-      src: win2k12r2.tpl.yaml
+      src: windows.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/windows-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
+    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
+    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    vars:
+      osinfoname: win2k12r2
+
+  - name: Generate deprecated Windows templates
+    template:
+      src: win2k12r2-deprecated.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/win2k12r2-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
     - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
@@ -224,3 +236,4 @@
     - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
     vars:
       osinfoname: win2k12r2
+
