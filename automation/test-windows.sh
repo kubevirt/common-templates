@@ -7,6 +7,7 @@ _oc() {
 }
 
 template_name="windows"
+target=$1
 # Prepare PV and PVC for Windows testing
 
 _oc create -f - <<EOF
@@ -19,7 +20,7 @@ metadata:
     kubevirt.io/os: "windows"
 spec:
   capacity:
-    storage: 30Gi
+    storage: 50Gi
   accessModes:
     - ReadWriteOnce
   nfs:
@@ -39,7 +40,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 30Gi
+      storage: 50Gi
 
   selector:
     matchLabels:
@@ -66,7 +67,7 @@ restartPolicy: Always
 ---
 EOF
 
-timeout=400
+timeout=1000
 sample=30
 
 # Make sure winrmcli pod is ready
@@ -109,10 +110,19 @@ run_vm(){
   #If first try fails, it tries 2 more time to run it, before it fails whole test
   for i in `seq 1 3`; do
     error=false
-    _oc process -o json --local -f $template_path NAME=$vm_name PVCNAME=disk-win | \
-    jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-win"}}} | 
-    del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim)' | \
-    _oc apply -f -
+
+    # windows 2019 doesn't support rtc timer. 
+    if [[ $TARGET =~ windows2019.* ]]; then
+      _oc process -o json --local -f $template_path NAME=$vm_name PVCNAME=disk-win | \
+      jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-win"}}} | 
+      del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim) | del(.items[0].spec.template.spec.domain.clock.timer.rtc)' | \
+      _oc apply -f -
+    else
+      _oc process -o json --local -f $template_path NAME=$vm_name PVCNAME=disk-win | \
+      jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-win"}}} | 
+      del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim)' | \
+      _oc apply -f -
+    fi
 
     # start vm
     ./virtctl --kubeconfig=$kubeconfig start $vm_name
@@ -148,12 +158,13 @@ run_vm(){
     current_time=0
     # run ipconfig /all command on windows vm
     while [[ $(_oc exec -it winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all" | grep "IPv4 Address" | wc -l ) -eq 0 ]] ; do 
-      current_time=$((current_time + 10))
+
+      current_time=$((current_time + 30))
       if [[ $current_time -gt $timeout ]]; then
         error=true
         break
       fi
-      sleep 10;
+      sleep 30;
     done
     set -e
 
