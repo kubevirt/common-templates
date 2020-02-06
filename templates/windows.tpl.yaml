@@ -25,7 +25,6 @@ metadata:
       /objects[0].spec.template.spec.domain.devices.disks
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
-
     name.os.template.kubevirt.io/win2k19: {{ lookup('osinfo', 'win2k19').name }}
     name.os.template.kubevirt.io/win2k16: {{ lookup('osinfo', 'win2k16').name }}
     name.os.template.kubevirt.io/win2k12r2: {{ lookup('osinfo', 'win2k12r2').name }}
@@ -56,7 +55,6 @@ metadata:
           "values": ["virtio", "sata"]
         }
       ]
-
   labels:
     os.template.kubevirt.io/win2k19: "true"
     os.template.kubevirt.io/win2k16: "true"
@@ -95,8 +93,6 @@ objects:
                 present: false
               pit:
                 tickPolicy: delay
-              rtc:
-                tickPolicy: catchup
               hyperv: {}
           cpu:
             sockets: {{ item.cpus }}

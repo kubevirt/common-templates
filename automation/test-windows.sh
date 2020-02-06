@@ -19,7 +19,7 @@ metadata:
     kubevirt.io/os: "windows"
 spec:
   capacity:
-    storage: 30Gi
+    storage: 50Gi
   accessModes:
     - ReadWriteOnce
   nfs:
@@ -39,7 +39,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 30Gi
+      storage: 50Gi
 
   selector:
     matchLabels:
@@ -66,7 +66,7 @@ restartPolicy: Always
 ---
 EOF
 
-timeout=400
+timeout=1000
 sample=30
 
 # Make sure winrmcli pod is ready
@@ -148,12 +148,13 @@ run_vm(){
     current_time=0
     # run ipconfig /all command on windows vm
     while [[ $(_oc exec -it winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all" | grep "IPv4 Address" | wc -l ) -eq 0 ]] ; do 
-      current_time=$((current_time + 10))
+
+      current_time=$((current_time + 30))
       if [[ $current_time -gt $timeout ]]; then
         error=true
         break
       fi
-      sleep 10;
+      sleep 30;
     done
     set -e
 
