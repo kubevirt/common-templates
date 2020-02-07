@@ -92,5 +92,3 @@ before_script:
 - bash -x ci/prepare-host virtctl $(bash -x ci/ci/extra/cat-kubevirt-release last)
 - bash -x ci/start-cluster $CPLATFORM
 - bash -x ci/deploy-kubevirt $CPLATFORM
-
-
