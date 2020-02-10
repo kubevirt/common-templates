@@ -67,7 +67,7 @@ restartPolicy: Always
 ---
 EOF
 
-timeout=1000
+timeout=1500
 sample=30
 
 # Make sure winrmcli pod is ready
@@ -111,18 +111,10 @@ run_vm(){
   for i in `seq 1 3`; do
     error=false
 
-    # windows 2019 doesn't support rtc timer. 
-    if [[ $TARGET =~ windows2019.* ]]; then
-      _oc process -o json --local -f $template_path NAME=$vm_name PVCNAME=disk-win | \
-      jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-win"}}} | 
-      del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim) | del(.items[0].spec.template.spec.domain.clock.timer.rtc)' | \
-      _oc apply -f -
-    else
-      _oc process -o json --local -f $template_path NAME=$vm_name PVCNAME=disk-win | \
-      jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-win"}}} | 
-      del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim)' | \
-      _oc apply -f -
-    fi
+    _oc process -o json --local -f $template_path NAME=$vm_name PVCNAME=disk-win | \
+    jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-win"}}} | 
+    del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim)' | \
+    _oc apply -f -
 
     # start vm
     ./virtctl --kubeconfig=$kubeconfig start $vm_name
@@ -162,6 +154,9 @@ run_vm(){
       current_time=$((current_time + 30))
       if [[ $current_time -gt $timeout ]]; then
         error=true
+        _oc exec -it $pod_name virsh list
+        _oc exec -it $pod_name virsh dumpxml default_$vm_name
+        _oc logs $pod_name
         break
       fi
       sleep 30;

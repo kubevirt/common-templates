@@ -58,6 +58,7 @@ metadata:
       ]
 
   labels:
+    debugLogs: "true"
     os.template.kubevirt.io/win2k19: "true"
     os.template.kubevirt.io/win2k16: "true"
     os.template.kubevirt.io/win2k12r2: "true"
@@ -75,6 +76,7 @@ objects:
   metadata:
     name: ${NAME}
     labels:
+      debugLogs: "true"
       vm.kubevirt.io/template: windows-{{ item.workload }}-{{ item.flavor }}
       vm.kubevirt.io/template.version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
       vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
@@ -84,6 +86,7 @@ objects:
     template:
       metadata:
         labels:
+          debugLogs: "true"
           kubevirt.io/domain: ${NAME}
           kubevirt.io/size: {{ item.flavor }}
       spec:
