@@ -213,7 +213,7 @@
        - ubuntu18.04
       osinfoname: "{{ oslabels[0] }}"
 
-  - name: Generate Windows templates
+  - name: Generate Windows server templates
     template:
       src: windows.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/windows-{{ item.workload }}-{{ item.flavor }}.yaml"
@@ -224,6 +224,16 @@
     - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
     vars:
       osinfoname: win2k12r2
+
+  - name: Generate Windows 10 templates
+    template:
+      src: windows10.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/windows10-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    vars:
+      osinfoname: win10
 
   - name: Generate deprecated Windows templates
     template:

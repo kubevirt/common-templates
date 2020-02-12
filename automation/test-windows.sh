@@ -7,7 +7,6 @@ _oc() {
 }
 
 template_name="windows"
-target=$1
 # Prepare PV and PVC for Windows testing
 
 _oc create -f - <<EOF
@@ -89,6 +88,11 @@ kubeconfig=$( cluster-up/kubeconfig.sh )
 
 sizes=("medium" "large")
 workloads=("server" "desktop")
+
+if [[ $TARGET =~ windows10.* ]]; then
+  template_name="windows10"
+  workloads=("desktop")
+fi
 
 delete_vm(){
   vm_name=$1
