@@ -64,6 +64,10 @@ if [[ $TARGET =~ rhel6.* ]]; then
   workloads=("desktop" "server")
 fi
 
+if [[ $TARGET =~ rhel8.* ]]; then
+  sizes=("small" "medium" "large")
+fi
+
 delete_vm(){
   vm_name=$1
   template_path=$2
