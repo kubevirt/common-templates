@@ -87,7 +87,7 @@ _oc exec -it winrmcli -- yum install -y iproute iputils net-tools arp-scan
 kubeconfig=$( cluster-up/kubeconfig.sh )
 
 sizes=("medium" "large")
-workloads=("server" "desktop")
+workloads=("server")
 
 if [[ $TARGET =~ windows10.* ]]; then
   template_name="windows10"
