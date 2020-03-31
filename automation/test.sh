@@ -39,8 +39,9 @@ _curl() {
 	fi
 }
 
-#export VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt/tags| jq -r '.[].name' | sort -r | head -1 )
-export VERSION=v0.27.0
+#export KUBEVIRT_VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt/tags| jq -r '.[].name' | sort -r | head -1 )
+export KUBEVIRT_VERSION=v0.27.0
+
 wait_for_download_lock() {
   local max_lock_attempts=60
   local lock_wait_interval=60
@@ -162,22 +163,21 @@ _oc() { cluster-up/kubectl.sh "$@"; }
 
 git submodule update --init
 
-make -C osinfo-db/ OSINFO_DB_EXPORT=echo
-ansible-playbook generate-templates.yaml
+make generate
 
 cp automation/connect_to_rhel_console.exp automation/kubevirtci/connect_to_rhel_console.exp
   
 cd automation/kubevirtci
 
 curl -Lo virtctl \
-    https://github.com/kubevirt/kubevirt/releases/download/$VERSION/virtctl-$VERSION-linux-amd64
+    https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VERSION/virtctl-$KUBEVIRT_VERSION-linux-amd64
 chmod +x virtctl
 
 
 export NAMESPACE="${NAMESPACE:-kubevirt}"
 
 # Make sure that the VM is properly shut down on exit
-trap '{ make cluster-down; }' EXIT SIGINT SIGTERM SIGSTOP
+trap '{ make cluster-down; rm -rf ../kubevirt-template-validator; }' EXIT SIGINT SIGTERM SIGSTOP
 
 
 make cluster-down
@@ -198,17 +198,39 @@ set -e
 echo "Nodes are ready:"
 _oc get nodes
 
-_oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-operator.yaml
-_oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-cr.yaml
+_oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
+_oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
-# OpenShift is running important containers under default namespace
-namespaces=(kubevirt default)
+# Deploy template validator (according to https://github.com/kubevirt/kubevirt-template-validator/blob/master/README.md)
+echo "Deploying template validator"
+
+VALIDATOR_VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt-template-validator/tags| jq -r '.[].name' | sort -r | head -1 )
+rm -rf ../kubevirt-template-validator
+git clone -b ${VALIDATOR_VERSION} --depth 1 https://github.com/kubevirt/kubevirt-template-validator ../kubevirt-template-validator
+
+_oc apply -f ../kubevirt-template-validator/cluster/okd/manifests/template-view-role.yaml
+
+sed "s|image:.*|image: quay.io/kubevirt/kubevirt-template-validator:${VALIDATOR_VERSION}|" < ../kubevirt-template-validator/cluster/okd/manifests/service.yaml | \
+	sed "s|imagePullPolicy: Always|imagePullPolicy: IfNotPresent|g" | \
+	_oc apply -f -
+
+# Wait for the validator deployment to be ready
+_oc rollout status deployment/virt-template-validator -n $NAMESPACE
+
+# Apply templates
+echo "Deploying templates"
+_oc apply -n default -f ../../dist/templates
+
+namespaces=(kubevirt)
 if [[ $NAMESPACE != "kubevirt" ]]; then
   namespaces+=($NAMESPACE)
 fi
 
 timeout=300
 sample=30
+
+# Waiting for kubevirt cr to report available
+_oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $NAMESPACE
 
 # Ignoring the 'registry-console' pod. It will be in a failed state, but it is not relevant for this test
 # https://github.com/openshift/openshift-ansible/issues/12115
@@ -218,6 +240,7 @@ for i in ${namespaces[@]}; do
   # Make sure all containers are ready
   current_time=0
   custom_columns='name:metadata.name,status:status.containerStatuses[*].ready'
+
   while [ -n "$(_oc get pods -n $i -o"custom-columns=${custom_columns}" --no-headers | grep -v ${ignored_pods} | grep false)" ]; do
     echo "Waiting for pods to become ready ..."
     _oc get pods -n $i -o"custom-columns=${custom_columns}" --no-headers | grep -v ${ignored_pods} | grep false || true
@@ -231,22 +254,49 @@ for i in ${namespaces[@]}; do
   _oc get pods -n $i
 done
 
-#wait for kubevirt pods
-current_time=0
-while [ "$(_oc get pods -n kubevirt --no-headers | grep "virt-handler" | grep Running | wc -l)" -eq 0 ]; do
-  echo "Waiting for kubevirt pods to enter the Running state ..."
-  _oc get pods -n kubevirt
-  sleep $sample
+# Used to store the exit code of the webhook creation command
+webhookUpdated=1
+webhookUpdateRetries=10
 
-  current_time=$((current_time + sample))
-  if [ $current_time -gt $timeout ]; then
+while [ $webhookUpdated != 0 ];
+do
+  # Approve all CSRs to avoid an issue similar to this: https://github.com/kubernetes/frakti/issues/200
+  # This is attempted before any call to 'oc exec' because there's suspect that more csr's have to be approved
+  # over time and not only once after the cluster has been initiated.
+  _oc adm certificate approve $(_oc get csr -ocustom-columns=NAME:metadata.name --no-headers)
+
+  if [ $webhookUpdateRetries == 0 ];
+  then
+    echo Retry count for template validator ca bundle injection reached
     exit 1
   fi
+
+  webhookUpdateRetries=$((webhookUpdateRetries-1))
+
+  VALIDATOR_POD=$(_oc get pod -n $NAMESPACE -l kubevirt.io=virt-template-validator -o json | jq -r .items[0].metadata.name)
+  if [ "$VALIDATOR_POD" == "" ];
+  then
+    # Retry if an error occured
+    continue
+  fi
+
+  CA_BUNDLE=$(_oc exec -n $NAMESPACE $VALIDATOR_POD -- /bin/cat /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt | base64 -w 0)
+  if [ "$CA_BUNDLE" == "" ];
+  then
+    # Retry if an error occured
+    continue
+  fi
+
+  sed "s/\${CA_BUNDLE}/${CA_BUNDLE}/g" < ../kubevirt-template-validator/cluster/okd/manifests/validating-webhook.yaml | _oc apply -f -
+
+  # If the webhook failed to be created, retry
+  webhookUpdated=$?
 done
+
+_oc describe validatingwebhookconfiguration virt-template-validator
 
 #switch back original target
 export TARGET=$original_target
-
 
 if [[ $TARGET =~ rhel.* ]]; then
   ../test-rhel.sh $TARGET

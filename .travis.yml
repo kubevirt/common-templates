@@ -11,6 +11,7 @@ env:
   - SSP_REPO="kubevirt-ssp-operator"
   - SSP_OWNER="MarSik"
   - SSP_REPO_URL="git@github.com:${SSP_OWNER}/${SSP_REPO}.git"
+  - CI_CONFIG_ADMISSION_WEBHOOK=1
 jobs:
   include:
   - stage: Tests
