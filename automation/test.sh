@@ -210,12 +210,16 @@ fi
 timeout=300
 sample=30
 
+# Ignoring the 'registry-console' pod. It will be in a failed state, but it is not relevant for this test
+# https://github.com/openshift/openshift-ansible/issues/12115
+ignored_pods='registry-console'
+
 for i in ${namespaces[@]}; do
   # Wait until kubevirt pods are running
   current_time=0
-  while [ -n "$(_oc get pods -n $i --no-headers | grep -v Running)" ]; do
+  while [ -n "$(_oc get pods -n $i --no-headers | grep -v ${ignored_pods} | grep -v Running)" ]; do
     echo "Waiting for kubevirt pods to enter the Running state ..."
-    _oc get pods -n $i --no-headers | >&2 grep -v Running || true
+    _oc get pods -n $i --no-headers | grep -v ${ignored_pods} | >&2 grep -v Running || true
     sleep $sample
 
     current_time=$((current_time + sample))
@@ -226,9 +230,10 @@ for i in ${namespaces[@]}; do
 
   # Make sure all containers are ready
   current_time=0
-  while [ -n "$(_oc get pods -n $i -o'custom-columns=status:status.containerStatuses[*].ready' --no-headers | grep false)" ]; do
+  custom_columns='name:metadata.name,status:status.containerStatuses[*].ready'
+  while [ -n "$(_oc get pods -n $i -o"custom-columns=${custom_columns}" --no-headers | grep -v ${ignored_pods} | grep false)" ]; do
     echo "Waiting for KubeVirt containers to become ready ..."
-    _oc get pods -n $i -o'custom-columns=status:status.containerStatuses[*].ready' --no-headers | grep false || true
+    _oc get pods -n $i -o"custom-columns=${custom_columns}" --no-headers | grep -v ${ignored_pods} | grep false || true
     sleep $sample
 
     current_time=$((current_time + sample))
