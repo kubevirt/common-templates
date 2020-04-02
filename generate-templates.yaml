@@ -14,7 +14,7 @@
 
   - name: Generate RHEL 8 templates
     template:
-      src: rhel7.tpl.yaml
+      src: rhel8.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
     - {flavor: tiny, workload: server, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: False}
