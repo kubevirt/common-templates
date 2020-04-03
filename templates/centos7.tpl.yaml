@@ -9,7 +9,7 @@ metadata:
       CentOS 7 and newer.
       The template assumes that a PVC is available which is providing the
       necessary CentOS disk image.
-    tags: "kubevirt,virtualmachine,linux,centos"
+    tags: "hidden,kubevirt,virtualmachine,linux,centos"
 
 {% include "_linux.yaml" %}
 

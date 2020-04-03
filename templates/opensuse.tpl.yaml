@@ -12,6 +12,6 @@ metadata:
 
       Recommended disk image (needs to be converted to raw)
       https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.0/images/
-    tags: "kubevirt,virtualmachine,linux,opensuse"
+    tags: "hidden,kubevirt,virtualmachine,linux,opensuse"
 
 {% include "_linux.yaml" %}
