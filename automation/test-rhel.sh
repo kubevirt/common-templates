@@ -92,6 +92,8 @@ run_vm(){
     # start vm
     ./virtctl --kubeconfig=$kubeconfig start $vm_name
 
+    sleep 10
+
     set +e
     current_time=0
     while [ $(_oc get vmi $vm_name -o json | jq -r '.status.phase') != Running ] ; do 

@@ -39,8 +39,8 @@ _curl() {
 	fi
 }
 
-export VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt/tags| jq -r '.[].name' | sort -r | head -1 )
-
+#export VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt/tags| jq -r '.[].name' | sort -r | head -1 )
+export VERSION=v0.27.0
 wait_for_download_lock() {
   local max_lock_attempts=60
   local lock_wait_interval=60
@@ -215,24 +215,11 @@ sample=30
 ignored_pods='registry-console'
 
 for i in ${namespaces[@]}; do
-  # Wait until kubevirt pods are running
-  current_time=0
-  while [ -n "$(_oc get pods -n $i --no-headers | grep -v ${ignored_pods} | grep -v Running)" ]; do
-    echo "Waiting for kubevirt pods to enter the Running state ..."
-    _oc get pods -n $i --no-headers | grep -v ${ignored_pods} | >&2 grep -v Running || true
-    sleep $sample
-
-    current_time=$((current_time + sample))
-    if [ $current_time -gt $timeout ]; then
-      exit 1
-    fi
-  done
-
   # Make sure all containers are ready
   current_time=0
   custom_columns='name:metadata.name,status:status.containerStatuses[*].ready'
   while [ -n "$(_oc get pods -n $i -o"custom-columns=${custom_columns}" --no-headers | grep -v ${ignored_pods} | grep false)" ]; do
-    echo "Waiting for KubeVirt containers to become ready ..."
+    echo "Waiting for pods to become ready ..."
     _oc get pods -n $i -o"custom-columns=${custom_columns}" --no-headers | grep -v ${ignored_pods} | grep false || true
     sleep $sample
 
@@ -242,6 +229,19 @@ for i in ${namespaces[@]}; do
     fi
   done
   _oc get pods -n $i
+done
+
+#wait for kubevirt pods
+current_time=0
+while [ "$(_oc get pods -n kubevirt --no-headers | grep "virt-handler" | grep Running | wc -l)" -eq 0 ]; do
+  echo "Waiting for kubevirt pods to enter the Running state ..."
+  _oc get pods -n kubevirt
+  sleep $sample
+
+  current_time=$((current_time + sample))
+  if [ $current_time -gt $timeout ]; then
+    exit 1
+  fi
 done
 
 #switch back original target
