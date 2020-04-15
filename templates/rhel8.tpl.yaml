@@ -1,0 +1,15 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: {{ os }}-{{ item.workload }}-{{ item.flavor }}-v0.10.0
+  annotations:
+    openshift.io/display-name: "Red Hat Enterprise Linux 8.0+ VM"
+    description: >-
+      This template can be used to create a VM suitable for
+      Red Hat Enterprise Linux 8 and newer.
+      The template assumes that a PVC is available which is providing the
+      necessary RHEL disk image.
+    tags: "hidden,kubevirt,virtualmachine,linux,rhel"
+
+{% include "_linux.yaml" %}
+
