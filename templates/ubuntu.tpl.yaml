@@ -12,6 +12,6 @@ metadata:
 
       Recommended disk image (needs to be converted to raw)
       http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img
-    tags: "kubevirt,virtualmachine,ubuntu"
+    tags: "hidden,kubevirt,virtualmachine,ubuntu"
 
 {% include "_linux.yaml" %}

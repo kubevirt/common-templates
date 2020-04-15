@@ -9,7 +9,7 @@ metadata:
       Microsoft Windows Server 2012 R2.
       The template assumes that a PVC is available which is providing the
       necessary Windows disk image.
-    tags: "kubevirt,virtualmachine,windows"
+    tags: "hidden,kubevirt,virtualmachine,windows"
     iconClass: "icon-windows"
     openshift.io/provider-display-name: "KubeVirt"
     openshift.io/documentation-url: "https://github.com/kubevirt/common-templates"
