@@ -16,7 +16,7 @@
       /objects[0].spec.template.spec.networks
 
 {% for osl in oslabels %}
-    name.os.template.kubevirt.io/{{ osl }}: {{ lookup('osinfo', oslabels[0]).name }} or higher VM
+    name.os.template.kubevirt.io/{{ osl }}: {{ lookup('osinfo', oslabels[0]).name }} or higher
 {% endfor %}
 
     validations: |
