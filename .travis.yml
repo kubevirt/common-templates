@@ -14,7 +14,7 @@ env:
 jobs:
   include:
   - stage: Tests
-    name: Check syntax of all templates
+    name: Check syntax and memory requirements of all templates
     script: bash -x travis_ci/test_syntax.sh
 
   - name: Functional test of the Fedora template
