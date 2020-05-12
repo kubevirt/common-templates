@@ -54,6 +54,12 @@ metadata:
           "rule": "enum",
           "message": "disk bus has to be either virtio or sata",
           "values": ["virtio", "sata"]
+        }, {
+          "name": "windows-cd-bus",
+          "path": "jsonpath::.spec.domain.devices.disks[*].cdrom.bus",
+          "rule": "enum",
+          "message": "cd bus has to be sata",
+          "values": ["sata"]
         }
       ]
 
