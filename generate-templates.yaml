@@ -90,7 +90,7 @@
 
   - name: Generate CentOS 8 templates
     template:
-      src: centos7.tpl.yaml
+      src: centos8.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
     - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
@@ -106,7 +106,7 @@
       icon: centos
       password: centos
       oslabels:
-       - centos8.0
+       - centos8
       osinfoname: "{{ oslabels[0] }}"
 
   - name: Generate CentOS 7 templates
