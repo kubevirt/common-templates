@@ -76,21 +76,22 @@ addons:
     - sourceline: 'ppa:ansible/ansible'
     packages:
     - qemu-utils
-    - jq
-    - ansible
-    - python-gobject
-    - python-six
-    - python3-pip
     - libosinfo-1.0
     - gir1.2-libosinfo-1.0
     - intltool
-before_script:
-- pip install PyYAML
+    - libgirepository1.0-dev
+install:
+- python3 -m pip install PyYAML
+- python3 -m pip install ansible
+- python3 -m pip install jq
+- python3 -m pip install PyGObject
+- python3 -m pip install six
 - sudo mount --make-rshared /
 ## FIXME - kubevirt v0.28.0 uses functionality which os-3.11.0 doesn't support
 ## we need to migrate tests to use OKD/OCP - 4.*
 ## For now kubevirt version is hardcoded to v0.27.0
 #- bash -x ci/ci/extra/get-kubevirt-releases
+before_script:
 - bash -x ci/prepare-host $CPLATFORM
 - bash -x ci/prepare-host virtctl $(bash -x ci/ci/extra/cat-kubevirt-release last)
 - bash -x ci/start-cluster $CPLATFORM
