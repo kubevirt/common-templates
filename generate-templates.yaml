@@ -93,8 +93,8 @@
       src: centos8.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True}
+    - {flavor: tiny, workload: server, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: False}
+    - {flavor: tiny, workload: desktop, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: True}
     - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
     - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
     - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
@@ -200,7 +200,8 @@
       src: ubuntu.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True}
+      #minimal memory requirement for ubuntu is 2Gi, for now we don't have mechanism how to deprecate template 
+    - {flavor: tiny, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
     - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
     - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
     - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
