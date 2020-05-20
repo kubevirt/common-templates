@@ -27,3 +27,4 @@ for template in $templates; do
 done
 
 python3 travis_ci/check-validations.py
+python3 travis_ci/validate-min-memory-consistency.py
