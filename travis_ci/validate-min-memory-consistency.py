@@ -27,8 +27,14 @@ def minMemoryReqInTemplate(template):
     min_gi_float = float(min_str.replace("Gi",""))
     return int(min_gi_float * (1024**3))
 
+def memoryReqErrorMessage(newest_os_label, template_name):
+    return "Memory requirements for OS: {} are not compatible with the requirements set in: {}".format(newest_os_label, template_name)
+
+FAILED_INFO_MESSAGE = "Minimum memory requirements validation failed"
+
 def checkMemoryReqs(path):
     templates = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+    errors = []
     for template_name in templates:
         with open(os.path.join(path, template_name), 'r') as stream:
             try:
@@ -45,15 +51,18 @@ def checkMemoryReqs(path):
                     actual_min_req = minMemoryReqForOs(newest_os_label)
                     min_req_in_template = minMemoryReqInTemplate(template)
                     if min_req_in_template < actual_min_req:
-                        raise Exception("Memory requirements for OS: {} are not compatible"
-                                        " with the requirements set in: {}".format(newest_os_label, template_name))
-
+                        errors.append([newest_os_label, template_name])
                 except Exception as e:
-                    logging.info("Minimum memory requirements validation failed")
+                    logging.info(FAILED_INFO_MESSAGE)
                     raise e
 
             except yaml.YAMLError as exc:
                 raise exc
+    if len(errors) > 0:
+        error_messages = [memoryReqErrorMessage(e[0], e[1]) for e in errors]
+        error_message = "\n".join(error_messages)
+        logging.info(FAILED_INFO_MESSAGE)
+        raise Exception(error_message)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
