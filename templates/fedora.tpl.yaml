@@ -1,7 +1,8 @@
+{% set version =  "0.7.0" %}
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: {{ os }}-{{ item.workload }}-{{ item.flavor }}-v0.7.0
+  name: {{ os }}-{{ item.workload }}-{{ item.flavor }}-v{{ version }}
   annotations:
     openshift.io/display-name: "Fedora 23+ VM"
     description: >-

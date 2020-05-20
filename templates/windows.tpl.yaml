@@ -1,7 +1,8 @@
+{% set version =  "0.7.0" %}
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: windows-{{ item.workload }}-{{ item.flavor }}-v0.7.0
+  name: windows-{{ item.workload }}-{{ item.flavor }}-v{{ version }}
   annotations:
     openshift.io/display-name: "Microsoft Windows Server 2012 R2+ VM"
     description: >-
@@ -79,7 +80,7 @@ objects:
   metadata:
     name: ${NAME}
     labels:
-      vm.kubevirt.io/template: windows-{{ item.workload }}-{{ item.flavor }}
+      vm.kubevirt.io/template: windows-{{ item.workload }}-{{ item.flavor }}-v{{ version }}
       vm.kubevirt.io/template.version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
       vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
       app: ${NAME}
