@@ -45,7 +45,7 @@ objects:
   metadata:
     name: ${NAME}
     labels:
-      vm.kubevirt.io/template: {{ os }}-{{ item.workload }}-{{ item.flavor }}
+      vm.kubevirt.io/template: {{ os }}-{{ item.workload }}-{{ item.flavor }}-v{{ version }}
       vm.kubevirt.io/template.version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
       vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
       app: ${NAME}
