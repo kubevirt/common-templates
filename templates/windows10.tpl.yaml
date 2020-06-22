@@ -53,7 +53,7 @@ metadata:
         }, {
           "name": "windows-cd-bus",
           "path": "jsonpath::.spec.domain.devices.disks[*].cdrom.bus",
-          "valid": "jsonpath::.spec.domain.devices.disks[*].cdrom",
+          "valid": "jsonpath::.spec.domain.devices.disks[*].cdrom.bus",
           "rule": "enum",
           "message": "cd bus has to be sata",
           "values": ["sata"]
