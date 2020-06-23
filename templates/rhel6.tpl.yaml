@@ -6,10 +6,8 @@ metadata:
   annotations:
     openshift.io/display-name: "Red Hat Enterprise Linux 6.0+ VM"
     description: >-
-      This template can be used to create a VM suitable for
-      Red Hat Enterprise Linux 6 and newer.
-      The template assumes that a PVC is available which is providing the
-      necessary RHEL disk image.
+      Template for Red Hat Enterprise Linux 6 VM or newer.
+      A PVC with the RHEL disk image must be available.
     tags: "hidden,kubevirt,virtualmachine,linux,rhel"
 
 {% set diskbus = diskbus |default("sata") %}

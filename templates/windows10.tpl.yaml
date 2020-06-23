@@ -6,10 +6,8 @@ metadata:
   annotations:
     openshift.io/display-name: "Microsoft Windows 10 VM"
     description: >-
-      This template can be used to create a VM suitable for
-      Microsoft Windows 10.
-      The template assumes that a PVC is available which is providing the
-      necessary Windows disk image.
+      Template for Microsoft Windows 10 VM.
+      A PVC with the Windows disk image must be available.
     tags: "hidden,kubevirt,virtualmachine,windows"
     iconClass: "icon-windows"
     openshift.io/provider-display-name: "KubeVirt"

@@ -4,15 +4,13 @@ kind: Template
 metadata:
   name: {{ os }}-{{ item.workload }}-{{ item.flavor }}-v{{ version }}
   annotations:
-    openshift.io/display-name: "Fedora 23+ VM"
+    openshift.io/display-name: "Fedora 31+ VM"
     description: >-
-      This template can be used to create a VM suitable for
-      Fedora 23 and newer.
-      The template assumes that a PVC is available which is providing the
-      necessary Fedora disk image.
+      Template for Fedora 31 VM or newer.
+      A PVC with the Fedora disk image must be available.
 
       Recommended disk image (needs to be converted to raw)
-      https://download.fedoraproject.org/pub/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2
+      https://download.fedoraproject.org/pub/fedora/linux/releases/31/Cloud/x86_64/images/Fedora-Cloud-Base-31-1.9.x86_64.qcow2
     tags: "hidden,kubevirt,virtualmachine,fedora,rhel"
 
 {% include "_linux.yaml" %}

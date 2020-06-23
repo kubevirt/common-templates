@@ -6,10 +6,8 @@ metadata:
   annotations:
     openshift.io/display-name: "OpenSUSE Leap 15.0 VM"
     description: >-
-      This template can be used to create a VM suitable for
-      OpenSUSE Leap 15.0.
-      The template assumes that a PVC is available which is providing the
-      necessary OpenSUSE disk image.
+      Template for OpenSUSE Leap 15.0 VM.
+      A PVC with the OpenSUSE disk image must be available.
 
       Recommended disk image (needs to be converted to raw)
       https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.0/images/
