@@ -4,7 +4,7 @@ A set of (meta-)Templates to create KubeVirt VMs.
 
 # Overview
 
-This repository provides VM templates in the form compatible with [OpenShift templates](https://docs.okd.io/latest/dev_guide/templates.html) and kubevirt UI and those can further be transformed into regular objects for use with plain Kubernetes.
+This repository provides VM templates in the form compatible with [OpenShift templates](https://docs.okd.io/latest/dev_guide/templates.html) and OpenShift Cluster Console Web UI and those can further be transformed into regular objects for use with plain Kubernetes.
 
 The VM templates are generated from [meta-templates](templates/) via [Ansible](https://www.ansible.com/) and [libosinfo](https://libosinfo.org/). The generated templates are parametrized according to three aspects: the guest OS, the workload type and the size. The generated content is stored in [dist/](dist/).
 
@@ -73,17 +73,26 @@ $
 The table below lists the guest operating systems that are covered by the templates. The meta-templates are not directly consumable, please use the [generator](generate-templates.yaml) to prepare the properly parametrized templates first.
 
 > **Note:** The templates are tuned for a specific guest version, but is often
-> usable with different versions as well, i.e. the Fedora 28 template is also
-> usable with Fedora 27 or 26.
+> usable with different versions as well, i.e. the Fedora 32 template is also
+> usable with Fedora 30.
 
 | Guest OS | Meta-template |
 |---|---|
-| Microsoft Windows Server 2012 R2 (no CI) | [windows](templates/windows.tpl.yaml) |
-| Fedora 28 | [fedora](templates/fedora.tpl.yaml) |
-| Red Hat Enterprise Linux 7.5 | [rhel7](templates/rhel7.tpl.yaml) |
+| Microsoft Windows Server 2012 R2 | [windows](templates/windows.tpl.yaml) |
+| Microsoft Windows 10 | [windows](templates/windows10.tpl.yaml) |
+| Fedora 32 | [fedora](templates/fedora.tpl.yaml) |
+| Red Hat Enterprise Linux 7 | [rhel7](templates/rhel7.tpl.yaml) |
+| Red Hat Enterprise Linux 8 | [rhel8](templates/rhel8.tpl.yaml) |
 | Ubuntu 18.04 LTS | [ubuntu](templates/ubuntu.tpl.yaml) |
 | OpenSUSE Leap 15.0 (no CI) | [opensuse](templates/opensuse.tpl.yaml) |
 | Cent OS 7 | [centos7](templates/centos7.tpl.yaml) |
+| Cent OS 8 | [centos7](templates/centos8.tpl.yaml) |
+
+# Deprecated templates
+
+| Meta-template | Replaced by |
+|---|---|
+| [windows](templates/win2k12r2-deprecated.tpl.yaml)| [windows](templates/windows.tpl.yaml) |
 
 # License
 
