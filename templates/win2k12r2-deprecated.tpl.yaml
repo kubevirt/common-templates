@@ -43,6 +43,7 @@ metadata:
         }, {
           "name": "windows-virtio-bus",
           "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+          "valid": "jsonpath::.spec.domain.devices.disks[*]",
           "rule": "enum",
           "message": "virto disk bus type has better performance, install virtio drivers in VM and change bus type",
           "values": ["virtio"],
@@ -50,6 +51,7 @@ metadata:
         }, {
           "name": "windows-disk-bus",
           "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+          "valid": "jsonpath::.spec.domain.devices.disks[*]",
           "rule": "enum",
           "message": "disk bus has to be either virtio or sata",
           "values": ["virtio", "sata"]
