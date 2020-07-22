@@ -81,12 +81,76 @@ for template in ${templates[@]}; do
     sizes+=($(echo $template | awk -F '-' '{print substr($NF, RSTART, (length($NF)-5))}'))
 done
 
+# Deploy template validator (according to https://github.com/kubevirt/kubevirt-template-validator/blob/master/README.md)
+echo "Deploying template validator"
+
+VALIDATOR_VERSION=$(curl https://api.github.com/repos/kubevirt/kubevirt-template-validator/tags| jq -r '.[].name' | sort -r | head -1 )
+rm -rf kubevirt-template-validator
+git clone -b ${VALIDATOR_VERSION} --depth 1 https://github.com/kubevirt/kubevirt-template-validator kubevirt-template-validator
+
+oc create -f kubevirt-template-validator/cluster/okd/manifests/template-view-role.yaml
+
+sed "s|image:.*|image: quay.io/kubevirt/kubevirt-template-validator:${VALIDATOR_VERSION}|" < kubevirt-template-validator/cluster/okd/manifests/service.yaml | \
+	sed "s|imagePullPolicy: Always|imagePullPolicy: IfNotPresent|g" | \
+	oc create -f -
+
 timeout=300
 sample=5
+
+# Wait for validator pods to be ready
+oc rollout -n kubevirt status deployment/virt-template-validator
+
+# Deploy templates
+echo "Deploying templates"
+oc create -n default -f dist/templates
+
+# Used to store the exit code of the webhook creation command
+webhookUpdated=1
+webhookUpdateRetries=10
+
+while [ $webhookUpdated != 0 ];
+do
+  if [ $webhookUpdateRetries == 0 ];
+  then
+    echo Retry count for template validator ca bundle injection reached
+    exit 1
+  fi
+
+  webhookUpdateRetries=$((webhookUpdateRetries-1))
+
+  VALIDATOR_POD=$(oc get pod -n kubevirt -l kubevirt.io=virt-template-validator -o json | jq -r .items[0].metadata.name)
+  if [ "$VALIDATOR_POD" == "" ];
+  then
+    # Retry if an error occured
+    continue
+  fi
+
+  CA_BUNDLE=$(oc exec -n kubevirt $VALIDATOR_POD -- /bin/cat /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt | base64 -w 0)
+  if [ "$CA_BUNDLE" == "" ];
+  then
+    # Retry if an error occured
+    continue
+  fi
+
+  sed "s/\${CA_BUNDLE}/${CA_BUNDLE}/g" < kubevirt-template-validator/cluster/okd/manifests/validating-webhook.yaml | oc apply -f -
+
+  # If the webhook failed to be created, retry
+  webhookUpdated=$?
+done
+
+VALIDATOR_PODS=($(oc get pods -n kubevirt -l kubevirt.io=virt-template-validator -ocustom-columns=name:metadata.name --no-headers))
+
 for size in ${sizes[@]}; do
-    vm_name="$name-$workload-$size"
-    oc process --local -f "dist/templates/$vm_name.yaml" NAME=$vm_name PVCNAME=$name | \
+    vm_name="$(oc get -n default -f dist/templates/${name}-${workload}-${size}.yaml -ocustom-columns=name:metadata.name --no-headers)"
+    oc process -n default -o json $vm_name NAME=$vm_name PVCNAME=$name | \
+    jq '.items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="default"' | \
 	  oc apply -f -
+
+	  for pod in ${VALIDATOR_PODS[@]}; do
+	    oc logs -n kubevirt $pod
+	  done
+
+	  oc describe vm $vm_name
     # start vm
     virtctl start $vm_name
 
@@ -94,7 +158,7 @@ for size in ${sizes[@]}; do
     travis_fold_start
     current_time=0
     #check if vm is running
-    while [[ $(oc get vmi $vm_name -o json | jq -r '.status.phase') != Running ]] ; do 
+    while [[ $(oc get vmi $vm_name -o json | jq -r '.status.phase') != Running ]] ; do
       oc describe vmi $vm_name
       current_time=$((current_time + sample))
       if [ $current_time -gt $timeout ]; then
@@ -109,7 +173,7 @@ for size in ${sizes[@]}; do
     virtctl console --timeout=5 $vm_name | tee /dev/stderr | egrep -m 1 "Welcome|systemd"
 
     #delete vm
-    oc process --local -f "dist/templates/$vm_name.yaml" NAME=$vm_name PVCNAME=$name | \
+    oc process -n default -o json $vm_name NAME=$vm_name PVCNAME=$name |
 	  oc delete -f -
 
     #wait until vm is deleted

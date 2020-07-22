@@ -96,12 +96,12 @@ fi
 
 delete_vm(){
   vm_name=$1
-  template_path=$2
+  local template_name=$2
   set +e
   #stop vm
   ./virtctl --kubeconfig=$kubeconfig stop $vm_name
   #delete vm
-  _oc process -o json --local -f $template_path NAME=$vm_name PVCNAME=disk-win | \
+  _oc process -o json $template_name NAME=$vm_name PVCNAME=disk-win | \
   _oc delete -f -
   set -e
 }
@@ -109,6 +109,7 @@ delete_vm(){
 run_vm(){
   vm_name=$1
   template_path="../../dist/templates/$vm_name.yaml"
+  local template_name=$( _oc get -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers )
   running=false
 
   #If first try fails, it tries 2 more time to run it, before it fails whole test
@@ -117,16 +118,24 @@ run_vm(){
 
     # windows 2019 doesn't support rtc timer. 
     if [[ $TARGET =~ windows2019.* ]]; then
-      _oc process -o json --local -f $template_path NAME=$vm_name PVCNAME=disk-win | \
+      _oc process -o json $template_name NAME=$vm_name PVCNAME=disk-win | \
       jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-win"}}} | 
-      del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim) | del(.items[0].spec.template.spec.domain.clock.timer.rtc)' | \
+      del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim) | del(.items[0].spec.template.spec.domain.clock.timer.rtc) |
+      .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="default"' | \
       _oc apply -f -
     else
-      _oc process -o json --local -f $template_path NAME=$vm_name PVCNAME=disk-win | \
+      _oc process -o json $template_name NAME=$vm_name PVCNAME=disk-win | \
       jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-win"}}} | 
-      del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim)' | \
+      del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim) |
+      .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="default"' | \
       _oc apply -f -
     fi
+
+    validator_pods=($(_oc get pods -n kubevirt -l kubevirt.io=virt-template-validator -ocustom-columns=name:metadata.name --no-headers))
+
+    for pod in ${validator_pods[@]}; do
+      _oc logs -n kubevirt $pod
+    done
 
     # start vm
     ./virtctl --kubeconfig=$kubeconfig start $vm_name
@@ -146,7 +155,7 @@ run_vm(){
 
     if $error ; then
       #delete vm
-      delete_vm $vm_name $template_path
+      delete_vm $vm_name $template_name
       #jump to next iteration and try to run vm again
       continue
     fi
@@ -172,7 +181,7 @@ run_vm(){
     done
     set -e
 
-    delete_vm $vm_name $template_path
+    delete_vm $vm_name $template_name
     #no error were observed, the vm is running
     if ! $error ; then
       running=true
