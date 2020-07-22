@@ -7,14 +7,14 @@ _oc() {
 }
 
 template_name=$1
-# Prepare PV and PVC for rhel8 testing
 
-_oc create -f - <<EOF
+_oc create -n openshift-cnv-base-images  -f - <<EOF
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: disk-rhel
+  namespace: openshift-cnv-base-images
   labels:
     kubevirt.io/test: "rhel"
 spec:
@@ -27,14 +27,11 @@ spec:
     path: /
   storageClassName: rhel
 ---
-EOF
-
-_oc create -f - <<EOF
----
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: disk-rhel
+  namespace: openshift-cnv-base-images
   labels:
     kubevirt.io: ""
 spec:
@@ -45,7 +42,6 @@ spec:
   resources:
     requests:
       storage: 30Gi
-
   selector:
     matchLabels:
       kubevirt.io/test: "rhel"
@@ -86,9 +82,7 @@ run_vm(){
   for i in `seq 1 3`; do
     error=false
     _oc process -o json $template_name NAME=$vm_name PVCNAME=disk-rhel | \
-    jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-rhel"}}} | 
-    del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim) | 
-    .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="default"' | \
+    jq '.items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
     _oc apply -f -
 
     validator_pods=($(_oc get pods -n kubevirt -l kubevirt.io=virt-template-validator -ocustom-columns=name:metadata.name --no-headers))
@@ -100,7 +94,7 @@ run_vm(){
     # start vm
     ./virtctl --kubeconfig=$kubeconfig start $vm_name
 
-    sleep 10
+    sleep 300
 
     set +e
     current_time=0

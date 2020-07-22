@@ -1,4 +1,4 @@
-{% set version =  "0.10.0" %}
+{% set version =  "0.12.0" %}
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:

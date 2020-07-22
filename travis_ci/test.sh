@@ -81,6 +81,26 @@ for template in ${templates[@]}; do
     sizes+=($(echo $template | awk -F '-' '{print substr($NF, RSTART, (length($NF)-5))}'))
 done
 
+oc create -n kubevirt -f - <<EOF
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubevirt-config
+  namespace: kubevirt
+data:
+  feature-gates: "DataVolumes"
+---
+EOF
+
+echo "Deploying CDI"
+export CDI_VERSION=$(curl -s https://github.com/kubevirt/containerized-data-importer/releases/latest | grep -o "v[0-9]\.[0-9]*\.[0-9]*")
+oc create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
+oc create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
+oc rollout status -n cdi deployment/cdi-operator
+
+oc create namespace openshift-cnv-base-images
+
 # Deploy template validator (according to https://github.com/kubevirt/kubevirt-template-validator/blob/master/README.md)
 echo "Deploying template validator"
 

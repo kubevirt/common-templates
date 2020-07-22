@@ -18,6 +18,10 @@
 {% for osl in oslabels %}
     name.os.template.kubevirt.io/{{ osl }}: {{ lookup('osinfo', oslabels[0]).name }} or higher
 {% endfor %}
+{% for osl in oslabels %}
+    pvc.template.kubevirt.io/{{ osl }}: "{{ osl }}"
+{% endfor %}
+    pvc.template.kubevirt.io/namespace: openshift-cnv-base-images
 
     validations: |
       [
@@ -38,7 +42,6 @@
     flavor.template.kubevirt.io/{{ item.flavor }}: "true"
     template.kubevirt.io/type: "base"
     template.kubevirt.io/version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
-
 objects:
 - apiVersion: kubevirt.io/v1alpha3
   kind: VirtualMachine
@@ -50,6 +53,22 @@ objects:
       vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
       app: ${NAME}
   spec:
+    dataVolumeTemplates:
+      - apiVersion: cdi.kubevirt.io/v1beta1
+        kind: DataVolume
+        metadata:
+          name: ${NAME}
+        spec:
+          pvc:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 30Gi
+          source:
+            pvc:
+              name: ${PVCNAME}
+              namespace: ${PVCNAMESPACE}
     running: false
     template:
       metadata:
@@ -84,7 +103,7 @@ objects:
             disks:
             - disk:
                 bus: {{ diskbus | default("virtio") }}
-              name: rootdisk
+              name: ${NAME}
             - disk:
                 bus: {{ diskbus | default("virtio") }}
               name: cloudinitdisk
@@ -96,9 +115,9 @@ objects:
         - name: default
           pod: {}
         volumes:
-        - name: rootdisk
-          persistentVolumeClaim:
-            claimName: ${PVCNAME}
+        - dataVolume:
+            name: ${NAME}
+          name: ${NAME}
         - cloudInitNoCloud:
             userData: |-
               #cloud-config
@@ -114,4 +133,8 @@ parameters:
 - name: PVCNAME
   description: Name of the PVC with the disk image
   required: true
-
+  value: '{{ oslabels | last }}'
+- name: PVCNAMESPACE
+  description: Name of the PVC with the disk image
+  required: true
+  value: openshift-cnv-base-images

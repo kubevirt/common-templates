@@ -100,7 +100,7 @@ safe_download() (
 )
 
 original_target=$TARGET
-
+image_path=""
 if [[ $TARGET =~ rhel.* ]]; then
     # Create images directory
     if [[ ! -d $RHEL_NFS_DIR ]]; then
@@ -123,6 +123,7 @@ if [[ $TARGET =~ rhel.* ]]; then
 
     # Download RHEL image
     rhel_image="$RHEL_NFS_DIR/disk.img"
+    image_path=$rhel_image
     safe_download "$RHEL_LOCK_PATH" "$rhel_image_url" "$rhel_image" || exit 1
     # Hack to correctly set rhel nfs directory for kubevirtci
     # https://github.com/kubevirt/kubevirtci/blob/master/cluster-up/cluster/ephemeral-provider-common.sh#L33
@@ -156,6 +157,7 @@ if [[ $TARGET =~ windows.* ]]; then
 
   # Download Windows image
   win_image="$WINDOWS_NFS_DIR/disk.img"
+  image_path=$win_image
   safe_download "$WINDOWS_LOCK_PATH" "$win_image_url" "$win_image" || exit 1
 fi
 
@@ -201,6 +203,49 @@ _oc get nodes
 _oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
 _oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
+
+_oc create namespace openshift-cnv-base-images
+_oc project kubevirt
+_oc create -f - <<EOF
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubevirt-config
+  namespace: kubevirt
+data:
+  feature-gates: "DataVolumes"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cdi-role
+rules:
+- apiGroups: ["cdi.kubevirt.io"]
+  resources: ["datavolumes/source"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubevirt-cdi
+  namespace: openshift-cnv-base-images
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: kubevirt
+roleRef:
+  kind: ClusterRole
+  name: cdi-role
+  apiGroup: rbac.authorization.k8s.io
+EOF
+
+echo "Deploying CDI"
+export CDI_VERSION=$(curl -s https://github.com/kubevirt/containerized-data-importer/releases/latest | grep -o "v[0-9]\.[0-9]*\.[0-9]*")
+_oc create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
+_oc create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
+_oc rollout status -n cdi deployment/cdi-operator
+
 # Deploy template validator (according to https://github.com/kubevirt/kubevirt-template-validator/blob/master/README.md)
 echo "Deploying template validator"
 
@@ -219,7 +264,7 @@ _oc rollout status deployment/virt-template-validator -n $NAMESPACE
 
 # Apply templates
 echo "Deploying templates"
-_oc apply -n default -f ../../dist/templates
+_oc apply -n kubevirt -f ../../dist/templates
 
 namespaces=(kubevirt)
 if [[ $NAMESPACE != "kubevirt" ]]; then
@@ -299,9 +344,9 @@ _oc describe validatingwebhookconfiguration virt-template-validator
 export TARGET=$original_target
 
 if [[ $TARGET =~ rhel.* ]]; then
-  ../test-rhel.sh $TARGET
+  ../test-rhel.sh $TARGET $image_path
 fi
 
 if [[ $TARGET =~ windows.* ]]; then
-  ../test-windows.sh $TARGET
+  ../test-windows.sh $TARGET $image_path
 fi

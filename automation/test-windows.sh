@@ -7,14 +7,14 @@ _oc() {
 }
 
 template_name="windows"
-# Prepare PV and PVC for Windows testing
 
-_oc create -f - <<EOF
+_oc create -n openshift-cnv-base-images -f - <<EOF
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: disk-win
+  namespace: openshift-cnv-base-images  
   labels:
     kubevirt.io/os: "windows"
 spec:
@@ -31,6 +31,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: disk-win
+  namespace: openshift-cnv-base-images
   labels:
     kubevirt.io: ""
 spec:
@@ -40,7 +41,6 @@ spec:
   resources:
     requests:
       storage: 50Gi
-
   selector:
     matchLabels:
       kubevirt.io/os: "windows"
@@ -53,7 +53,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: winrmcli
-  namespace: default
+  namespace: kubevirt
 spec:
   containers:
   - image: kubevirt/winrmcli
@@ -119,15 +119,12 @@ run_vm(){
     # windows 2019 doesn't support rtc timer. 
     if [[ $TARGET =~ windows2019.* ]]; then
       _oc process -o json $template_name NAME=$vm_name PVCNAME=disk-win | \
-      jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-win"}}} | 
-      del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim) | del(.items[0].spec.template.spec.domain.clock.timer.rtc) |
-      .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="default"' | \
+      jq 'del(.items[0].spec.template.spec.domain.clock.timer.rtc) |
+      .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
       _oc apply -f -
     else
       _oc process -o json $template_name NAME=$vm_name PVCNAME=disk-win | \
-      jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-win"}}} | 
-      del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim) |
-      .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="default"' | \
+      jq '.items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
       _oc apply -f -
     fi
 

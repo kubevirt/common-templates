@@ -1,4 +1,4 @@
-{% set version =  "0.7.0" %}
+{% set version =  "0.12.0" %}
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
@@ -30,7 +30,12 @@ metadata:
     name.os.template.kubevirt.io/win2k12r2: {{ lookup('osinfo', 'win2k12r2').name }}
     name.os.template.kubevirt.io/win2k8r2: {{ lookup('osinfo', 'win2k8r2').name }}
     name.os.template.kubevirt.io/win2k8: {{ lookup('osinfo', 'win2k8').name }}
-
+    pvc.template.kubevirt.io/win2k19: "win2k19"
+    pvc.template.kubevirt.io/win2k16: "win2k16"
+    pvc.template.kubevirt.io/win2k12r2: "win2k12r2"
+    pvc.template.kubevirt.io/win2k8r2: "win2k8r2"
+    pvc.template.kubevirt.io/win2k8: "win2k8"
+    pvc.template.kubevirt.io/namespace: openshift-cnv-base-images
     validations: |
       [
         {
@@ -84,6 +89,22 @@ objects:
       vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
       app: ${NAME}
   spec:
+    dataVolumeTemplates:
+      - apiVersion: cdi.kubevirt.io/v1beta1
+        kind: DataVolume
+        metadata:
+          name: ${NAME}
+        spec:
+          pvc:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 30Gi
+          source:
+            pvc:
+              name: ${PVCNAME}
+              namespace: ${PVCNAMESPACE}
     running: false
     template:
       metadata:
@@ -121,7 +142,7 @@ objects:
             disks:
             - disk:
                 bus: sata
-              name: rootdisk
+              name:  ${NAME}
             interfaces:
             - masquerade: {}
               model: e1000e
@@ -134,9 +155,9 @@ objects:
 {% endif %}
         terminationGracePeriodSeconds: 0
         volumes:
-        - name: rootdisk
-          persistentVolumeClaim:
-            claimName: ${PVCNAME}
+        - dataVolume:
+            name: ${NAME}
+          name: ${NAME}
         networks:
         - name: default
           pod: {}
@@ -149,3 +170,9 @@ parameters:
 - name: PVCNAME
   description: Name of the PVC with the disk image
   required: true
+  value: win2k19
+- name: PVCNAMESPACE
+  description: Name of the PVC with the disk image
+  required: true
+  value: openshift-cnv-base-images
+
