@@ -28,8 +28,6 @@ metadata:
     name.os.template.kubevirt.io/win2k19: {{ lookup('osinfo', 'win2k19').name }}
     name.os.template.kubevirt.io/win2k16: {{ lookup('osinfo', 'win2k16').name }}
     name.os.template.kubevirt.io/win2k12r2: {{ lookup('osinfo', 'win2k12r2').name }}
-    name.os.template.kubevirt.io/win2k8r2: {{ lookup('osinfo', 'win2k8r2').name }}
-    name.os.template.kubevirt.io/win2k8: {{ lookup('osinfo', 'win2k8').name }}
     name.os.template.kubevirt.io/win10: {{ lookup('osinfo', 'win10').name }}
 
     validations: |
@@ -67,8 +65,6 @@ metadata:
     os.template.kubevirt.io/win2k19: "true"
     os.template.kubevirt.io/win2k16: "true"
     os.template.kubevirt.io/win2k12r2: "true"
-    os.template.kubevirt.io/win2k8r2: "true"
-    os.template.kubevirt.io/win2k8: "true"
     os.template.kubevirt.io/win10: "true"
     workload.template.kubevirt.io/{{ item.workload }}: "true"
     flavor.template.kubevirt.io/{{ item.flavor }}: "true"

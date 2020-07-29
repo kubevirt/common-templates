@@ -62,17 +62,11 @@ identifiers](https://gitlab.com/libosinfo/osinfo-db/tree/master/data/os) from th
 
 ### Microsoft Windows
 
+- os.template.kubevirt.io/win2k19
 - os.template.kubevirt.io/win2k16
 - os.template.kubevirt.io/win2k12r2
 - os.template.kubevirt.io/win2k12
-- os.template.kubevirt.io/win2k8r2
-- os.template.kubevirt.io/win2k8
 - os.template.kubevirt.io/win10
-- os.template.kubevirt.io/win8.1
-- os.template.kubevirt.io/win8
-- os.template.kubevirt.io/win7
-- os.template.kubevirt.io/winvista
-- os.template.kubevirt.io/winxp
 
 ## Workload profiles
 
