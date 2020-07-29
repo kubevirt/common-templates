@@ -165,6 +165,11 @@ git submodule update --init
 
 make generate
 
+#set terminationGracePeriodSeconds to 0
+for filename in dist/templates/*; do
+    sed -i -e 's/^\(\s*terminationGracePeriodSeconds\s*:\s*\).*/\10/' $filename
+done
+
 cp automation/connect_to_rhel_console.exp automation/kubevirtci/connect_to_rhel_console.exp
   
 cd automation/kubevirtci
