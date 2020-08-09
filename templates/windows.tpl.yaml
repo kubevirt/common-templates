@@ -1,4 +1,4 @@
-{% set version =  "0.7.0" %}
+{% set version =  "0.11.3" %}
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
@@ -130,7 +130,7 @@ objects:
                 bus: usb
                 name: tablet
 {% endif %}
-        terminationGracePeriodSeconds: 0
+        terminationGracePeriodSeconds: 3600
         volumes:
         - name: rootdisk
           persistentVolumeClaim:

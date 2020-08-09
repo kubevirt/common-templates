@@ -91,7 +91,7 @@ objects:
             interfaces:
             - masquerade: {}
               name: default
-        terminationGracePeriodSeconds: 0
+        terminationGracePeriodSeconds: 180
         networks:
         - name: default
           pod: {}

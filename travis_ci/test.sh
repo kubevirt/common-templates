@@ -41,6 +41,11 @@ make generate
 # Limit required memory of large templates
 bash automation/x-limit-ram-size.sh
 
+#set terminationGracePeriodSeconds to 0
+for filename in dist/templates/*; do
+    sed -i -e 's/^\(\s*terminationGracePeriodSeconds\s*:\s*\).*/\10/' $filename
+done
+
 # Download images
 case "$name" in
 "fedora")

@@ -274,6 +274,9 @@ status:
       mac-address: AA:BB:CC:DD:EE:FF
 ```
 
+## terminationGracePeriodSeconds
+All linux templates have terminationGracePeriodSeconds set to 180 seconds, in windows templates it is set to 3600 seconds.
+
 ## Future enhancements
 
 - Parameter replacement could support numerical expressions (either in the template or during parameter definition - one parameter building on top of another)
