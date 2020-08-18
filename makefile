@@ -26,6 +26,8 @@ dist/common-templates.yaml: generate
 release: dist/common-templates.yaml
 	cp dist/common-templates.yaml dist/common-templates-$(VERSION).yaml
 
+e2e-tests:
+	./automation/test.sh 
 generate: generate-templates.yaml $(METASOURCES)
 	# Just build the XML files, no need to export to tarball
 	make -C osinfo-db/ OSINFO_DB_EXPORT=echo
