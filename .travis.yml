@@ -7,38 +7,12 @@ branches:
   - /^v[0-9]/
 env:
   global:
-  - CPLATFORM=minishift
   - SSP_REPO="kubevirt-ssp-operator"
   - SSP_OWNER="kubevirt"
   - SSP_REPO_URL="git@github.com:${SSP_OWNER}/${SSP_REPO}.git"
   - CI_CONFIG_ADMISSION_WEBHOOK=1
 jobs:
   include:
-  - stage: Tests
-    name: Check syntax and memory requirements of all templates
-    script: bash -x travis_ci/test_syntax.sh
-
-  - name: Functional test of the Fedora template
-    script: bash -x travis_ci/test.sh fedora desktop
-
-  - name: Functional test of the Ubuntu template
-    script: bash -x travis_ci/test.sh ubuntu desktop
-
-  - name: Functional test of the CentOS 8 template
-    script: bash -x travis_ci/test.sh centos8 server
-
-  - name: Functional test of the desktop CentOS 8 template
-    script: bash -x travis_ci/test.sh centos8 desktop
-
-  - name: Functional test of the CentOS 7 template
-    script: bash -x travis_ci/test.sh centos7 server
-
-  - name: Functional test of the desktop CentOS 7 template
-    script: bash -x travis_ci/test.sh centos7 desktop
-
-  - name: Functional test of the CentOS 6 template
-    script: bash -x travis_ci/test.sh centos6 server
-
   - stage: Build and Deploy
     name: Build and Deploy to GitHub
     before_script: skip
@@ -66,11 +40,6 @@ jobs:
         on:
           tags: true
           repo: kubevirt/common-templates
-cache:
-  directories:
-  - cache
-  - "~/.minishift/cache"
-  - "~/.minikube/cache"
 addons:
   apt:
     sources:
@@ -87,13 +56,3 @@ install:
 - python3 -m pip install jq
 - python3 -m pip install PyGObject
 - python3 -m pip install six
-- sudo mount --make-rshared /
-## FIXME - kubevirt v0.28.0 uses functionality which os-3.11.0 doesn't support
-## we need to migrate tests to use OKD/OCP - 4.*
-## For now kubevirt version is hardcoded to v0.27.0
-#- bash -x ci/ci/extra/get-kubevirt-releases
-before_script:
-- bash -x ci/prepare-host $CPLATFORM
-- bash -x ci/prepare-host virtctl $(bash -x ci/ci/extra/cat-kubevirt-release last)
-- bash -x ci/start-cluster $CPLATFORM
-- bash -x ci/deploy-kubevirt $CPLATFORM

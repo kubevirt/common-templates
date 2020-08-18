@@ -2,14 +2,10 @@
 
 set -ex
 
-_oc() { 
-  cluster-up/kubectl.sh "$@"
-}
-
 template_name="windows"
 # Prepare PV and PVC for Windows testing
 
-_oc create -f - <<EOF
+oc create -f - <<EOF
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -47,7 +43,7 @@ spec:
 ---
 EOF
 
-_oc create -f - <<EOF
+oc create -f - <<EOF
 ---
 apiVersion: v1
 kind: Pod
@@ -72,8 +68,8 @@ sample=30
 # Make sure winrmcli pod is ready
 set +e
 current_time=0
-while [ $(_oc get pod winrmcli -o json | jq -r '.status.phase') != "Running" ]  ; do 
-  _oc get pod winrmcli -o yaml
+while [ $(oc get pod winrmcli -o json | jq -r '.status.phase') != "Running" ]  ; do 
+  oc get pod winrmcli -o yaml
   current_time=$((current_time + sample))
   if [ $current_time -gt $timeout ]; then
     exit 1
@@ -82,7 +78,7 @@ while [ $(_oc get pod winrmcli -o json | jq -r '.status.phase') != "Running" ]  
 done
 set -e
 
-_oc exec -it winrmcli -- yum install -y iproute iputils net-tools arp-scan
+oc exec -it winrmcli -- yum install -y iproute iputils net-tools arp-scan
 
 kubeconfig=$( cluster-up/kubeconfig.sh )
 
@@ -101,15 +97,15 @@ delete_vm(){
   #stop vm
   ./virtctl --kubeconfig=$kubeconfig stop $vm_name
   #delete vm
-  _oc process -o json $template_name NAME=$vm_name PVCNAME=disk-win | \
-  _oc delete -f -
+  oc process -o json $template_name NAME=$vm_name PVCNAME=disk-win | \
+  oc delete -f -
   set -e
 }
 
 run_vm(){
   vm_name=$1
   template_path="../../dist/templates/$vm_name.yaml"
-  local template_name=$( _oc get -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers )
+  local template_name=$( oc get -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers )
   running=false
 
   #If first try fails, it tries 2 more time to run it, before it fails whole test
@@ -118,23 +114,23 @@ run_vm(){
 
     # windows 2019 doesn't support rtc timer. 
     if [[ $TARGET =~ windows2019.* ]]; then
-      _oc process -o json $template_name NAME=$vm_name PVCNAME=disk-win | \
+      oc process -o json $template_name NAME=$vm_name PVCNAME=disk-win | \
       jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-win"}}} | 
       del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim) | del(.items[0].spec.template.spec.domain.clock.timer.rtc) |
       .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="default"' | \
-      _oc apply -f -
+      oc apply -f -
     else
-      _oc process -o json $template_name NAME=$vm_name PVCNAME=disk-win | \
+      oc process -o json $template_name NAME=$vm_name PVCNAME=disk-win | \
       jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-win"}}} | 
       del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim) |
       .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="default"' | \
-      _oc apply -f -
+      oc apply -f -
     fi
 
-    validator_pods=($(_oc get pods -n kubevirt -l kubevirt.io=virt-template-validator -ocustom-columns=name:metadata.name --no-headers))
+    validator_pods=($(oc get pods -n kubevirt -l kubevirt.io=virt-template-validator -ocustom-columns=name:metadata.name --no-headers))
 
     for pod in ${validator_pods[@]}; do
-      _oc logs -n kubevirt $pod
+      oc logs -n kubevirt $pod
     done
 
     # start vm
@@ -142,8 +138,8 @@ run_vm(){
 
     set +e
     current_time=0
-    while [ $(_oc get vmi $vm_name -o json | jq -r '.status.phase') != Running ] ; do 
-      _oc describe vmi $vm_name
+    while [ $(oc get vmi $vm_name -o json | jq -r '.status.phase') != Running ] ; do 
+      oc describe vmi $vm_name
       current_time=$((current_time + sample))
       if [ $current_time -gt $timeout ]; then
         error=true
@@ -160,17 +156,17 @@ run_vm(){
       continue
     fi
 
-    _oc describe vm $vm_name
-    _oc describe vmi $vm_name
+    oc describe vm $vm_name
+    oc describe vmi $vm_name
 
     # get ip address of vm
-    ipAddressVMI=$(_oc get vmi $vm_name -o json| jq -r '.status.interfaces[0].ipAddress')
+    ipAddressVMI=$(oc get vmi $vm_name -o json| jq -r '.status.interfaces[0].ipAddress')
 
     set +e
-    pod_name=$(_oc get pods | egrep -i '*virt-launcher*' | cut -d " " -f1)
+    pod_name=$(oc get pods | egrep -i '*virt-launcher*' | cut -d " " -f1)
     current_time=0
     # run ipconfig /all command on windows vm
-    while [[ $(_oc exec -it winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all" | grep "IPv4 Address" | wc -l ) -eq 0 ]] ; do 
+    while [[ $(oc exec -it winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all" | grep "IPv4 Address" | wc -l ) -eq 0 ]] ; do 
 
       current_time=$((current_time + 30))
       if [[ $current_time -gt $timeout ]]; then
