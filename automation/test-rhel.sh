@@ -2,14 +2,10 @@
 
 set -ex
 
-_oc() { 
-  cluster-up/kubectl.sh "$@"
-}
-
 template_name=$1
 # Prepare PV and PVC for rhel8 testing
 
-_oc create -f - <<EOF
+oc create -f - <<EOF
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -26,10 +22,6 @@ spec:
     server: "nfs"
     path: /
   storageClassName: rhel
----
-EOF
-
-_oc create -f - <<EOF
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -71,30 +63,30 @@ delete_vm(){
   #stop vm
   ./virtctl --kubeconfig=$kubeconfig stop $vm_name
   #delete vm
-  _oc process -o json $template_name NAME=$vm_name PVCNAME=disk-rhel | \
-    _oc delete -f -
+  oc process -o json $template_name NAME=$vm_name PVCNAME=disk-rhel | \
+    oc delete -f -
   set -e
 }
 
 run_vm(){
   vm_name=$1
   template_path="../../dist/templates/$vm_name.yaml"
-  local template_name=$( _oc get -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers )
+  local template_name=$( oc get -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers )
   running=false
 
   #If first try fails, it tries 2 more time to run it, before it fails whole test
   for i in `seq 1 3`; do
     error=false
-    _oc process -o json $template_name NAME=$vm_name PVCNAME=disk-rhel | \
+    oc process -o json $template_name NAME=$vm_name PVCNAME=disk-rhel | \
     jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-rhel"}}} | 
     del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim) | 
     .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="default"' | \
-    _oc apply -f -
+    oc apply -f -
 
-    validator_pods=($(_oc get pods -n kubevirt -l kubevirt.io=virt-template-validator -ocustom-columns=name:metadata.name --no-headers))
+    validator_pods=($(oc get pods -n kubevirt -l kubevirt.io=virt-template-validator -ocustom-columns=name:metadata.name --no-headers))
 
     for pod in ${validator_pods[@]}; do
-	    _oc logs -n kubevirt $pod
+	    oc logs -n kubevirt $pod
 	  done
 
     # start vm
@@ -104,8 +96,8 @@ run_vm(){
 
     set +e
     current_time=0
-    while [ $(_oc get vmi $vm_name -o json | jq -r '.status.phase') != Running ] ; do 
-      _oc describe vmi $vm_name
+    while [ $(oc get vmi $vm_name -o json | jq -r '.status.phase') != Running ] ; do 
+      oc describe vmi $vm_name
       current_time=$((current_time + sample))
       if [ $current_time -gt $timeout ]; then
         error=true
@@ -122,8 +114,8 @@ run_vm(){
       continue
     fi
 
-    _oc describe vm $vm_name
-    _oc describe vmi $vm_name
+    oc describe vm $vm_name
+    oc describe vmi $vm_name
 
     set +e
     ./connect_to_rhel_console.exp $kubeconfig $vm_name

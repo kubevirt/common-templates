@@ -18,16 +18,8 @@
 #
 
 set -ex
-
+#test
 readonly TEMPLATES_SERVER="https://templates.ovirt.org/kubevirt"
-
-export RHEL_NFS_DIR=${RHEL_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/$TARGET}
-export lock_name="download_${TARGET}_image.lock"
-export RHEL_LOCK_PATH=${RHEL_LOCK_PATH:-/var/lib/stdci/shared/$lock_name}
-export WINDOWS_NFS_DIR=${WINDOWS_NFS_DIR:-/var/lib/stdci/shared/kubevirt-images/$TARGET}
-export WINDOWS_LOCK_PATH=${WINDOWS_LOCK_PATH:-/var/lib/stdci/shared/$lock_name}
-export KUBEVIRT_MEMORY_SIZE=19384M
-export KUBEVIRT_PROVIDER="os-3.11.0"
 
 _curl() {
 	# this dupes the baseline "curl" command line, but is simpler
@@ -39,8 +31,7 @@ _curl() {
 	fi
 }
 
-#export KUBEVIRT_VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt/tags| jq -r '.[].name' | sort -r | head -1 )
-export KUBEVIRT_VERSION=v0.27.0
+export KUBEVIRT_VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt/tags| jq -r '.[].name' | sort -r | head -1 )
 
 wait_for_download_lock() {
   local max_lock_attempts=60
@@ -58,15 +49,10 @@ wait_for_download_lock() {
 }
 
 safe_download() (
-    # Download files into shared locations using a lock.
-    # The lock will be released as soon as this subprocess will exit
-    local lockfile="${1:?Lockfile was not specified}"
-    local download_from="${2:?Download from was not specified}"
-    local download_to="${3:?Download to was not specified}"
-    local timeout_sec="${4:-3600}"
+    local download_from="${1:?Download from was not specified}"
+    local download_to="disk.img"
+    local timeout_sec="${2:-3600}"
 
-    touch "$lockfile"
-    exec {fd}< "$lockfile"
     flock -e  -w "$timeout_sec" "$fd" || {
         echo "ERROR: Timed out after $timeout_sec seconds waiting for lock" >&2
         exit 1
@@ -98,15 +84,13 @@ safe_download() (
         echo "${download_to} is up to date"
     fi
 )
-
-original_target=$TARGET
+case "$TARGET" in
+"fedora")
+	curl -fL -o "disk.img" https://download.fedoraproject.org/pub/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2
+    ;;
+esac
 
 if [[ $TARGET =~ rhel.* ]]; then
-    # Create images directory
-    if [[ ! -d $RHEL_NFS_DIR ]]; then
-        mkdir -p $RHEL_NFS_DIR
-    fi
-
     rhel_image_url=""
 
     if [[ $TARGET =~ rhel6.* ]]; then
@@ -122,19 +106,12 @@ if [[ $TARGET =~ rhel.* ]]; then
     fi
 
     # Download RHEL image
-    rhel_image="$RHEL_NFS_DIR/disk.img"
-    safe_download "$RHEL_LOCK_PATH" "$rhel_image_url" "$rhel_image" || exit 1
+    safe_download "$rhel_image_url" || exit 1
     # Hack to correctly set rhel nfs directory for kubevirtci
     # https://github.com/kubevirt/kubevirtci/blob/master/cluster-up/cluster/ephemeral-provider-common.sh#L33
-    export TARGET="os-3.11.0"
 fi
 
 if [[ $TARGET =~ windows.* ]]; then
-  # Create images directory
-  if [[ ! -d $WINDOWS_NFS_DIR ]]; then
-    mkdir -p $WINDOWS_NFS_DIR
-  fi
-
   win_image_url=""
 
   if [[ $TARGET =~ windows2012.* ]]; then
@@ -155,11 +132,8 @@ if [[ $TARGET =~ windows.* ]]; then
 
 
   # Download Windows image
-  win_image="$WINDOWS_NFS_DIR/disk.img"
-  safe_download "$WINDOWS_LOCK_PATH" "$win_image_url" "$win_image" || exit 1
+  safe_download "$win_image_url" || exit 1
 fi
-
-_oc() { cluster-up/kubectl.sh "$@"; }
 
 git submodule update --init
 
@@ -172,8 +146,6 @@ done
 
 cp automation/connect_to_rhel_console.exp automation/kubevirtci/connect_to_rhel_console.exp
   
-cd automation/kubevirtci
-
 curl -Lo virtctl \
     https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VERSION/virtctl-$KUBEVIRT_VERSION-linux-amd64
 chmod +x virtctl
@@ -182,29 +154,26 @@ chmod +x virtctl
 export NAMESPACE="${NAMESPACE:-kubevirt}"
 
 # Make sure that the VM is properly shut down on exit
-trap '{ make cluster-down; rm -rf ../kubevirt-template-validator; }' EXIT SIGINT SIGTERM SIGSTOP
+trap '{ rm -rf ../kubevirt-template-validator; }' EXIT SIGINT SIGTERM SIGSTOP
 
-
-make cluster-down
-make cluster-up
 
 # Wait for nodes to become ready
 set +e
-_oc get nodes --no-headers
+oc get nodes --no-headers
 oc_rc=$?
-while [ $oc_rc -ne 0 ] || [ -n "$(_oc get nodes --no-headers | grep NotReady)" ]; do
+while [ $oc_rc -ne 0 ] || [ -n "$(oc get nodes --no-headers | grep NotReady)" ]; do
     echo "Waiting for all nodes to become ready ..."
-    _oc get nodes --no-headers
+    oc get nodes --no-headers
     oc_rc=$?
     sleep 10
 done
 set -e
 
 echo "Nodes are ready:"
-_oc get nodes
+oc get nodes
 
-_oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
-_oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
+oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
+oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
 # Deploy template validator (according to https://github.com/kubevirt/kubevirt-template-validator/blob/master/README.md)
 echo "Deploying template validator"
@@ -213,18 +182,18 @@ VALIDATOR_VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt-templat
 rm -rf ../kubevirt-template-validator
 git clone -b ${VALIDATOR_VERSION} --depth 1 https://github.com/kubevirt/kubevirt-template-validator ../kubevirt-template-validator
 
-_oc apply -f ../kubevirt-template-validator/cluster/okd/manifests/template-view-role.yaml
+oc apply -f ../kubevirt-template-validator/cluster/okd/manifests/template-view-role.yaml
 
 sed "s|image:.*|image: quay.io/kubevirt/kubevirt-template-validator:${VALIDATOR_VERSION}|" < ../kubevirt-template-validator/cluster/okd/manifests/service.yaml | \
 	sed "s|imagePullPolicy: Always|imagePullPolicy: IfNotPresent|g" | \
-	_oc apply -f -
+	oc apply -f -
 
 # Wait for the validator deployment to be ready
-_oc rollout status deployment/virt-template-validator -n $NAMESPACE
+oc rollout status deployment/virt-template-validator -n $NAMESPACE
 
 # Apply templates
 echo "Deploying templates"
-_oc apply -n default -f ../../dist/templates
+oc apply -n default -f ../../dist/templates
 
 namespaces=(kubevirt)
 if [[ $NAMESPACE != "kubevirt" ]]; then
@@ -235,20 +204,16 @@ timeout=300
 sample=30
 
 # Waiting for kubevirt cr to report available
-_oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $NAMESPACE
-
-# Ignoring the 'registry-console' pod. It will be in a failed state, but it is not relevant for this test
-# https://github.com/openshift/openshift-ansible/issues/12115
-ignored_pods='registry-console'
+oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $NAMESPACE
 
 for i in ${namespaces[@]}; do
   # Make sure all containers are ready
   current_time=0
   custom_columns='name:metadata.name,status:status.containerStatuses[*].ready'
 
-  while [ -n "$(_oc get pods -n $i -o"custom-columns=${custom_columns}" --no-headers | grep -v ${ignored_pods} | grep false)" ]; do
+  while [ -n "$(oc get pods -n $i -o"custom-columns=${custom_columns}" --no-headers | grep false)" ]; do
     echo "Waiting for pods to become ready ..."
-    _oc get pods -n $i -o"custom-columns=${custom_columns}" --no-headers | grep -v ${ignored_pods} | grep false || true
+    oc get pods -n $i -o"custom-columns=${custom_columns}" --no-headers | grep false || true
     sleep $sample
 
     current_time=$((current_time + sample))
@@ -256,7 +221,7 @@ for i in ${namespaces[@]}; do
       exit 1
     fi
   done
-  _oc get pods -n $i
+  oc get pods -n $i
 done
 
 # Used to store the exit code of the webhook creation command
@@ -268,7 +233,7 @@ do
   # Approve all CSRs to avoid an issue similar to this: https://github.com/kubernetes/frakti/issues/200
   # This is attempted before any call to 'oc exec' because there's suspect that more csr's have to be approved
   # over time and not only once after the cluster has been initiated.
-  _oc adm certificate approve $(_oc get csr -ocustom-columns=NAME:metadata.name --no-headers)
+  oc adm certificate approve $(oc get csr -ocustom-columns=NAME:metadata.name --no-headers)
 
   if [ $webhookUpdateRetries == 0 ];
   then
@@ -278,30 +243,27 @@ do
 
   webhookUpdateRetries=$((webhookUpdateRetries-1))
 
-  VALIDATOR_POD=$(_oc get pod -n $NAMESPACE -l kubevirt.io=virt-template-validator -o json | jq -r .items[0].metadata.name)
+  VALIDATOR_POD=$(oc get pod -n $NAMESPACE -l kubevirt.io=virt-template-validator -o json | jq -r .items[0].metadata.name)
   if [ "$VALIDATOR_POD" == "" ];
   then
     # Retry if an error occured
     continue
   fi
 
-  CA_BUNDLE=$(_oc exec -n $NAMESPACE $VALIDATOR_POD -- /bin/cat /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt | base64 -w 0)
+  CA_BUNDLE=$(oc exec -n $NAMESPACE $VALIDATOR_POD -- /bin/cat /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt | base64 -w 0)
   if [ "$CA_BUNDLE" == "" ];
   then
     # Retry if an error occured
     continue
   fi
 
-  sed "s/\${CA_BUNDLE}/${CA_BUNDLE}/g" < ../kubevirt-template-validator/cluster/okd/manifests/validating-webhook.yaml | _oc apply -f -
+  sed "s/\${CA_BUNDLE}/${CA_BUNDLE}/g" < ../kubevirt-template-validator/cluster/okd/manifests/validating-webhook.yaml | oc apply -f -
 
   # If the webhook failed to be created, retry
   webhookUpdated=$?
 done
 
-_oc describe validatingwebhookconfiguration virt-template-validator
-
-#switch back original target
-export TARGET=$original_target
+oc describe validatingwebhookconfiguration virt-template-validator
 
 if [[ $TARGET =~ rhel.* ]]; then
   ../test-rhel.sh $TARGET
