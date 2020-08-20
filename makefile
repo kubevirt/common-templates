@@ -5,6 +5,10 @@ ALL_META_TEMPLATES=$(wildcard templates/*.yaml)
 ALL_PRESETS=$(wildcard presets/*.yaml)
 METASOURCES=$(ALL_META_TEMPLATES) $(ALL_PRESETS)
 
+IMAGE_REGISTRY ?= quay.io/kubevirt
+IMAGE_TAG ?= v0.1.0
+IMAGE_NAME ?= common-templates
+
 # Make sure the version is defined
 export VERSION=$(shell ./version.sh)
 export REVISION=$(shell ./revision.sh)
@@ -29,9 +33,15 @@ release: dist/common-templates.yaml
 e2e-tests:
 	./automation/test.sh 
 
+build-builder:
+	docker build -f builder/Dockerfile -t $(IMAGE_REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG) .
+
+push-builder:
+	docker push $(IMAGE_REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG)
+
 generate: generate-templates.yaml $(METASOURCES)
 	# Just build the XML files, no need to export to tarball
 	make -C osinfo-db/ OSINFO_DB_EXPORT=echo
 	ansible-playbook generate-templates.yaml
 
-.PHONY: all generate release e2e-tests
+.PHONY: all generate release e2e-tests build-builder push-builder
