@@ -19,7 +19,7 @@
 
 set -ex
 
-dnf install -y jq ansible libosinfo python-gobject libosinfo intltool
+sudo dnf install -y jq ansible libosinfo python-gobject libosinfo intltool
 
 readonly TEMPLATES_SERVER="https://templates.ovirt.org/kubevirt"
 
