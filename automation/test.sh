@@ -20,9 +20,7 @@
 set -ex
 
 set +e
-apt-get install -y jq ansible libosinfo python3-gobject libosinfo intltool
-dnf install -y jq ansible libosinfo python3-gobject libosinfo intltool
-yum install -y jq ansible libosinfo python3-gobject libosinfo intltool
+sudo yum install -y jq ansible libosinfo python3-gobject libosinfo intltool
 set -e
 
 readonly TEMPLATES_SERVER="https://templates.ovirt.org/kubevirt"
