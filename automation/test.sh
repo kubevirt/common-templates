@@ -27,6 +27,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: common-templates
+  namespace: default
 spec:
   containers:
   - image: quay.io/kubevirt/common-templates:v0.1.0
