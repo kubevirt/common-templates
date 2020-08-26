@@ -19,9 +19,15 @@
 
 set -ex
 
-ls -l 
-pwd
+git submodule update --init
 
+make build-builder
+docker run quay.io/kubevirt/common-templates:v0.1.0 sleep 300
+container_id=$(docker ps |grep common-templates | cut -d" " -f1)
+docker cp . $container_id:/home
+docker exec $container_id cd /home && make generate
+
+docker cp $container_id:/home/dist .
 
 readonly TEMPLATES_SERVER="https://templates.ovirt.org/kubevirt"
 
@@ -138,10 +144,6 @@ if [[ $TARGET =~ windows.* ]]; then
   # Download Windows image
   safe_download "$win_image_url" || exit 1
 fi
-
-git submodule update --init
-
-make generate
 
 #set terminationGracePeriodSeconds to 0
 for filename in dist/templates/*; do
