@@ -21,13 +21,29 @@ set -ex
 
 git submodule update --init
 
-make build-builder
-docker run quay.io/kubevirt/common-templates:v0.1.0 sleep 300
-container_id=$(docker ps |grep common-templates | cut -d" " -f1)
-docker cp . $container_id:/home
-docker exec $container_id cd /home && make generate
+oc create -f - <<EOF
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: common-templates
+spec:
+  containers:
+  - image: quay.io/kubevirt/common-templates:v0.1.0
+    command:
+      - sleep
+      - "300"
+    imagePullPolicy: Always
+    name: common-templates
+restartPolicy: Always
+---
+EOF
 
-docker cp $container_id:/home/dist .
+oc rollout status pod/common-templates
+
+oc rsync . common-templates:/home/
+oc exec common-templates cd /home && make generate
+oc rsync common-templates:/home/dist .
 
 readonly TEMPLATES_SERVER="https://templates.ovirt.org/kubevirt"
 
@@ -161,19 +177,6 @@ export NAMESPACE="${NAMESPACE:-kubevirt}"
 
 # Make sure that the VM is properly shut down on exit
 trap '{ rm -rf ../kubevirt-template-validator; }' EXIT SIGINT SIGTERM SIGSTOP
-
-
-# Wait for nodes to become ready
-set +e
-oc get nodes --no-headers
-oc_rc=$?
-while [ $oc_rc -ne 0 ] || [ -n "$(oc get nodes --no-headers | grep NotReady)" ]; do
-    echo "Waiting for all nodes to become ready ..."
-    oc get nodes --no-headers
-    oc_rc=$?
-    sleep 10
-done
-set -e
 
 echo "Nodes are ready:"
 oc get nodes
