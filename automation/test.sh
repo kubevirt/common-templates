@@ -19,9 +19,9 @@
 
 set -ex
 
-set +e
-sudo yum install -y jq ansible libosinfo python3-gobject libosinfo intltool
-set -e
+ls -l 
+pwd
+
 
 readonly TEMPLATES_SERVER="https://templates.ovirt.org/kubevirt"
 
