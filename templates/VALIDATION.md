@@ -146,10 +146,27 @@ kind: Template
 
 ### Optional Keys
 
-* `valid`: the rule must be *ignored* if the jsonpath given as value doesn't exist.
-*PLEASE NOTE* that even if values of this key are required to be JSONPaths, you still need to use the `jsonpath::` prefix
-as explained above.
 * `justWarning`: violating rule with justWarning field set will emit a warning only instead of failing the validation.
+* `valid`: the rule must be *ignored* if the jsonpath given as value doesn't exist.
+  Some of the fields of the template have default values so they always exist, and setting this path to one of these fields
+  has no effect.
+  *PLEASE NOTE* that even if values of this key are required to be JSONPaths, you still need to use the `jsonpath::` prefix
+  as explained above.
+  These are some of the fields with default values:
+  * `.spec.domain.cpu.sockets`
+  * `.spec.domain.cpu.cores`
+  * `.spec.domain.cpu.threads`
+  * `.spec.domain.machine.type`
+  * `.spec.domain.devices.disks[*].serial`
+  * `.spec.domain.devices.disks[*].cache`
+  * `.spec.domain.devices.disks[*].io`
+  * `.spec.domain.devices.disks[*].tag`
+  * `.spec.domain.devices.interfaces[*].model`
+  * `.spec.domain.devices.interfaces[*].macAddress`
+  * `.spec.domain.devices.interfaces[*].pciAddress`
+  * `.spec.domain.devices.interfaces[*].tag`
+  * `.spec.domain.devices.interfaces[*].ports[*].protocol`
+  * `.spec.domain.devices.interfaces[*].ports[*].port`
 
 ### Rule arguments (optional keys)
 
@@ -177,7 +194,7 @@ kind: Template
         [
           {
             "name": "core-limits",
-            "valid": "jsonpath::.spec.domain.cpu.cores",
+            "valid": "jsonpath::.spec.domain.cpu",
             "path": "jsonpath::.spec.domain.cpu.cores",
             "rule": "integer",
             "message": "cpu cores must be limited"
