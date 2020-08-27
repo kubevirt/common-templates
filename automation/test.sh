@@ -19,33 +19,6 @@
 
 set -ex
 
-git submodule update --init
-
-oc create -f - <<EOF
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: common-templates
-  namespace: default
-spec:
-  containers:
-  - image: quay.io/kubevirt/common-templates:v0.1.0
-    command:
-      - sleep
-      - "300"
-    imagePullPolicy: Always
-    name: common-templates
-restartPolicy: Always
----
-EOF
-
-oc rollout status pod/common-templates
-
-oc rsync . common-templates:/home/
-oc exec common-templates cd /home && make generate
-oc rsync common-templates:/home/dist .
-
 readonly TEMPLATES_SERVER="https://templates.ovirt.org/kubevirt"
 
 _curl() {
@@ -161,6 +134,10 @@ if [[ $TARGET =~ windows.* ]]; then
   # Download Windows image
   safe_download "$win_image_url" || exit 1
 fi
+
+git submodule update --init
+
+make generate
 
 #set terminationGracePeriodSeconds to 0
 for filename in dist/templates/*; do
