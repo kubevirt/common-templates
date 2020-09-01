@@ -171,6 +171,7 @@ oc apply -f ../kubevirt-template-validator/cluster/okd/manifests/template-view-r
 
 sed "s|image:.*|image: quay.io/kubevirt/kubevirt-template-validator:${VALIDATOR_VERSION}|" < ../kubevirt-template-validator/cluster/okd/manifests/service.yaml | \
 	sed "s|imagePullPolicy: Always|imagePullPolicy: IfNotPresent|g" | \
+	sed -i -e 's/apps\/v1beta1/apps\/v1/g' | \
 	oc apply -f -
 
 # Wait for the validator deployment to be ready
