@@ -118,7 +118,7 @@ run_vm(){
     oc describe vmi $vm_name
 
     set +e
-    ./connect_to_rhel_console.exp $kubeconfig $vm_name
+    ./automation/connect_to_rhel_console.exp $kubeconfig $vm_name
     if [ $? -ne 0 ] ; then 
       error=true
     fi

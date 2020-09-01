@@ -143,8 +143,6 @@ make generate
 for filename in dist/templates/*; do
     sed -i -e 's/^\(\s*terminationGracePeriodSeconds\s*:\s*\).*/\10/' $filename
 done
-
-cp automation/connect_to_rhel_console.exp automation/kubevirtci/connect_to_rhel_console.exp
   
 curl -Lo virtctl \
     https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VERSION/virtctl-$KUBEVIRT_VERSION-linux-amd64
