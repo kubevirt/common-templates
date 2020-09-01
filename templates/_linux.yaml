@@ -114,4 +114,9 @@ parameters:
 - name: PVCNAME
   description: Name of the PVC with the disk image
   required: true
-
+- name: SRC_PVC_NAME
+  description: Name of the PVC to clone
+  value: '{{ oslabels | last }}'
+- name: SRC_PVC_NAMESPACE
+  description: Namespace of the source PVC
+  value: kubevirt-base-images
