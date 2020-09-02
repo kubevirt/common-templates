@@ -3,46 +3,6 @@
 set -ex
 
 template_name=$1
-# Prepare PV and PVC for rhel8 testing
-
-oc create -f - <<EOF
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: disk-rhel
-  labels:
-    kubevirt.io/test: "rhel"
-spec:
-  capacity:
-    storage: 30Gi
-  accessModes:
-    - ReadWriteOnce
-  nfs:
-    server: "nfs"
-    path: /
-  storageClassName: rhel
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: disk-rhel
-  labels:
-    kubevirt.io: ""
-spec:
-  volumeName: disk-rhel
-  storageClassName: rhel
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 30Gi
-
-  selector:
-    matchLabels:
-      kubevirt.io/test: "rhel"
----
-EOF
 
 timeout=300
 sample=10
@@ -70,7 +30,7 @@ delete_vm(){
 
 run_vm(){
   vm_name=$1
-  template_path="../../dist/templates/$vm_name.yaml"
+  template_path="dist/templates/$vm_name.yaml"
   local template_name=$( oc get -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers )
   running=false
 

@@ -86,7 +86,7 @@ safe_download() (
 )
 case "$TARGET" in
 "fedora")
-	curl -fL -o "disk.img" https://download.fedoraproject.org/pub/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2
+	curl -fL -o "$TARGET" https://download.fedoraproject.org/pub/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2
     ;;
 esac
 
@@ -135,6 +135,16 @@ if [[ $TARGET =~ windows.* ]]; then
   safe_download "$win_image_url" || exit 1
 fi
 
+mkdir -p "$PWD/pvs/$TARGET"
+qemu-img convert -p -O raw $TARGET "$PWD/pvs/$TARGET/disk.img"
+sudo chown 107:107 "$PWD/pvs/$TARGET/disk.img"
+sudo chmod -R a+X "$PWD/pvs"
+
+size_MB=$(( $(qemu-img info $TARGET --output json | jq '.["virtual-size"]') / 1024 / 1024 + 128 ))
+
+
+bash create-minikube-pvc.sh "$TARGET" "${size_MB}M" "$PWD/pvs/$name/" | tee | oc apply -f -
+
 git submodule update --init
 
 make generate
@@ -179,7 +189,7 @@ oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VE
 
 # Apply templates
 echo "Deploying templates"
-oc apply -n default -f ../../dist/templates
+oc apply -n default -f dist/templates
 
 namespaces=(kubevirt)
 if [[ $NAMESPACE != "kubevirt" ]]; then
@@ -192,66 +202,48 @@ sample=30
 # Waiting for kubevirt cr to report available
 oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $NAMESPACE
 
-for i in ${namespaces[@]}; do
-  # Make sure all containers are ready
-  current_time=0
-  custom_columns='name:metadata.name,status:status.containerStatuses[*].ready'
-
-  while [ -n "$(oc get pods -n $i -o"custom-columns=${custom_columns}" --no-headers | grep false)" ]; do
-    echo "Waiting for pods to become ready ..."
-    oc get pods -n $i -o"custom-columns=${custom_columns}" --no-headers | grep false || true
-    sleep $sample
-
-    current_time=$((current_time + sample))
-    if [ $current_time -gt $timeout ]; then
-      exit 1
-    fi
-  done
-  oc get pods -n $i
-done
-
 # Used to store the exit code of the webhook creation command
-webhookUpdated=1
-webhookUpdateRetries=10
+#webhookUpdated=1
+#webhookUpdateRetries=10
 
-while [ $webhookUpdated != 0 ];
-do
+#while [ $webhookUpdated != 0 ];
+#do
   # Approve all CSRs to avoid an issue similar to this: https://github.com/kubernetes/frakti/issues/200
   # This is attempted before any call to 'oc exec' because there's suspect that more csr's have to be approved
   # over time and not only once after the cluster has been initiated.
-  oc adm certificate approve $(oc get csr -ocustom-columns=NAME:metadata.name --no-headers)
+  #oc adm certificate approve $(oc get csr -ocustom-columns=NAME:metadata.name --no-headers)
 
-  if [ $webhookUpdateRetries == 0 ];
-  then
-    echo Retry count for template validator ca bundle injection reached
-    exit 1
-  fi
+  #if [ $webhookUpdateRetries == 0 ];
+  #then
+    #echo Retry count for template validator ca bundle injection reached
+    #exit 1
+  #fi
 
-  webhookUpdateRetries=$((webhookUpdateRetries-1))
+  #webhookUpdateRetries=$((webhookUpdateRetries-1))
 
-  VALIDATOR_POD=$(oc get pod -n $NAMESPACE -l kubevirt.io=virt-template-validator -o json | jq -r .items[0].metadata.name)
-  if [ "$VALIDATOR_POD" == "" ];
-  then
+  #VALIDATOR_POD=$(oc get pod -n $NAMESPACE -l kubevirt.io=virt-template-validator -o json | jq -r .items[0].metadata.name)
+  #if [ "$VALIDATOR_POD" == "" ];
+  #then
     # Retry if an error occured
-    continue
-  fi
+    #continue
+  #fi
 
-  CA_BUNDLE=$(oc exec -n $NAMESPACE $VALIDATOR_POD -- /bin/cat /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt | base64 -w 0)
-  if [ "$CA_BUNDLE" == "" ];
-  then
+  #CA_BUNDLE=$(oc exec -n $NAMESPACE $VALIDATOR_POD -- /bin/cat /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt | base64 -w 0)
+  #if [ "$CA_BUNDLE" == "" ];
+  #then
     # Retry if an error occured
-    continue
-  fi
+  #  continue
+  #fi
 
-  sed "s/\${CA_BUNDLE}/${CA_BUNDLE}/g" < ../kubevirt-template-validator/cluster/okd/manifests/validating-webhook.yaml | oc apply -f -
+  #sed "s/\${CA_BUNDLE}/${CA_BUNDLE}/g" < ../kubevirt-template-validator/cluster/okd/manifests/validating-webhook.yaml | oc apply -f -
 
   # If the webhook failed to be created, retry
-  webhookUpdated=$?
-done
+  #webhookUpdated=$?
+#done
 
-oc describe validatingwebhookconfiguration virt-template-validator
+#oc describe validatingwebhookconfiguration virt-template-validator
 
-if [[ $TARGET =~ rhel.* ]]; then
+if [[ $TARGET =~ fedora.* ]]; then
   ../test-rhel.sh $TARGET
 fi
 
