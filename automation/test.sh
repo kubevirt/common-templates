@@ -137,8 +137,7 @@ fi
 
 mkdir -p "$PWD/pvs/$TARGET"
 qemu-img convert -p -O raw $TARGET "$PWD/pvs/$TARGET/disk.img"
-sudo chown 107:107 "$PWD/pvs/$TARGET/disk.img"
-sudo chmod -R a+X "$PWD/pvs"
+chmod -R a+X "$PWD/pvs"
 
 size_MB=$(( $(qemu-img info $TARGET --output json | jq '.["virtual-size"]') / 1024 / 1024 + 128 ))
 
