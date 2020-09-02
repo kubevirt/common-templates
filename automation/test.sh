@@ -161,21 +161,21 @@ oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VE
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
 # Deploy template validator (according to https://github.com/kubevirt/kubevirt-template-validator/blob/master/README.md)
-echo "Deploying template validator"
+#echo "Deploying template validator"
 
-VALIDATOR_VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt-template-validator/tags| jq -r '.[].name' | sort -r | head -1 )
-rm -rf ../kubevirt-template-validator
-git clone -b ${VALIDATOR_VERSION} --depth 1 https://github.com/kubevirt/kubevirt-template-validator ../kubevirt-template-validator
+#VALIDATOR_VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt-template-validator/tags| jq -r '.[].name' | sort -r | head -1 )
+#rm -rf ../kubevirt-template-validator
+#git clone -b ${VALIDATOR_VERSION} --depth 1 https://github.com/kubevirt/kubevirt-template-validator ../kubevirt-template-validator
 
-oc apply -f ../kubevirt-template-validator/cluster/okd/manifests/template-view-role.yaml
+#oc apply -f ../kubevirt-template-validator/cluster/okd/manifests/template-view-role.yaml
 
-sed "s|image:.*|image: quay.io/kubevirt/kubevirt-template-validator:${VALIDATOR_VERSION}|" < ../kubevirt-template-validator/cluster/okd/manifests/service.yaml | \
-	sed "s|imagePullPolicy: Always|imagePullPolicy: IfNotPresent|g" | \
-	sed 's|apps\/v1beta1|apps\/v1|g' | \
-	oc apply -f -
+#sed "s|image:.*|image: quay.io/kubevirt/kubevirt-template-validator:${VALIDATOR_VERSION}|" < ../kubevirt-template-validator/cluster/okd/manifests/service.yaml | \
+#	sed "s|imagePullPolicy: Always|imagePullPolicy: IfNotPresent|g" | \
+#	sed 's|apps\/v1beta1|apps\/v1|g' | \
+#	oc apply -f -
 
 # Wait for the validator deployment to be ready
-oc rollout status deployment/virt-template-validator -n $NAMESPACE
+#oc rollout status deployment/virt-template-validator -n $NAMESPACE
 
 # Apply templates
 echo "Deploying templates"
