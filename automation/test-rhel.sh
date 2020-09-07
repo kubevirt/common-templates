@@ -35,8 +35,8 @@ run_vm(){
   #If first try fails, it tries 2 more time to run it, before it fails whole test
   for i in `seq 1 3`; do
     error=false
-    oc process -o json $template_name NAME=$vm_name PVCNAME=$template_name | \
-    jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-rhel"}}} | 
+    oc process -o json $template_name NAME=$vm_name PVCNAME=$TARGET | \
+    jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "'$TARGET'"}}} | 
     del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim) | 
     .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
     oc apply -f -

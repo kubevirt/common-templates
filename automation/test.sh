@@ -200,7 +200,7 @@ chmod -R a+X "$PWD/pvs"
 size_MB=$(( $(qemu-img info $TARGET --output json | jq '.["virtual-size"]') / 1024 / 1024 + 128 ))
 
 
-bash create-minikube-pvc.sh "$TARGET" "${size_MB}M" "$PWD/pvs/$name/" | tee | oc apply -f -
+bash create-minikube-pvc.sh "$TARGET" "${size_MB}M" "$PWD/pvs/$TARGET/" | tee | oc apply -f -
 
 # Used to store the exit code of the webhook creation command
 #webhookUpdated=1
