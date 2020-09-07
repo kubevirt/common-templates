@@ -9,6 +9,7 @@ apiVersion: "v1"
 kind: "PersistentVolume"
 metadata:
   name: "$PV_NAME"
+  namespace: "kubevirt"
   labels:
     kubevirt.io/os: "$PV_NAME"
 spec:
@@ -23,6 +24,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
+  namespace: "kubevirt"
   name: "$PV_NAME"
 spec:
   accessModes:

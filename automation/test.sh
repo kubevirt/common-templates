@@ -135,15 +135,6 @@ if [[ $TARGET =~ windows.* ]]; then
   safe_download "$win_image_url" || exit 1
 fi
 
-mkdir -p "$PWD/pvs/$TARGET"
-qemu-img convert -p -O raw $TARGET "$PWD/pvs/$TARGET/disk.img"
-chmod -R a+X "$PWD/pvs"
-
-size_MB=$(( $(qemu-img info $TARGET --output json | jq '.["virtual-size"]') / 1024 / 1024 + 128 ))
-
-
-bash create-minikube-pvc.sh "$TARGET" "${size_MB}M" "$PWD/pvs/$name/" | tee | oc apply -f -
-
 git submodule update --init
 
 make generate
@@ -186,9 +177,6 @@ oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VE
 # Wait for the validator deployment to be ready
 #oc rollout status deployment/virt-template-validator -n $NAMESPACE
 
-# Apply templates
-echo "Deploying templates"
-oc apply -n default -f dist/templates
 
 namespaces=(kubevirt)
 if [[ $NAMESPACE != "kubevirt" ]]; then
@@ -200,6 +188,19 @@ sample=30
 
 # Waiting for kubevirt cr to report available
 oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $NAMESPACE
+
+# Apply templates
+echo "Deploying templates"
+oc apply -n kubevirt -f dist/templates
+
+mkdir -p "$PWD/pvs/$TARGET"
+qemu-img convert -p -O raw $TARGET "$PWD/pvs/$TARGET/disk.img"
+chmod -R a+X "$PWD/pvs"
+
+size_MB=$(( $(qemu-img info $TARGET --output json | jq '.["virtual-size"]') / 1024 / 1024 + 128 ))
+
+
+bash create-minikube-pvc.sh "$TARGET" "${size_MB}M" "$PWD/pvs/$name/" | tee | oc apply -f -
 
 # Used to store the exit code of the webhook creation command
 #webhookUpdated=1
