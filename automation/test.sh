@@ -244,9 +244,9 @@ bash create-minikube-pvc.sh "$TARGET" "${size_MB}M" "$PWD/pvs/$name/" | tee | oc
 #oc describe validatingwebhookconfiguration virt-template-validator
 
 if [[ $TARGET =~ fedora.* ]]; then
-  ../test-rhel.sh $TARGET
+  ./automation/test-rhel.sh $TARGET
 fi
 
 if [[ $TARGET =~ windows.* ]]; then
-  ../test-windows.sh $TARGET
+  ./automation/test-windows.sh $TARGET
 fi

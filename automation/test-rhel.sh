@@ -7,8 +7,6 @@ template_name=$1
 timeout=300
 sample=10
 
-kubeconfig=$( cluster-up/kubeconfig.sh )
-
 sizes=("tiny" "small" "medium" "large")
 workloads=("desktop" "server" "highperformance")
 
@@ -21,9 +19,9 @@ delete_vm(){
   local template_name=$2
   set +e
   #stop vm
-  ./virtctl --kubeconfig=$kubeconfig stop $vm_name
+  ./virtctl stop $vm_name
   #delete vm
-  oc process -o json $template_name NAME=$vm_name PVCNAME=disk-rhel | \
+  oc process -o json $template_name NAME=$vm_name PVCNAME=$template_name | \
     oc delete -f -
   set -e
 }
@@ -37,20 +35,20 @@ run_vm(){
   #If first try fails, it tries 2 more time to run it, before it fails whole test
   for i in `seq 1 3`; do
     error=false
-    oc process -o json $template_name NAME=$vm_name PVCNAME=disk-rhel | \
+    oc process -o json $template_name NAME=$vm_name PVCNAME=$template_name | \
     jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "disk-rhel"}}} | 
     del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim) | 
-    .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="default"' | \
+    .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
     oc apply -f -
 
-    validator_pods=($(oc get pods -n kubevirt -l kubevirt.io=virt-template-validator -ocustom-columns=name:metadata.name --no-headers))
+    #validator_pods=($(oc get pods -n kubevirt -l kubevirt.io=virt-template-validator -ocustom-columns=name:metadata.name --no-headers))
 
-    for pod in ${validator_pods[@]}; do
-	    oc logs -n kubevirt $pod
-	  done
+    #for pod in ${validator_pods[@]}; do
+	    #oc logs -n kubevirt $pod
+	  #done
 
     # start vm
-    ./virtctl --kubeconfig=$kubeconfig start $vm_name
+    ./virtctl start $vm_name
 
     sleep 10
 
@@ -78,7 +76,7 @@ run_vm(){
     oc describe vmi $vm_name
 
     set +e
-    ./automation/connect_to_rhel_console.exp $kubeconfig $vm_name
+    ./automation/connect_to_rhel_console.exp $vm_name
     if [ $? -ne 0 ] ; then 
       error=true
     fi
