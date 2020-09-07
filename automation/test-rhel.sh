@@ -29,7 +29,7 @@ delete_vm(){
 run_vm(){
   vm_name=$1
   template_path="dist/templates/$vm_name.yaml"
-  local template_name=$( oc get -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers )
+  local template_name=$( oc get -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt )
   running=false
 
   #If first try fails, it tries 2 more time to run it, before it fails whole test
@@ -54,7 +54,7 @@ run_vm(){
 
     set +e
     current_time=0
-    while [ $(oc get vmi $vm_name -o json | jq -r '.status.phase') != Running ] ; do 
+    while [ $(oc get vmi $vm_name -n kubevirt -o json | jq -r '.status.phase') != Running ] ; do 
       oc describe vmi $vm_name
       current_time=$((current_time + sample))
       if [ $current_time -gt $timeout ]; then
@@ -72,8 +72,8 @@ run_vm(){
       continue
     fi
 
-    oc describe vm $vm_name
-    oc describe vmi $vm_name
+    oc describe vm $vm_name -n kubevirt
+    oc describe vmi $vm_name -n kubevirt
 
     set +e
     ./automation/connect_to_rhel_console.exp $vm_name
