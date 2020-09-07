@@ -152,4 +152,4 @@ parameters:
   value: win2k19
 - name: SRC_PVC_NAMESPACE
   description: Namespace of the source PVC
-  value: kubevirt-base-images
+  value: kubevirt-os-images
