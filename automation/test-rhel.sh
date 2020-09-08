@@ -4,7 +4,7 @@ set -ex
 
 template_name=$1
 
-timeout=300
+timeout=600
 sample=10
 
 sizes=("tiny" "small" "medium" "large")
@@ -32,13 +32,13 @@ run_vm(){
   local template_name=$( oc get -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt )
   running=false
 
+  oc describe -n kubevirt pv $TARGET
+  oc describe -n kubevirt pvc $TARGET
   #If first try fails, it tries 2 more time to run it, before it fails whole test
   for i in `seq 1 3`; do
     error=false
     oc process -o json $template_name NAME=$vm_name PVCNAME=$TARGET | \
-    jq '.items[0].spec.template.spec.volumes[0]+= {"ephemeral": {"persistentVolumeClaim": {"claimName": "'$TARGET'"}}} | 
-    del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim) | 
-    .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
+    jq '.items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
     oc apply -f -
 
     #validator_pods=($(oc get pods -n kubevirt -l kubevirt.io=virt-template-validator -ocustom-columns=name:metadata.name --no-headers))
