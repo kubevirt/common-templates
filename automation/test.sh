@@ -189,6 +189,8 @@ sample=30
 # Waiting for kubevirt cr to report available
 oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $NAMESPACE
 
+oc project kubevirt
+
 # Apply templates
 echo "Deploying templates"
 oc apply -n kubevirt -f dist/templates
