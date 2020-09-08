@@ -32,8 +32,6 @@ run_vm(){
   local template_name=$( oc get -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt )
   running=false
 
-  oc describe -n kubevirt pv $TARGET
-  oc describe -n kubevirt pvc $TARGET
   #If first try fails, it tries 2 more time to run it, before it fails whole test
   for i in `seq 1 3`; do
     error=false
@@ -61,6 +59,8 @@ run_vm(){
         error=true
         break
       fi
+      oc describe -n kubevirt pv $TARGET
+      oc describe -n kubevirt pvc $TARGET
       sleep $sample;
     done
     set -e
