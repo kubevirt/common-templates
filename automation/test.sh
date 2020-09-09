@@ -86,7 +86,7 @@ safe_download() (
 )
 case "$TARGET" in
 "fedora")
-	curl -fL -o "$TARGET" https://download.fedoraproject.org/pub/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2
+	curl -fL -o "/tmp/$TARGET" https://download.fedoraproject.org/pub/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2
     ;;
 esac
 
@@ -195,14 +195,14 @@ oc project kubevirt
 echo "Deploying templates"
 oc apply -n kubevirt -f dist/templates
 
-mkdir -p "$PWD/pvs/$TARGET"
-qemu-img convert -p -O raw $TARGET "$PWD/pvs/$TARGET/disk.img"
-chmod -R a+X "$PWD/pvs"
+mkdir "/images/$TARGET"
+qemu-img convert -p -O raw "/tmp/$TARGET" "/images/$TARGET/disk.img"
+chmod -R a+X "/images"
 
 size_MB=$(( $(qemu-img info $TARGET --output json | jq '.["virtual-size"]') / 1024 / 1024 + 128 ))
 
 
-bash create-minikube-pvc.sh "$TARGET" "${size_MB}M" "$PWD/pvs/$TARGET/" | tee | oc apply -f -
+bash create-minikube-pvc.sh "$TARGET" "${size_MB}M" "/images/$TARGET" | tee | oc apply -f -
 
 # Used to store the exit code of the webhook creation command
 #webhookUpdated=1
