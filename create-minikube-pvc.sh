@@ -17,6 +17,7 @@ spec:
     storage: "$PV_SIZE"
   accessModes:
     - "ReadWriteOnce"
+  storageClassName: manual
   persistentVolumeReclaimPolicy: Delete
   hostPath:
     path: "$PV_PATH"
@@ -27,12 +28,13 @@ metadata:
   namespace: "kubevirt"
   name: "$PV_NAME"
 spec:
+  volumeName: "$PV_NAME"
+  storageClassName: manual
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: "$PV_SIZE"
-  storageClass: ""
   selector:
     matchLabels:
       kubevirt.io/os: "$PV_NAME"
