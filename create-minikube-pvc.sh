@@ -32,6 +32,7 @@ spec:
   resources:
     requests:
       storage: "$PV_SIZE"
+  storageClass: ""
   selector:
     matchLabels:
       kubevirt.io/os: "$PV_NAME"
