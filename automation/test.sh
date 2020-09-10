@@ -33,107 +33,6 @@ _curl() {
 
 #export KUBEVIRT_VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt/tags| jq -r '.[].name' | sort -r | head -1 )
 export KUBEVIRT_VERSION="v0.32.0"
-wait_for_download_lock() {
-  local max_lock_attempts=60
-  local lock_wait_interval=60
-
-  for ((i = 0; i < $max_lock_attempts; i++)); do
-      if (set -o noclobber; > $1) 2> /dev/null; then
-          echo "Acquired lock: $1"
-          return
-      fi
-      sleep $lock_wait_interval
-  done
-  echo "Timed out waiting for lock: $1" >&2
-  exit 1
-}
-
-safe_download() (
-    local download_from="${1:?Download from was not specified}"
-    local download_to="disk.img"
-    local timeout_sec="${2:-3600}"
-
-    flock -e  -w "$timeout_sec" "$fd" || {
-        echo "ERROR: Timed out after $timeout_sec seconds waiting for lock" >&2
-        exit 1
-    }
-
-    local remote_sha1_url="${download_from}.sha1"
-    local local_sha1_file="${download_to}.sha1"
-    local remote_sha1
-    local retry=3
-    # Remote file includes only sha1 w/o filename suffix
-    for i in $(seq 1 $retry);
-    do
-      remote_sha1="$(curl -s "${remote_sha1_url}")"
-      if [[ "$remote_sha1" != "" ]]; then
-        break
-      fi
-    done
-
-    if [[ "$(cat "$local_sha1_file")" != "$remote_sha1" ]]; then
-        echo "${download_to} is not up to date, corrupted or doesn't exist."
-        echo "Downloading file from: ${remote_sha1_url}"
-        curl "$download_from" --output "$download_to"
-        sha1sum "$download_to" | cut -d " " -f1 > "$local_sha1_file"
-        [[ "$(cat "$local_sha1_file")" == "$remote_sha1" ]] || {
-            echo "${download_to} is corrupted"
-            return 1
-        }
-    else
-        echo "${download_to} is up to date"
-    fi
-)
-case "$TARGET" in
-"fedora")
-	curl -fL -o "/tmp/$TARGET" https://download.fedoraproject.org/pub/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2
-    ;;
-esac
-
-if [[ $TARGET =~ rhel.* ]]; then
-    rhel_image_url=""
-
-    if [[ $TARGET =~ rhel6.* ]]; then
-      rhel_image_url="${TEMPLATES_SERVER}/rhel6.qcow2"
-    fi
-
-    if [[ $TARGET =~ rhel7.* ]]; then
-      rhel_image_url="${TEMPLATES_SERVER}/rhel7.img"
-    fi
-
-    if [[ $TARGET =~ rhel8.* ]]; then
-      rhel_image_url="${TEMPLATES_SERVER}/rhel8.qcow2"
-    fi
-
-    # Download RHEL image
-    safe_download "$rhel_image_url" || exit 1
-    # Hack to correctly set rhel nfs directory for kubevirtci
-    # https://github.com/kubevirt/kubevirtci/blob/master/cluster-up/cluster/ephemeral-provider-common.sh#L33
-fi
-
-if [[ $TARGET =~ windows.* ]]; then
-  win_image_url=""
-
-  if [[ $TARGET =~ windows2012.* ]]; then
-    win_image_url="${TEMPLATES_SERVER}/win_12.qcow2"
-  fi
-
-  if [[ $TARGET =~ windows2016.* ]]; then
-    win_image_url="${TEMPLATES_SERVER}/win_16.img"
-  fi
-
-  if [[ $TARGET =~ windows2019.* ]]; then
-    win_image_url="${TEMPLATES_SERVER}/win_19_2.qcow2"
-  fi
-
-  if [[ $TARGET =~ windows10.* ]]; then
-    win_image_url="${TEMPLATES_SERVER}/win_10.qcow2"
-  fi
-
-
-  # Download Windows image
-  safe_download "$win_image_url" || exit 1
-fi
 
 git submodule update --init
 
@@ -189,20 +88,17 @@ sample=30
 # Waiting for kubevirt cr to report available
 oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $NAMESPACE
 
+echo "Deploying CDI"
+export CDI_VERSION=$(curl -s https://github.com/kubevirt/containerized-data-importer/releases/latest | grep -o "v[0-9]\.[0-9]*\.[0-9]*")
+oc create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
+oc create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
+oc rollout status -n cdi deployment/cdi-operator
+
 oc project kubevirt
 
 # Apply templates
 echo "Deploying templates"
 oc apply -n kubevirt -f dist/templates
-
-mkdir "/images/$TARGET"
-qemu-img convert -p -O raw "/tmp/$TARGET" "/images/$TARGET/disk.img"
-chmod -R a+X "/images"
-
-size_MB=$(( $(qemu-img info $TARGET --output json | jq '.["virtual-size"]') / 1024 / 1024 + 128 ))
-
-
-bash create-minikube-pvc.sh "$TARGET" "${size_MB}M" "/images/$TARGET" | tee | oc apply -f -
 
 # Used to store the exit code of the webhook creation command
 #webhookUpdated=1
