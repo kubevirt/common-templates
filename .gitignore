@@ -4,6 +4,8 @@
 *.retry
 dist
 pvs
+__pycache__
+.idea
 openshift.local.clusterup/
 common-templates*.yaml
 releases.json
