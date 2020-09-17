@@ -80,7 +80,8 @@ delete_vm(){
   oc process -o json $template_name NAME=$vm_name PVCNAME=$template_name | \
     oc delete -f -
   set -e
-  sleep 30
+  #wait until vm is deleted
+  while oc get vmi $vm_name 2> >(grep "not found") ; do sleep 15; done
 }
 
 run_vm(){
