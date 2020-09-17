@@ -32,7 +32,6 @@
     vars:
       os: rhel8
       icon: rhel
-      password: redhat
       oslabels: "{{ rhel8_labels }}"
       osinfoname: "{{ oslabels[0] }}"
 
@@ -60,7 +59,6 @@
     vars:
       os: rhel7
       icon: rhel
-      password: redhat
       oslabels: "{{ rhel7_labels }}"
       osinfoname: "{{ oslabels[0] }}"
 
@@ -84,7 +82,6 @@
     vars:
       os: rhel6
       icon: rhel
-      password: redhat
       oslabels: "{{ rhel6_labels }}"
       osinfoname: "{{ oslabels[0] }}"
 
@@ -104,7 +101,6 @@
     vars:
       os: centos8
       icon: centos
-      password: centos
       oslabels:
        - centos8
       osinfoname: "{{ oslabels[0] }}"
@@ -125,7 +121,6 @@
     vars:
       os: centos7
       icon: centos
-      password: centos
       oslabels:
        - centos7.0
       osinfoname: "{{ oslabels[0] }}"
@@ -146,7 +141,6 @@
     vars:
       os: centos6
       icon: centos
-      password: centos
       oslabels: "{{ centos6_labels }}"
       osinfoname: "{{ oslabels[0] }}"
 
@@ -174,7 +168,6 @@
     vars:
       os: fedora
       icon: fedora
-      password: fedora
       oslabels: "{{ fedora_labels }}"
       osinfoname: "{{ oslabels[0] }}"
 
@@ -190,7 +183,6 @@
     vars:
       os: opensuse
       icon: opensuse
-      password: opensuse
       oslabels:
        - opensuse15.0
       osinfoname: "{{ oslabels[0] }}"
@@ -208,7 +200,6 @@
     vars:
       os: ubuntu
       icon: ubuntu
-      password: ubuntu
       oslabels:
        - ubuntu18.04
       osinfoname: "{{ oslabels[0] }}"
