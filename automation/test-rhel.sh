@@ -27,7 +27,7 @@ spec:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+      storage: 10Gi
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
@@ -56,11 +56,11 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+      storage: 10Gi
 ---
 EOF
 
-timeout=600
+timeout=3600
 sample=10
 
 sizes=("tiny" "small" "medium" "large")
@@ -80,6 +80,7 @@ delete_vm(){
   oc process -o json $template_name NAME=$vm_name PVCNAME=$template_name | \
     oc delete -f -
   set -e
+  sleep 30
 }
 
 run_vm(){
