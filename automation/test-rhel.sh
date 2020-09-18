@@ -132,7 +132,7 @@ run_vm(){
     oc describe vmi $vm_name -n kubevirt
 
     set +e
-    virtctl console --timeout=5 $vm_name | tee /dev/stderr | egrep -m 1 "Welcome|systemd"
+    ./virtctl console --timeout=5 $vm_name | tee /dev/stderr | egrep -m 1 "Welcome|systemd"
     #./automation/connect_to_rhel_console.exp $vm_name
     #if [ $? -ne 0 ] ; then 
     #  error=true
