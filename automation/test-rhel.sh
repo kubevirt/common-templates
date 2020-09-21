@@ -136,6 +136,7 @@ run_vm(){
     if [ $? -ne 0 ] ; then 
       error=true
     fi
+    sleep 1000
     set -e
   
     delete_vm $vm_name $template_name
