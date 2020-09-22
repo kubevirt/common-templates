@@ -32,7 +32,7 @@ _curl() {
 }
 
 #export KUBEVIRT_VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt/tags| jq -r '.[].name' | sort -r | head -1 )
-export KUBEVIRT_VERSION="v0.33.0"
+export KUBEVIRT_VERSION="v0.27.0"
 
 git submodule update --init
 
