@@ -75,6 +75,7 @@ objects:
           devices:
             rng: {}
             networkInterfaceMultiqueue: true
+            autoattachPodInterface: false
 {% if item.tablet %}
             inputs:
               - type: tablet
