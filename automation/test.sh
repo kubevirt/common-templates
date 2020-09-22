@@ -53,8 +53,20 @@ export NAMESPACE="${NAMESPACE:-kubevirt}"
 # Make sure that the VM is properly shut down on exit
 trap '{ rm -rf ../kubevirt-template-validator; }' EXIT SIGINT SIGTERM SIGSTOP
 
-echo "Nodes are ready:"
-oc get nodes
+oc apply -f - <<EOF
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubevirt-config
+  namespace: kubevirt
+  labels:
+    kubevirt.io: ""
+data:
+  feature-gates: "DataVolumes, CPUManager, LiveMigration, ExperimentalIgnitionSupport, Sidecar, Snapshot"
+  permitSlirpInterface: "true"
+---
+EOF
 
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml

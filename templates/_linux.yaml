@@ -90,7 +90,7 @@ objects:
                 bus: {{ diskbus | default("virtio") }}
               name: cloudinitdisk
             interfaces:
-            - masquerade: {}
+            - slirp: {}
               name: default
         terminationGracePeriodSeconds: 180
         networks:
