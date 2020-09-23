@@ -53,6 +53,9 @@ export NAMESPACE="${NAMESPACE:-kubevirt}"
 # Make sure that the VM is properly shut down on exit
 trap '{ rm -rf ../kubevirt-template-validator; }' EXIT SIGINT SIGTERM SIGSTOP
 
+oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
+oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
+
 oc apply -f - <<EOF
 ---
 apiVersion: v1
@@ -67,9 +70,6 @@ data:
   permitSlirpInterface: "true"
 ---
 EOF
-
-oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
-oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
 # Deploy template validator (according to https://github.com/kubevirt/kubevirt-template-validator/blob/master/README.md)
 #echo "Deploying template validator"
