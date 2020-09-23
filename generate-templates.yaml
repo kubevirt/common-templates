@@ -34,6 +34,7 @@
       icon: rhel
       oslabels: "{{ rhel8_labels }}"
       osinfoname: "{{ oslabels[0] }}"
+      cloudusername: cloud-user
 
   - name: Load RHEL 7 versions
     set_fact:
@@ -61,6 +62,7 @@
       icon: rhel
       oslabels: "{{ rhel7_labels }}"
       osinfoname: "{{ oslabels[0] }}"
+      cloudusername: cloud-user
 
   - name: Load RHEL 6 versions
     set_fact:
@@ -84,6 +86,7 @@
       icon: rhel
       oslabels: "{{ rhel6_labels }}"
       osinfoname: "{{ oslabels[0] }}"
+      cloudusername: cloud-user
 
   - name: Generate CentOS 8 templates
     template:
@@ -104,6 +107,7 @@
       oslabels:
        - centos8
       osinfoname: "{{ oslabels[0] }}"
+      cloudusername: centos
 
   - name: Generate CentOS 7 templates
     template:
@@ -124,6 +128,7 @@
       oslabels:
        - centos7.0
       osinfoname: "{{ oslabels[0] }}"
+      cloudusername: centos
 
   - name: Load CentOS 6 versions
     set_fact:
@@ -143,6 +148,7 @@
       icon: centos
       oslabels: "{{ centos6_labels }}"
       osinfoname: "{{ oslabels[0] }}"
+      cloudusername: centos
 
   - name: Load Fedora versions
     set_fact:
@@ -170,6 +176,7 @@
       icon: fedora
       oslabels: "{{ fedora_labels }}"
       osinfoname: "{{ oslabels[0] }}"
+      cloudusername: fedora
 
   - name: Generate OpenSUSE templates
     template:
@@ -186,6 +193,7 @@
       oslabels:
        - opensuse15.0
       osinfoname: "{{ oslabels[0] }}"
+      cloudusername: opensuse
 
   - name: Generate Ubuntu templates
     template:
@@ -203,6 +211,7 @@
       oslabels:
        - ubuntu18.04
       osinfoname: "{{ oslabels[0] }}"
+      cloudusername: ubuntu
 
   - name: Generate Windows server templates
     template:
