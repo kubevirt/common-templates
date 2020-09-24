@@ -116,7 +116,7 @@ parameters:
   required: true
 - name: SRC_PVC_NAME
   description: Name of the PVC to clone
-  value: '{{ oslabels | last }}'
+  value: '{{ majorrelease }}'
 - name: SRC_PVC_NAMESPACE
   description: Namespace of the source PVC
   value: kubevirt-os-images
