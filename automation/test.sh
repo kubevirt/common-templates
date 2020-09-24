@@ -56,21 +56,6 @@ trap '{ rm -rf ../kubevirt-template-validator; }' EXIT SIGINT SIGTERM SIGSTOP
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
-oc apply -f - <<EOF
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: kubevirt-config
-  namespace: kubevirt
-  labels:
-    kubevirt.io: ""
-data:
-  feature-gates: "DataVolumes, CPUManager, LiveMigration, ExperimentalIgnitionSupport, Sidecar, Snapshot"
-  permitSlirpInterface: "true"
----
-EOF
-
 # Deploy template validator (according to https://github.com/kubevirt/kubevirt-template-validator/blob/master/README.md)
 #echo "Deploying template validator"
 
@@ -89,22 +74,10 @@ EOF
 #oc rollout status deployment/virt-template-validator -n $NAMESPACE
 
 
-namespaces=(kubevirt)
-if [[ $NAMESPACE != "kubevirt" ]]; then
-  namespaces+=($NAMESPACE)
-fi
-
 timeout=300
-sample=30
 
 # Waiting for kubevirt cr to report available
 oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $NAMESPACE
-
-echo "Deploying CDI"
-export CDI_VERSION=$(curl -s https://github.com/kubevirt/containerized-data-importer/releases/latest | grep -o "v[0-9]\.[0-9]*\.[0-9]*")
-oc create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
-oc create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
-oc rollout status -n cdi deployment/cdi-operator
 
 oc project kubevirt
 
