@@ -32,6 +32,7 @@
     vars:
       os: rhel8
       icon: rhel
+      majorrelease: rhel8
       oslabels: "{{ rhel8_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: cloud-user
@@ -60,6 +61,7 @@
     vars:
       os: rhel7
       icon: rhel
+      majorrelease: rhel7
       oslabels: "{{ rhel7_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: cloud-user
@@ -84,6 +86,7 @@
     vars:
       os: rhel6
       icon: rhel
+      majorrelease: rhel6
       oslabels: "{{ rhel6_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: cloud-user
@@ -104,6 +107,7 @@
     vars:
       os: centos8
       icon: centos
+      majorrelease: centos8
       oslabels:
        - centos8
       osinfoname: "{{ oslabels[0] }}"
@@ -125,6 +129,7 @@
     vars:
       os: centos7
       icon: centos
+      majorrelease: centos7
       oslabels:
        - centos7.0
       osinfoname: "{{ oslabels[0] }}"
@@ -146,6 +151,7 @@
     vars:
       os: centos6
       icon: centos
+      majorrelease: centos6
       oslabels: "{{ centos6_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: centos
@@ -174,6 +180,7 @@
     vars:
       os: fedora
       icon: fedora
+      majorrelease: fedora32
       oslabels: "{{ fedora_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: fedora
@@ -190,6 +197,7 @@
     vars:
       os: opensuse
       icon: opensuse
+      majorrelease: opensuse15
       oslabels:
        - opensuse15.0
       osinfoname: "{{ oslabels[0] }}"
@@ -208,6 +216,7 @@
     vars:
       os: ubuntu
       icon: ubuntu
+      majorrelease: ubuntu18
       oslabels:
        - ubuntu18.04
       osinfoname: "{{ oslabels[0] }}"
