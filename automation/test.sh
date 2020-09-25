@@ -56,24 +56,8 @@ trap '{ rm -rf ../kubevirt-template-validator; }' EXIT SIGINT SIGTERM SIGSTOP
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
-# Deploy template validator (according to https://github.com/kubevirt/kubevirt-template-validator/blob/master/README.md)
-#echo "Deploying template validator"
-
-#VALIDATOR_VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt-template-validator/tags| jq -r '.[].name' | sort -r | head -1 )
-#rm -rf ../kubevirt-template-validator
-#git clone -b ${VALIDATOR_VERSION} --depth 1 https://github.com/kubevirt/kubevirt-template-validator ../kubevirt-template-validator
-
-#oc apply -f ../kubevirt-template-validator/cluster/okd/manifests/template-view-role.yaml
-
-#sed "s|image:.*|image: quay.io/kubevirt/kubevirt-template-validator:${VALIDATOR_VERSION}|" < ../kubevirt-template-validator/cluster/okd/manifests/service.yaml | \
-#	sed "s|imagePullPolicy: Always|imagePullPolicy: IfNotPresent|g" | \
-#	sed 's|apps\/v1beta1|apps\/v1|g' | \
-#	oc apply -f -
-
-# Wait for the validator deployment to be ready
-#oc rollout status deployment/virt-template-validator -n $NAMESPACE
-
-
+sample=10
+current_time=0
 timeout=300
 
 # Waiting for kubevirt cr to report available
@@ -81,50 +65,21 @@ oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $NA
 
 oc project kubevirt
 
+oc apply -f automation/ssp-operator-deploy/kubevirt-ssp-operator-crd.yaml
+oc apply -f automation/ssp-operator-deploy/kubevirt-ssp-operator.yaml
+oc apply -f automation/ssp-operator-deploy/kubevirt-ssp-operator-cr.yaml
+
+while [ $(oc get pods | grep validator | wc -l) -eq 0 ] ; do 
+  oc get pods
+  if [ $current_time -gt $timeout ]; then
+    break
+  fi
+  sleep $sample;
+done
+
 # Apply templates
 echo "Deploying templates"
 oc apply -n kubevirt -f dist/templates
-
-# Used to store the exit code of the webhook creation command
-#webhookUpdated=1
-#webhookUpdateRetries=10
-
-#while [ $webhookUpdated != 0 ];
-#do
-  # Approve all CSRs to avoid an issue similar to this: https://github.com/kubernetes/frakti/issues/200
-  # This is attempted before any call to 'oc exec' because there's suspect that more csr's have to be approved
-  # over time and not only once after the cluster has been initiated.
-  #oc adm certificate approve $(oc get csr -ocustom-columns=NAME:metadata.name --no-headers)
-
-  #if [ $webhookUpdateRetries == 0 ];
-  #then
-    #echo Retry count for template validator ca bundle injection reached
-    #exit 1
-  #fi
-
-  #webhookUpdateRetries=$((webhookUpdateRetries-1))
-
-  #VALIDATOR_POD=$(oc get pod -n $NAMESPACE -l kubevirt.io=virt-template-validator -o json | jq -r .items[0].metadata.name)
-  #if [ "$VALIDATOR_POD" == "" ];
-  #then
-    # Retry if an error occured
-    #continue
-  #fi
-
-  #CA_BUNDLE=$(oc exec -n $NAMESPACE $VALIDATOR_POD -- /bin/cat /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt | base64 -w 0)
-  #if [ "$CA_BUNDLE" == "" ];
-  #then
-    # Retry if an error occured
-  #  continue
-  #fi
-
-  #sed "s/\${CA_BUNDLE}/${CA_BUNDLE}/g" < ../kubevirt-template-validator/cluster/okd/manifests/validating-webhook.yaml | oc apply -f -
-
-  # If the webhook failed to be created, retry
-  #webhookUpdated=$?
-#done
-
-#oc describe validatingwebhookconfiguration virt-template-validator
 
 if [[ $TARGET =~ fedora.* ]]; then
   ./automation/test-rhel.sh $TARGET

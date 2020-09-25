@@ -43,12 +43,6 @@ run_vm(){
     .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
     oc apply -f -
 
-    #validator_pods=($(oc get pods -n kubevirt -l kubevirt.io=virt-template-validator -ocustom-columns=name:metadata.name --no-headers))
-
-    #for pod in ${validator_pods[@]}; do
-	    #oc logs -n kubevirt $pod
-	  #done
-
     # start vm
     ./virtctl start $vm_name
 
