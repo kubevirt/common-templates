@@ -9,7 +9,7 @@ metadata:
       Template for OpenSUSE Leap 15.0 VM.
       A PVC with the OpenSUSE disk image must be available.
 
-      Recommended disk image (needs to be converted to raw)
+      Recommended disk image:
       https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.0/images/
     tags: "hidden,kubevirt,virtualmachine,linux,opensuse"
 
