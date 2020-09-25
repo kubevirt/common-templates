@@ -14,6 +14,18 @@ if [[ $TARGET =~ rhel6.* ]]; then
   workloads=("desktop" "server")
 fi
 
+if [[ $TARGET =~ centos6.* ]]; then
+  workloads=("server")
+fi
+
+if [[ $TARGET =~ ubuntu.* ]]; then
+  workloads=("desktop")
+fi
+
+if [[ $TARGET =~ centos7.* ] || [ $TARGET =~ centos8.* ]]; then
+  workloads=("server" "desktop")
+fi
+
 delete_vm(){
   vm_name=$1
   local template_name=$2
