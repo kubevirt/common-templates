@@ -290,7 +290,7 @@ kind: Template
         [
           {
             "name": "supported-bus",
-            "valid": "jsonpath::.spec.domain.devices.disks[*].disk",
+            "valid": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
             "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
             "rule": "enum",
             "message": "the disk bus type must be one of the supported values",
@@ -333,7 +333,7 @@ kind: Template
         [
           {
             "name": "supported-bus",
-            "valid": "jsonpath::.spec.domain.devices.disks[*].disk",
+            "valid": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
             "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
             "rule": "enum",
             "message": "the disk bus type must be one of the supported values",
