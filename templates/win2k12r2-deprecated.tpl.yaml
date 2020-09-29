@@ -16,6 +16,7 @@ metadata:
     template.openshift.io/bindable: "false"
 
     template.kubevirt.io/version: v1alpha1
+    template.kubevirt.io/deprecated: "true"
     defaults.template.kubevirt.io/disk: rootdisk
     defaults.template.kubevirt.io/network: default
     template.kubevirt.io/editable: |
@@ -24,11 +25,6 @@ metadata:
       /objects[0].spec.template.spec.domain.devices.disks
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
-
-    name.os.template.kubevirt.io/win2k19: {{ lookup('osinfo', 'win2k19').name }}
-    name.os.template.kubevirt.io/win2k16: {{ lookup('osinfo', 'win2k16').name }}
-    name.os.template.kubevirt.io/win2k12r2: {{ lookup('osinfo', 'win2k12r2').name }}
-    name.os.template.kubevirt.io/win10: {{ lookup('osinfo', 'win10').name }}
 
     validations: |
       [
@@ -64,10 +60,6 @@ metadata:
       ]
 
   labels:
-    os.template.kubevirt.io/win2k19: "true"
-    os.template.kubevirt.io/win2k16: "true"
-    os.template.kubevirt.io/win2k12r2: "true"
-    os.template.kubevirt.io/win10: "true"
     template.kubevirt.io/type: "base"
     template.kubevirt.io/version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
 
