@@ -22,7 +22,7 @@ if [[ $TARGET =~ ubuntu.* ]]; then
   workloads=("desktop")
 fi
 
-if [[ $TARGET =~ centos7.* ] || [ $TARGET =~ centos8.* ]]; then
+if [[ $TARGET =~ centos7.* ]] || [[ $TARGET =~ centos8.* ]]; then
   workloads=("server" "desktop")
 fi
 
