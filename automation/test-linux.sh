@@ -51,7 +51,7 @@ run_vm(){
     error=false
     oc process -o json $template_name NAME=$vm_name PVCNAME=target-$TARGET | \
     jq 'del(.items[0].spec.dataVolumeTemplates[0].spec) |
-    .items[0].spec.dataVolumeTemplates[0].spec+= {"source": {"registry": {"url": "docker://quay.io/kubevirt/common-templates:'"$TARGET"'"}}, "pvc": {"accessModes": ["ReadWriteOnce"], "resources": {"requests": {"storage": "5Gi"}}}} | 
+    .items[0].spec.dataVolumeTemplates[0].spec+= {"source": {"registry": {"url": "docker://quay.io/kubevirt/common-templates:'"$TARGET"'"}}, "pvc": {"accessModes": ["ReadWriteOnce"], "resources": {"requests": {"storage": "15Gi"}}}} | 
     .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
     oc apply -f -
 
