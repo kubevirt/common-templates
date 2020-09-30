@@ -6,6 +6,12 @@ the workload a template is supposed to be used for.
 Some of them are not going to be used immediately and serve
 as examples.
 
+## Deprecated templates
+
+When a template is deprecated, the following annotation is applied to it: `template.kubevirt.io/deprecated: "true"`.
+
+The template itself is not removed for backward compatibility reasons.
+
 ## Operating systems
 
 The operating system labels must match the [libosinfo

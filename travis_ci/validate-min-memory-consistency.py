@@ -27,6 +27,14 @@ def minMemoryReqInTemplate(template):
     min_gi_float = float(min_str.replace("Gi",""))
     return int(min_gi_float * (1024**3))
 
+def templateHasOsLabels(template):
+    labels = template["metadata"]["labels"]
+    osl_pref_str = "os.template.kubevirt.io"
+    os_labels = [label for label in labels if osl_pref_str in label]
+
+    return len(os_labels) > 0
+
+
 def memoryReqErrorMessage(newest_os_label, template_name):
     return "Memory requirements for OS: {} are not compatible with the requirements set in: {}".format(newest_os_label, template_name)
 
@@ -45,16 +53,19 @@ def checkMemoryReqs(path):
                     continue
 
                 logging.info("Checking memory requirements consistency for: {}".format(template["metadata"]["name"]))
-
-                try:
-                    newest_os_label = newestOsLabel(template)
-                    actual_min_req = minMemoryReqForOs(newest_os_label)
-                    min_req_in_template = minMemoryReqInTemplate(template)
-                    if min_req_in_template < actual_min_req:
-                        errors.append([newest_os_label, template_name])
-                except Exception as e:
-                    logging.info(FAILED_INFO_MESSAGE)
-                    raise e
+                
+                if not templateHasOsLabels(template):
+                    logging.info("Template {} has no OS labels (might be a deprecated template), skipping.".format(template["metadata"]["name"]))
+                else:
+                    try:
+                        newest_os_label = newestOsLabel(template)
+                        actual_min_req = minMemoryReqForOs(newest_os_label)
+                        min_req_in_template = minMemoryReqInTemplate(template)
+                        if min_req_in_template < actual_min_req:
+                            errors.append([newest_os_label, template_name])
+                    except Exception as e:
+                        logging.info(FAILED_INFO_MESSAGE)
+                        raise e
 
             except yaml.YAMLError as exc:
                 raise exc
