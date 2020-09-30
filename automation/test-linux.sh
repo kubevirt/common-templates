@@ -50,8 +50,8 @@ run_vm(){
   for i in `seq 1 3`; do
     error=false
     oc process -o json $template_name NAME=$vm_name PVCNAME=target-$TARGET | \
-    jq '.items[0].spec.template.spec.volumes[0]+= {"containerDisk": {"image": "quay.io/kubevirt/common-templates:'"$TARGET"'"}} | 
-    del(.items[0].spec.template.spec.volumes[0].persistentVolumeClaim) | 
+    jq 'del(.items[0].spec.dataVolumeTemplates[0].spec) |
+    .items[0].spec.dataVolumeTemplates[0].spec+= {"source": {"registry": {"url": "docker://quay.io/kubevirt/common-templates:'"$TARGET"'"}}, "pvc": {"accessModes": ["ReadWriteOnce"], "resources": {"requests": {"storage": "5Gi"}}}} | 
     .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
     oc apply -f -
 
@@ -60,6 +60,20 @@ run_vm(){
 
     sleep 10
 
+    current_time=0
+    while [ $(oc get pods -n kubevirt | grep "importer-$vm_name.*Running" | wc -l ) -eq 0 ] ; do 
+      oc get pods
+      current_time=$((current_time + sample))
+      if [ $current_time -gt $timeout ]; then
+        error=true
+        break
+      fi
+      sleep $sample;
+    done
+
+    oc logs -f importer-$vm_name
+    
+    sleep 5
     set +e
     current_time=0
     while [ $(oc get vmi $vm_name -n kubevirt -o json | jq -r '.status.phase') != Running ] ; do 

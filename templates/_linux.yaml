@@ -50,6 +50,22 @@ objects:
       vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
       app: ${NAME}
   spec:
+    dataVolumeTemplates:
+    - apiVersion: cdi.kubevirt.io/v1beta1
+      kind: DataVolume
+      metadata:
+        name: ${NAME}
+      spec:
+        pvc:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 30Gi
+        source:
+          pvc:
+            name: ${PVCNAME}
+            namespace: ${PVCNAMESPACE}
     running: false
     template:
       metadata:
@@ -85,7 +101,7 @@ objects:
             disks:
             - disk:
                 bus: {{ diskbus | default("virtio") }}
-              name: rootdisk
+              name: ${NAME}
             - disk:
                 bus: {{ diskbus | default("virtio") }}
               name: cloudinitdisk
@@ -97,9 +113,9 @@ objects:
         - name: default
           pod: {}
         volumes:
-        - name: rootdisk
-          persistentVolumeClaim:
-            claimName: ${PVCNAME}
+        - dataVolume:
+            name: ${NAME}
+          name: ${NAME}
         - cloudInitNoCloud:
             userData: |-
               #cloud-config

@@ -62,6 +62,37 @@ timeout=300
 # Waiting for kubevirt cr to report available
 oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $NAMESPACE
 
+oc create -f - <<EOF
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubevirt-config
+  namespace: kubevirt
+data:
+  feature-gates: "DataVolumes"
+---
+EOF
+
+echo "Deploying CDI"
+export CDI_VERSION=$(curl -s https://github.com/kubevirt/containerized-data-importer/releases/latest | grep -o "v[0-9]\.[0-9]*\.[0-9]*")
+oc create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
+oc create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
+oc rollout status -n cdi deployment/cdi-operator
+oc create -f - <<EOF
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cdi-role
+  namespace: cdi
+rules:
+- apiGroups: ["cdi.kubevirt.io"]
+  resources: ["datavolumes/source"]
+  verbs: ["*"]
+---
+EOF
+
 oc project kubevirt
 
 oc apply -f automation/ssp-operator-deploy/kubevirt-ssp-operator-crd.yaml
