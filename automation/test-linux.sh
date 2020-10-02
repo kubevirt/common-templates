@@ -4,8 +4,37 @@ set -ex
 
 template_name=$1
 
+oc apply -f - <<EOF
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: ${TARGET}-datavolume-original
+spec:
+  source:
+    registry:
+      url: "docker://quay.io/kubevirt/common-templates:${TARGET}"
+  pvc:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 15Gi
+EOF
+
 timeout=600
 sample=10
+current_time=0
+while [ $(oc get pods -n kubevirt | grep "${TARGET}-datavolume-original.*Running" | wc -l ) -eq 0 ] ; do 
+  oc get pods
+  current_time=$((current_time + sample))
+  if [ $current_time -gt $timeout ]; then
+    error=true
+    break
+  fi
+  sleep $sample;
+done
+
+oc logs -f importer-${TARGET}-datavolume-original
 
 sizes=("tiny" "small" "medium" "large")
 workloads=("desktop" "server" "highperformance")
@@ -20,6 +49,10 @@ fi
 
 if [[ $TARGET =~ ubuntu.* ]]; then
   workloads=("desktop")
+fi
+
+if [[ $TARGET =~ opensuse.* ]]; then
+  workloads=("server")
 fi
 
 if [[ $TARGET =~ centos7.* ]] || [[ $TARGET =~ centos8.* ]]; then
@@ -49,9 +82,9 @@ run_vm(){
   #If first try fails, it tries 2 more time to run it, before it fails whole test
   for i in `seq 1 3`; do
     error=false
-    oc process -o json $template_name NAME=$vm_name PVCNAME=target-$TARGET | \
-    jq 'del(.items[0].spec.dataVolumeTemplates[0].spec) |
-    .items[0].spec.dataVolumeTemplates[0].spec+= {"source": {"registry": {"url": "docker://quay.io/kubevirt/common-templates:'"$TARGET"'"}}, "pvc": {"accessModes": ["ReadWriteOnce"], "resources": {"requests": {"storage": "15Gi"}}}} | 
+    oc process -o json $template_name NAME=$vm_name PVCNAME=$TARGET-datavolume-original PVCNAMESPACE=kubevirt | \
+    jq 'del(.items[0].spec.dataVolumeTemplates[0].spec.pvc.accessModes) |
+    .items[0].spec.dataVolumeTemplates[0].spec.pvc+= {"accessModes": ["ReadWriteOnce"]} | 
     .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
     oc apply -f -
 
@@ -61,7 +94,7 @@ run_vm(){
     sleep 10
 
     current_time=0
-    while [ $(oc get pods -n kubevirt | grep "importer-$vm_name.*Running" | wc -l ) -eq 0 ] ; do 
+    while [ $(oc get pods -n kubevirt | grep "cdi-upload-$vm_name.*Running" | wc -l ) -eq 0 ] ; do 
       oc get pods
       current_time=$((current_time + sample))
       if [ $current_time -gt $timeout ]; then
@@ -71,7 +104,7 @@ run_vm(){
       sleep $sample;
     done
 
-    oc logs -f importer-$vm_name
+    oc logs -f cdi-upload-$vm_name
     
     sleep 5
     set +e

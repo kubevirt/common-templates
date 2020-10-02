@@ -58,10 +58,10 @@ objects:
       spec:
         pvc:
           accessModes:
-            - ReadWriteOnce
+            - ReadWriteMany
           resources:
             requests:
-              storage: 30Gi
+              storage: 15Gi
         source:
           pvc:
             name: ${PVCNAME}
@@ -129,6 +129,9 @@ parameters:
   generate: expression
   name: NAME
 - name: PVCNAME
+  description: Name of the PVC with the disk image
+  required: true
+- name: PVCNAMESPACE
   description: Name of the PVC with the disk image
   required: true
 
