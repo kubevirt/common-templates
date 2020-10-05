@@ -43,7 +43,7 @@ sed -i '/^templates_version.*/c\templates_version: '${TRAVIS_TAG} _defaults.yml
 git add _defaults.yml roles/KubevirtCommonTemplatesBundle/files/common-templates-${TRAVIS_TAG}.yaml
 
 message="updated common templates to version ${TRAVIS_TAG}"
-git commit -m "$message"
+git commit -sm "$message"
 git push origin $branch --force
 
 sleep 5
