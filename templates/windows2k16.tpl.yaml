@@ -1,0 +1,151 @@
+{% set version =  "0.12.3" %}
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: windows2k16-{{ item.workload }}-{{ item.flavor }}-v{{ version }}
+  annotations:
+    openshift.io/display-name: "Microsoft Windows Server 2016 VM"
+    description: >-
+      Template for Microsoft Windows Server 2016 VM.
+      A PVC with the Windows disk image must be available.
+    tags: "hidden,kubevirt,virtualmachine,windows"
+    iconClass: "icon-windows"
+    openshift.io/provider-display-name: "KubeVirt"
+    openshift.io/documentation-url: "https://github.com/kubevirt/common-templates"
+    openshift.io/support-url: "https://github.com/kubevirt/common-templates/issues"
+    template.openshift.io/bindable: "false"
+
+    template.kubevirt.io/version: v1alpha1
+    defaults.template.kubevirt.io/disk: rootdisk
+    defaults.template.kubevirt.io/network: default
+    template.kubevirt.io/editable: |
+      /objects[0].spec.template.spec.domain.cpu.cores
+      /objects[0].spec.template.spec.domain.resources.requests.memory
+      /objects[0].spec.template.spec.domain.devices.disks
+      /objects[0].spec.template.spec.volumes
+      /objects[0].spec.template.spec.networks
+
+    name.os.template.kubevirt.io/win2k16: {{ lookup('osinfo', 'win2k16').name }}
+
+    validations: |
+      [
+        {
+          "name": "minimal-required-memory",
+          "path": "jsonpath::.spec.domain.resources.requests.memory",
+          "rule": "integer",
+          "message": "This VM requires more memory.",
+          "min": {{ lookup('osinfo', osinfoname)["minimum_resources.0.ram"] }}
+        }, {
+          "name": "windows-virtio-bus",
+          "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+          "valid": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+          "rule": "enum",
+          "message": "virto disk bus type has better performance, install virtio drivers in VM and change bus type",
+          "values": ["virtio"],
+          "justWarning": true
+        }, {
+          "name": "windows-disk-bus",
+          "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+          "valid": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+          "rule": "enum",
+          "message": "disk bus has to be either virtio or sata",
+          "values": ["virtio", "sata"]
+        }, {
+          "name": "windows-cd-bus",
+          "path": "jsonpath::.spec.domain.devices.disks[*].cdrom.bus",
+          "valid": "jsonpath::.spec.domain.devices.disks[*].cdrom.bus",
+          "rule": "enum",
+          "message": "cd bus has to be sata",
+          "values": ["sata"]
+        }
+      ]
+
+  labels:
+    os.template.kubevirt.io/win2k16: "true"
+    workload.template.kubevirt.io/{{ item.workload }}: "true"
+    flavor.template.kubevirt.io/{{ item.flavor }}: "true"
+    template.kubevirt.io/type: "base"
+    template.kubevirt.io/version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
+
+objects:
+- apiVersion: kubevirt.io/v1alpha3
+  kind: VirtualMachine
+  metadata:
+    name: ${NAME}
+    labels:
+      vm.kubevirt.io/template: windows2k16-{{ item.workload }}-{{ item.flavor }}-v{{ version }}
+      vm.kubevirt.io/template.version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
+      vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
+      app: ${NAME}
+  spec:
+    running: false
+    template:
+      metadata:
+        labels:
+          kubevirt.io/domain: ${NAME}
+          kubevirt.io/size: {{ item.flavor }}
+      spec:
+        domain:
+          clock:
+            utc: {}
+            timer:
+              hpet:
+                present: false
+              pit:
+                tickPolicy: delay
+              rtc:
+                tickPolicy: catchup
+              hyperv: {}
+          cpu:
+            sockets: {{ item.cpus }}
+            cores: 1
+            threads: 1
+          resources:
+            requests:
+              memory: {{ item.memsize }}
+          features:
+            acpi: {}
+            apic: {}
+            hyperv:
+              relaxed: {}
+              vapic: {}
+              spinlocks:
+                spinlocks: 8191
+          devices:
+            disks:
+            - disk:
+                bus: sata
+              name: rootdisk
+            interfaces:
+            - masquerade: {}
+              model: e1000e
+              name: default
+{% if item.tablet %}
+            inputs:
+              - type: tablet
+                bus: usb
+                name: tablet
+{% endif %}
+        terminationGracePeriodSeconds: 3600
+        volumes:
+        - name: rootdisk
+          persistentVolumeClaim:
+            claimName: ${PVCNAME}
+        networks:
+        - name: default
+          pod: {}
+
+parameters:
+- name: NAME
+  description: VM name
+  generate: expression
+  from: "windows-[a-z0-9]{6}"
+- name: PVCNAME
+  description: Name of the PVC with the disk image
+  required: true
+- name: SRC_PVC_NAME
+  description: Name of the PVC to clone
+  value: win2k16
+- name: SRC_PVC_NAMESPACE
+  description: Namespace of the source PVC
+  value: kubevirt-os-images
