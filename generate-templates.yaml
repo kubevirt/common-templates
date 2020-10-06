@@ -222,15 +222,45 @@
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: ubuntu
 
-  - name: Generate Windows server templates
+  - name: Generate deprecated Windows server templates
     template:
-      src: windows.tpl.yaml
+      src: deprecated-windows.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/windows-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
     - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
     - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
     vars:
       osinfoname: win2k12r2
+
+  - name: Generate Windows server 2012 R2 templates
+    template:
+      src: windows2k12.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/windows2k12r2-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    vars:
+      osinfoname: win2k12r2
+
+  - name: Generate Windows server 2016 templates
+    template:
+      src: windows2k16.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/windows2k16-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    vars:
+      osinfoname: win2k16
+
+  - name: Generate Windows server 2019 templates
+    template:
+      src: windows2k19.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/windows2k19-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    vars:
+      osinfoname: win2k19
 
   - name: Generate Windows 10 templates
     template:
