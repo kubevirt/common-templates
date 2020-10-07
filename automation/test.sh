@@ -47,7 +47,7 @@ curl -Lo virtctl \
 chmod +x virtctl
 
 
-export NAMESPACE="${NAMESPACE:-kubevirt}"
+export NAMESPACE="kubevirt"
 
 # Make sure that the VM is properly shut down on exit
 trap '{ rm -rf ../kubevirt-template-validator; }' EXIT SIGINT SIGTERM SIGSTOP
