@@ -30,8 +30,8 @@ _curl() {
 		curl $@
 	fi
 }
-
-export KUBEVIRT_VERSION=$(_curl https://api.github.com/repos/kubevirt/kubevirt/tags| jq -r '.[].name' | sort -r | head -1 )
+export KUBEVIRT_VERSION=$(_curl -L https://api.github.com/repos/kubevirt/kubevirt/releases | \
+            jq '.[] | select(.prerelease==false) | .name' | sort -V | tail -n1 | tr -d '"')
 
 git submodule update --init
 
