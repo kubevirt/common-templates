@@ -102,7 +102,8 @@ objects:
         - cloudInitNoCloud:
             userData: |-
               #cloud-config
-              password: {{ password }}
+              user: {{ cloudusername }}
+              password: ${CLOUD_USER_PASSWORD}
               chpasswd: { expire: False }
           name: cloudinitdisk
 
@@ -116,7 +117,11 @@ parameters:
   required: true
 - name: SRC_PVC_NAME
   description: Name of the PVC to clone
-  value: '{{ oslabels | last }}'
+  value: '{{ majorrelease }}'
 - name: SRC_PVC_NAMESPACE
   description: Namespace of the source PVC
   value: kubevirt-os-images
+- description: Randomized password for the cloud-init user {{ cloudusername }}
+  from: '[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}'
+  generate: expression
+  name: CLOUD_USER_PASSWORD
