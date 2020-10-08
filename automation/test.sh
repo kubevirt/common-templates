@@ -46,13 +46,14 @@ chmod +x virtctl
 
 
 namespace="kubevirt"
-oc project $namespace
 
 # Make sure that the VM is properly shut down on exit
 trap EXIT SIGINT SIGTERM SIGSTOP
 
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
+
+oc project $namespace
 
 sample=10
 current_time=0
