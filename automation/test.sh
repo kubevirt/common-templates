@@ -19,8 +19,6 @@
 
 set -ex
 
-readonly TEMPLATES_SERVER="https://templates.ovirt.org/kubevirt"
-
 _curl() {
 	# this dupes the baseline "curl" command line, but is simpler
 	# wrt shell quoting/expansion.
@@ -43,14 +41,15 @@ for filename in dist/templates/*; do
 done
 
 curl -Lo virtctl \
-    https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VERSION/virtctl-$KUBEVIRT_VERSION-linux-x86_64
+    https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VERSION/virtctl-$KUBEVIRT_VERSION-linux-amd64
 chmod +x virtctl
 
 
-export NAMESPACE="kubevirt"
+namespace="kubevirt"
+oc project $namespace
 
 # Make sure that the VM is properly shut down on exit
-trap '{ rm -rf ../kubevirt-template-validator; }' EXIT SIGINT SIGTERM SIGSTOP
+trap EXIT SIGINT SIGTERM SIGSTOP
 
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
@@ -60,7 +59,7 @@ current_time=0
 timeout=300
 
 # Waiting for kubevirt cr to report available
-oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $NAMESPACE
+oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $namespace
 
 oc apply -f - <<EOF
 ---
@@ -93,14 +92,12 @@ rules:
 ---
 EOF
 
-oc project kubevirt
+oc apply -n $namespace -f automation/ssp-operator-deploy/kubevirt-ssp-operator-crd.yaml
+oc apply -n $namespace -f automation/ssp-operator-deploy/kubevirt-ssp-operator.yaml
+oc apply -n $namespace -f automation/ssp-operator-deploy/kubevirt-ssp-operator-cr.yaml
 
-oc apply -f automation/ssp-operator-deploy/kubevirt-ssp-operator-crd.yaml
-oc apply -f automation/ssp-operator-deploy/kubevirt-ssp-operator.yaml
-oc apply -f automation/ssp-operator-deploy/kubevirt-ssp-operator-cr.yaml
-
-while [ $(oc get pods | grep validator | wc -l) -eq 0 ] ; do 
-  oc get pods
+while [ $(oc get pods -n $namespace  | grep validator | wc -l) -eq 0 ] ; do 
+  oc get pods -n $namespace 
   if [ $current_time -gt $timeout ]; then
     break
   fi
@@ -109,7 +106,7 @@ done
 
 # Apply templates
 echo "Deploying templates"
-oc apply -n kubevirt -f dist/templates
+oc apply -n $namespace  -f dist/templates
 
 if [[ $TARGET =~ windows.* ]]; then
   ./automation/test-windows.sh $TARGET

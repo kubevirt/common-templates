@@ -4,5 +4,5 @@ set timeout 300
 
 set vm_name [lindex $argv 0]
 
-spawn ./virtctl console $vm_name
+spawn ./virtctl console -n kubevirt $vm_name
 expect default { exit 1 } "*Welcome*\r"
