@@ -99,6 +99,7 @@ oc apply -n $namespace -f automation/ssp-operator-deploy/kubevirt-ssp-operator-c
 
 while [ $(oc get pods -n $namespace  | grep validator | wc -l) -eq 0 ] ; do 
   oc get pods -n $namespace 
+  current_time=$((current_time + sample))
   if [ $current_time -gt $timeout ]; then
     break
   fi

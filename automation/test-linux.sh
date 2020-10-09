@@ -67,7 +67,7 @@ delete_vm(){
   #stop vm
   ./virtctl stop $vm_name -n $namespace
   #delete vm
-  oc process -n $namespace -o json $template_name NAME=$vm_name PVCNAME=$template_name | \
+  oc process -n $namespace -o json $template_name NAME=$vm_name PVCNAME=$TARGET-datavolume-original PVCNAMESPACE=kubevirt | \
     oc delete -n $namespace -f -
   set -e
   #wait until vm is deleted
