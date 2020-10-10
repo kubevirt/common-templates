@@ -6,4 +6,4 @@ set vm_name [lindex $argv 0]
 
 spawn ./virtctl console -n kubevirt $vm_name
 send -- "\r"
-expect default { exit 1 } "*Welcome*\r"
+expect default { exit 1 } "*login*"
