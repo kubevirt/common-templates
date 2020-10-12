@@ -5,6 +5,13 @@ set -ex
 template_name=$1
 namespace="kubevirt"
 
+image_url=""
+if [[ $TARGET =~ rhel.* ]]; then
+  image_url="docker://quay.io/kubevirt/common-templates:${TARGET}"
+else
+  image_url="docker://quay.io/openshift-cnv/ci-common-templates-images:${TARGET}"
+fi;
+
 oc apply -n $namespace -f - <<EOF
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
@@ -13,7 +20,7 @@ metadata:
 spec:
   source:
     registry:
-      url: "docker://quay.io/kubevirt/common-templates:${TARGET}"
+      url: "${image_url}"
   pvc:
     accessModes:
       - ReadWriteOnce
