@@ -23,7 +23,7 @@ spec:
 EOF
 
 timeout=600
-sample=10
+sample=2
 current_time=0
 while [ $(oc get pods -n $namespace | grep "${TARGET}-datavolume-original.*Running" | wc -l ) -eq 0 ] ; do 
   oc get pods -n $namespace
@@ -71,7 +71,7 @@ delete_vm(){
     oc delete -n $namespace -f -
   set -e
   #wait until vm is deleted
-  while oc get -n $namespace vmi $vm_name 2> >(grep "not found") ; do sleep 15; done
+  while oc get -n $namespace vmi $vm_name 2> >(grep "not found") ; do sleep $sample; done
 }
 
 run_vm(){
@@ -91,9 +91,7 @@ run_vm(){
 
     # start vm
     ./virtctl start $vm_name -n $namespace
-
-    sleep 10
-
+    # wait until import pod is running
     current_time=0
     while [ $(oc get pods -n $namespace | grep "cdi-upload-$vm_name.*Running" | wc -l ) -eq 0 ] ; do 
       oc get pods -n $namespace
@@ -105,10 +103,20 @@ run_vm(){
       sleep $sample;
     done
 
-    oc logs -n $namespace -f cdi-upload-$vm_name
+    # wait until import is finished
+    current_time=0
+    while [ $(oc get pods -n $namespace | grep "cdi-upload-$vm_name.*Running" | wc -l ) -gt 0 ] ; do 
+      oc get pods -n $namespace
+      current_time=$((current_time + sample))
+      if [ $current_time -gt $timeout ]; then
+        error=true
+        break
+      fi
+      sleep $sample;
+    done
+
     
     current_time=0
-    sample=2
     while [ $(oc get pods -n $namespace | grep "virt-launcher-$vm_name.*Running" | wc -l ) -eq 0 ] ; do 
       oc get pods -n $namespace
       current_time=$((current_time + sample))
@@ -125,9 +133,6 @@ run_vm(){
       #jump to next iteration and try to run vm again
       continue
     fi
-
-    oc describe vm $vm_name -n $namespace
-    oc describe vmi $vm_name -n $namespace
 
     set +e
     ./automation/connect_to_rhel_console.exp $vm_name
