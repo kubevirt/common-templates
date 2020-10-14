@@ -7,9 +7,9 @@ namespace="kubevirt"
 
 image_url=""
 if [[ $TARGET =~ rhel.* ]]; then
-  image_url="docker://quay.io/kubevirt/common-templates:${TARGET}"
-else
   image_url="docker://quay.io/openshift-cnv/ci-common-templates-images:${TARGET}"
+else
+  image_url="docker://quay.io/kubevirt/common-templates:${TARGET}"
 fi;
 
 oc apply -n $namespace -f - <<EOF
