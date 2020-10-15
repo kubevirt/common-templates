@@ -21,6 +21,7 @@ spec:
   source:
     registry:
       url: "${image_url}"
+      secretRef: common-templates-container-disk-puller
   pvc:
     accessModes:
       - ReadWriteOnce

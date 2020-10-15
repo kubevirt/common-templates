@@ -78,6 +78,22 @@ objects:
       vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
       app: ${NAME}
   spec:
+    dataVolumeTemplates:
+      - apiVersion: cdi.kubevirt.io/v1beta1
+        kind: DataVolume
+        metadata:
+          name: ${NAME}
+        spec:
+          pvc:
+            accessModes:
+              - ReadWriteMany
+            resources:
+              requests:
+                storage: 40Gi
+          source:
+            pvc:
+              name: ${SRC_PVC_NAME}
+              namespace: ${SRC_PVC_NAMESPACE}
     running: false
     template:
       metadata:
@@ -115,7 +131,7 @@ objects:
             disks:
             - disk:
                 bus: sata
-              name: rootdisk
+              name: ${NAME}
             interfaces:
             - masquerade: {}
               model: e1000e
@@ -128,9 +144,9 @@ objects:
 {% endif %}
         terminationGracePeriodSeconds: 3600
         volumes:
-        - name: rootdisk
-          persistentVolumeClaim:
-            claimName: ${PVCNAME}
+        - dataVolume:
+            name: ${NAME}
+          name: ${NAME}
         networks:
         - name: default
           pod: {}
@@ -140,9 +156,6 @@ parameters:
   description: VM name
   generate: expression
   from: "windows-[a-z0-9]{6}"
-- name: PVCNAME
-  description: Name of the PVC with the disk image
-  required: true
 - name: SRC_PVC_NAME
   description: Name of the PVC to clone
   value: win10
