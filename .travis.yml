@@ -39,6 +39,9 @@ jobs:
   - name: Functional test of the CentOS 6 template
     script: bash -x travis_ci/test.sh centos6 server
 
+  - name: Ensure that a single template is exposed for each template variant (os/workload/size trio)
+    script: bash -x travis_ci/test_duplicate_templates.sh
+
   - stage: Build and Deploy
     name: Build and Deploy to GitHub
     before_script: skip
