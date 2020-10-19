@@ -237,8 +237,8 @@
       src: windows2k12.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/windows2k12r2-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: True}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
     vars:
       osinfoname: win2k12r2
 
@@ -247,8 +247,8 @@
       src: windows2k16.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/windows2k16-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: True}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
     vars:
       osinfoname: win2k16
 
@@ -257,8 +257,8 @@
       src: windows2k19.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/windows2k19-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: True}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
     vars:
       osinfoname: win2k19
 
