@@ -1,0 +1,253 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kubevirt-ssp-operator
+  namespace: kubevirt
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kubevirt-ssp-operator
+rules:
+- apiGroups:
+  - kubevirt.io
+  - ssp.kubevirt.io
+  - template.openshift.io
+  resources:
+  - '*'
+  verbs:
+  - create 
+  - get
+  - list
+  - patch
+  - update
+  - watch
+  - delete
+- apiGroups: 
+  - cdi.kubevirt.io
+  resources: 
+  - datavolumes
+  - datavolumes/source
+  verbs:
+  - create 
+  - get
+  - list
+  - patch
+  - update
+  - watch
+  - delete
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - prometheusrules
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - watch
+  - delete
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - servicemonitors
+  verbs:
+  - get
+  - create
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - patch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterrolebindings
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - patch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - patch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - patch
+- apiGroups:
+  - extensions
+  - apps
+  resources:
+  - deployments
+  - deployments/finalizers
+  - replicasets
+  - daemonsets
+  verbs:
+  - create
+  - update
+  - get
+  - list
+  - patch
+  - watch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  - configmaps
+  - persistentvolumeclaims
+  - services
+  - services/finalizers
+  verbs:
+  - create
+  - update
+  - get
+  - patch
+  - list
+  - watch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - persistentvolumeclaims/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - validatingwebhookconfigurations
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - security.openshift.io
+  resources:
+  - securitycontextconstraints
+  verbs:
+  - get
+  - list
+  - create
+  - watch
+  - patch
+- apiGroups:
+  - security.openshift.io
+  resources:
+  - securitycontextconstraints
+  verbs:
+  - 'use'
+  resourceNames:
+  - privileged
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: kubevirt-ssp-operator
+subjects:
+- kind: ServiceAccount
+  name: kubevirt-ssp-operator
+  namespace: kubevirt
+roleRef:
+  kind: ClusterRole
+  name: kubevirt-ssp-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+# WARNING! this manifest is not meant for direct consumption.
+# you are supposed to deploy the operator either
+# - through the HyperConverged Operator
+# - using the released manifests, see github
+# - using hack/install-operator.sh
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubevirt-ssp-operator
+  namespace: kubevirt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: kubevirt-ssp-operator
+  template:
+    metadata:
+      labels:
+        name: kubevirt-ssp-operator
+    spec:
+      serviceAccountName: kubevirt-ssp-operator
+      strategy:
+        type: Recreate
+      containers:
+        - name: kubevirt-ssp-operator
+          image: quay.io/fromani/kubevirt-ssp-operator-container:v1.2.1
+          ports:
+          - containerPort: 60000
+            name: metrics
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: IMAGE_REFERENCE
+              value: quay.io/fromani/kubevirt-ssp-operator-container:v1.2.1
+            - name: WATCH_NAMESPACE
+              value: ""
+            - name: KVM_INFO_TAG
+              value: ""
+            - name: VALIDATOR_TAG
+              value: ""
+            - name: VIRT_LAUNCHER_TAG
+              value: ""
+            - name: NODE_LABELLER_TAG
+              value: ""
+            - name: CPU_PLUGIN_TAG
+              value: ""
+            - name: IMAGE_NAME_PREFIX
+              value: ""
+            - name: OPERATOR_NAME
+              value: "kubevirt-ssp-operator"
+            - name: OPERATOR_VERSION
+              value: v1.2.1
