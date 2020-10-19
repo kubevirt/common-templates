@@ -1,0 +1,8 @@
+---
+apiVersion: ssp.kubevirt.io/v1
+kind: KubevirtTemplateValidator
+metadata:
+  name: kubevirt-template-validator
+  namespace: kubevirt
+spec:
+  templateValidatorReplicas: 2
