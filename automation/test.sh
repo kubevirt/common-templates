@@ -17,6 +17,30 @@
 # Copyright 2018 Red Hat, Inc.
 #
 
+namespace="kubevirt"
+oc create namespace $namespace
+
+key="/tmp/secrets/accessKeyId"
+token="/tmp/secrets/secretKey"
+
+if test -f "$key" && test -f "$token"; then
+  id=$(cat $key | tr -d '\n' | base64)
+  token=$(cat $token | tr -d '\n' | base64 | tr -d ' \n')
+
+  oc apply -n $namespace -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: common-templates-container-disk-puller
+  labels:
+    app: containerized-data-importer
+type: Opaque
+data:
+  accessKeyId: "${id}"
+  secretKey: "${token}"
+EOF
+fi
+
 set -ex
 
 _curl() {
@@ -44,8 +68,6 @@ curl -Lo virtctl \
     https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VERSION/virtctl-$KUBEVIRT_VERSION-linux-amd64
 chmod +x virtctl
 
-
-namespace="kubevirt"
 
 # Make sure that the VM is properly shut down on exit
 trap EXIT SIGINT SIGTERM SIGSTOP
