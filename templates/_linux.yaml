@@ -102,7 +102,7 @@ objects:
         - cloudInitNoCloud:
             userData: |-
               #cloud-config
-              password: {{ password }}
+              password: ${CLOUD_USER_PASSWORD}
               chpasswd: { expire: False }
           name: cloudinitdisk
 
@@ -120,3 +120,7 @@ parameters:
 - name: SRC_PVC_NAMESPACE
   description: Namespace of the source PVC
   value: kubevirt-os-images
+- description: Randomized password for cloud-user
+  from: '[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}'
+  generate: expression
+  name: CLOUD_USER_PASSWORD
