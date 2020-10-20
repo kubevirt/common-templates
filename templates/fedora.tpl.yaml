@@ -9,9 +9,9 @@ metadata:
       Template for Fedora 31 VM or newer.
       A PVC with the Fedora disk image must be available.
 
-      Recommended disk image (needs to be converted to raw)
-      https://download.fedoraproject.org/pub/fedora/linux/releases/31/Cloud/x86_64/images/Fedora-Cloud-Base-31-1.9.x86_64.qcow2
-    tags: "hidden,kubevirt,virtualmachine,fedora,rhel"
+      Recommended disk image:
+      https://download.fedoraproject.org/pub/fedora/linux/releases/32/Cloud/x86_64/images/Fedora-Cloud-Base-32-1.6.x86_64.qcow2
+    tags: "hidden,kubevirt,virtualmachine,fedora"
 
 {% include "_linux.yaml" %}
 
