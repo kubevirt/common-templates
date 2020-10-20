@@ -222,16 +222,6 @@
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: ubuntu
 
-  - name: Generate deprecated Windows server templates
-    template:
-      src: deprecated-windows.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/windows-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
-    vars:
-      osinfoname: win2k12r2
-
   - name: Generate Windows server 2012 R2 templates
     template:
       src: windows2k12.tpl.yaml
@@ -271,15 +261,3 @@
     - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
     vars:
       osinfoname: win10
-
-  - name: Generate deprecated Windows templates
-    template:
-      src: win2k12r2-deprecated.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/win2k12r2-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False, default: True}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: False}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False, default: False}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
-    vars:
-      osinfoname: win2k12r2
