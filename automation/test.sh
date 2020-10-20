@@ -18,30 +18,6 @@
 #
 
 namespace="kubevirt"
-oc create namespace $namespace
-
-key="/tmp/secrets/accessKeyId"
-token="/tmp/secrets/secretKey"
-
-if test -f "$key" && test -f "$token"; then
-  id=$(cat $key | tr -d '\n' | base64)
-  token=$(cat $token | tr -d '\n' | base64 | tr -d ' \n')
-
-  oc apply -n $namespace -f - <<EOF
-apiVersion: v1
-kind: Secret
-metadata:
-  name: common-templates-container-disk-puller
-  labels:
-    app: containerized-data-importer
-type: Opaque
-data:
-  accessKeyId: "${id}"
-  secretKey: "${token}"
-EOF
-fi
-
-set -ex
 
 _curl() {
 	# this dupes the baseline "curl" command line, but is simpler
@@ -95,6 +71,27 @@ data:
   feature-gates: "DataVolumes"
 ---
 EOF
+
+key="/tmp/secrets/accessKeyId"
+token="/tmp/secrets/secretKey"
+
+if test -f "$key" && test -f "$token"; then
+  id=$(cat $key | tr -d '\n' | base64)
+  token=$(cat $token | tr -d '\n' | base64 | tr -d ' \n')
+
+  oc apply -n $namespace -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: common-templates-container-disk-puller
+  labels:
+    app: containerized-data-importer
+type: Opaque
+data:
+  accessKeyId: "${id}"
+  secretKey: "${token}"
+EOF
+fi
 
 echo "Deploying CDI"
 export CDI_VERSION=$(curl -s https://api.github.com/repos/kubevirt/containerized-data-importer/releases | \
