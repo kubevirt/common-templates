@@ -6,8 +6,11 @@ template_name=$1
 namespace="kubevirt"
 
 image_url=""
+#set secret_ref only for rhel OSes
+secret_ref=""
 if [[ $TARGET =~ rhel.* ]]; then
   image_url="docker://quay.io/openshift-cnv/ci-common-templates-images:${TARGET}"
+  secret_ref="secretRef: common-templates-container-disk-puller"
 else
   image_url="docker://quay.io/kubevirt/common-templates:${TARGET}"
 fi;
@@ -21,7 +24,7 @@ spec:
   source:
     registry:
       url: "${image_url}"
-      secretRef: common-templates-container-disk-puller
+      ${secret_ref}
   pvc:
     accessModes:
       - ReadWriteOnce
