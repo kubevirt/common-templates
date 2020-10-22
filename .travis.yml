@@ -18,6 +18,9 @@ jobs:
     name: Check syntax and memory requirements of all templates
     script: bash -x travis_ci/test_syntax.sh
 
+  - name: Ensure exactly one default template per OS
+    script: bash -x travis_ci/test_defaults.sh
+
   - name: Functional test of the Fedora template
     script: bash -x travis_ci/test.sh fedora desktop
 

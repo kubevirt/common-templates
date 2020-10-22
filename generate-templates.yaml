@@ -17,18 +17,18 @@
       src: rhel8.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: tiny, workload: server, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: tiny, workload: desktop, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: tiny, workload: highperformance, memsize: "1.5Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: small, workload: highperformance, memsize: "2Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
-    - {flavor: large, workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True, tablet: False}
+    - {flavor: tiny, workload: server, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: tiny, workload: desktop, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: tiny, workload: highperformance, memsize: "1.5Gi", cpus: 1, iothreads: True, tablet: False, default: False}
+    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False, default: True}
+    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: small, workload: highperformance, memsize: "2Gi", cpus: 1, iothreads: True, tablet: False, default: False}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True, tablet: False, default: False}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False, default: False}
+    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
+    - {flavor: large, workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True, tablet: False, default: False}
     vars:
       os: rhel8
       icon: rhel
@@ -46,18 +46,18 @@
       src: rhel7.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: tiny, workload: highperformance, memsize: "1Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: small, workload: highperformance, memsize: "2Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
-    - {flavor: large, workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True, tablet: False}
+    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: tiny, workload: highperformance, memsize: "1Gi", cpus: 1, iothreads: True, tablet: False, default: False}
+    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False, default: True}
+    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: small, workload: highperformance, memsize: "2Gi", cpus: 1, iothreads: True, tablet: False, default: False}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True, tablet: False, default: False}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False, default: False}
+    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
+    - {flavor: large, workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True, tablet: False, default: False}
     vars:
       os: rhel7
       icon: rhel
@@ -75,14 +75,14 @@
       src: rhel6.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}    
-    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False, default: True}
+    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False, default: False}
+    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
     vars:
       os: rhel6
       icon: rhel
@@ -96,14 +96,14 @@
       src: centos8.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: tiny, workload: server, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: tiny, workload: desktop, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    - {flavor: tiny, workload: server, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: tiny, workload: desktop, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False, default: True}
+    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False, default: False}
+    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
     vars:
       os: centos8
       icon: centos
@@ -118,14 +118,14 @@
       src: centos7.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False, default: True}
+    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False, default: False}
+    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
     vars:
       os: centos7
       icon: centos
@@ -144,10 +144,10 @@
       src: centos6.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
+    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False, default: True}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False, default: False}
     vars:
       os: centos6
       icon: centos
@@ -165,18 +165,18 @@
       src: fedora.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: tiny, workload: highperformance, memsize: "1Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: small, workload: highperformance, memsize: "2Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    - {flavor: large, workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True, tablet: False}
+    - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: tiny, workload: highperformance, memsize: "1Gi", cpus: 1, iothreads: True, tablet: False, default: False}
+    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False, default: True}
+    - {flavor: small, workload: highperformance, memsize: "2Gi", cpus: 1, iothreads: True, tablet: False, default: False}
+    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True, tablet: False, default: False}
+    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False, default: False}
+    - {flavor: large, workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True, tablet: False, default: False}
     vars:
       os: fedora
       icon: fedora
@@ -190,10 +190,10 @@
       src: opensuse.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
+    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False, default: True}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False, default: False}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False, default: False}
     vars:
       os: opensuse
       icon: opensuse
@@ -208,11 +208,11 @@
       src: ubuntu.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-      #minimal memory requirement for ubuntu is 2Gi, for now we don't have mechanism how to deprecate template 
-    - {flavor: tiny, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+      #minimal memory requirement for ubuntu is 2Gi, for now we don't have mechanism how to deprecate template
+    - {flavor: tiny, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True, default: True}
+    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
     vars:
       os: ubuntu
       icon: ubuntu
@@ -227,8 +227,8 @@
       src: deprecated-windows.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/windows-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: True}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
     vars:
       osinfoname: win2k12r2
 
@@ -237,8 +237,8 @@
       src: windows2k12.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/windows2k12r2-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: True}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
     vars:
       osinfoname: win2k12r2
 
@@ -247,8 +247,8 @@
       src: windows2k16.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/windows2k16-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: True}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
     vars:
       osinfoname: win2k16
 
@@ -257,8 +257,8 @@
       src: windows2k19.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/windows2k19-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: True}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
     vars:
       osinfoname: win2k19
 
@@ -267,8 +267,8 @@
       src: windows10.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/windows10-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: True}
+    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
     vars:
       osinfoname: win10
 
@@ -277,10 +277,9 @@
       src: win2k12r2-deprecated.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/win2k12r2-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False, default: True}
+    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True, default: False}
+    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False, default: False}
+    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True, default: False}
     vars:
       osinfoname: win2k12r2
-
