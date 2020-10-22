@@ -1,8 +1,7 @@
-{% set version =  "0.13.0" %}
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: windows2k16-{{ item.workload }}-{{ item.flavor }}-v{{ version }}
+  name: windows2k16-{{ item.workload }}-{{ item.flavor }}
   annotations:
     openshift.io/display-name: "Microsoft Windows Server 2016 VM"
     description: >-
@@ -24,42 +23,7 @@ metadata:
       /objects[0].spec.template.spec.domain.devices.disks
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
-
     name.os.template.kubevirt.io/win2k16: {{ lookup('osinfo', 'win2k16').name }}
-
-    validations: |
-      [
-        {
-          "name": "minimal-required-memory",
-          "path": "jsonpath::.spec.domain.resources.requests.memory",
-          "rule": "integer",
-          "message": "This VM requires more memory.",
-          "min": {{ lookup('osinfo', osinfoname)["minimum_resources.0.ram"] }}
-        }, {
-          "name": "windows-virtio-bus",
-          "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
-          "valid": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
-          "rule": "enum",
-          "message": "virto disk bus type has better performance, install virtio drivers in VM and change bus type",
-          "values": ["virtio"],
-          "justWarning": true
-        }, {
-          "name": "windows-disk-bus",
-          "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
-          "valid": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
-          "rule": "enum",
-          "message": "disk bus has to be either virtio or sata",
-          "values": ["virtio", "sata"]
-        }, {
-          "name": "windows-cd-bus",
-          "path": "jsonpath::.spec.domain.devices.disks[*].cdrom.bus",
-          "valid": "jsonpath::.spec.domain.devices.disks[*].cdrom.bus",
-          "rule": "enum",
-          "message": "cd bus has to be sata",
-          "values": ["sata"]
-        }
-      ]
-
   labels:
     os.template.kubevirt.io/win2k16: "true"
     workload.template.kubevirt.io/{{ item.workload }}: "true"
@@ -69,17 +33,49 @@ metadata:
 {% if item.default %}
     template.kubevirt.io/default-os-variant: "true"
 {% endif %}
-
 objects:
 - apiVersion: kubevirt.io/v1alpha3
   kind: VirtualMachine
   metadata:
     name: ${NAME}
     labels:
-      vm.kubevirt.io/template: windows2k16-{{ item.workload }}-{{ item.flavor }}-v{{ version }}
+      vm.kubevirt.io/template: windows2k16-{{ item.workload }}-{{ item.flavor }}
       vm.kubevirt.io/template.version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
       vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
       app: ${NAME}
+    annotations:
+      vm.kubevirt.io/validations: |
+        [
+          {
+            "name": "minimal-required-memory",
+            "path": "jsonpath::.spec.domain.resources.requests.memory",
+            "rule": "integer",
+            "message": "This VM requires more memory.",
+            "min": {{ lookup('osinfo', osinfoname)["minimum_resources.0.ram"] }}
+          }, {
+            "name": "windows-virtio-bus",
+            "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+            "valid": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+            "rule": "enum",
+            "message": "virto disk bus type has better performance, install virtio drivers in VM and change bus type",
+            "values": ["virtio"],
+            "justWarning": true
+          }, {
+            "name": "windows-disk-bus",
+            "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+            "valid": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+            "rule": "enum",
+            "message": "disk bus has to be either virtio or sata",
+            "values": ["virtio", "sata"]
+          }, {
+            "name": "windows-cd-bus",
+            "path": "jsonpath::.spec.domain.devices.disks[*].cdrom.bus",
+            "valid": "jsonpath::.spec.domain.devices.disks[*].cdrom.bus",
+            "rule": "enum",
+            "message": "cd bus has to be sata",
+            "values": ["sata"]
+          }
+        ]
   spec:
     dataVolumeTemplates:
       - apiVersion: cdi.kubevirt.io/v1beta1
@@ -153,7 +149,6 @@ objects:
         networks:
         - name: default
           pod: {}
-
 parameters:
 - name: NAME
   description: VM name
