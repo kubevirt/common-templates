@@ -49,7 +49,7 @@ done
 # Download images
 case "$name" in
 "fedora")
-	curl -fL -o "$name" https://download.fedoraproject.org/pub/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2
+	curl -fL -o "$name" https://download.fedoraproject.org/pub/fedora/linux/releases/32/Cloud/x86_64/images/Fedora-Cloud-Base-32-1.6.x86_64.qcow2
     ;;
 "ubuntu")
 	curl -fL -o "$name" http://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img
