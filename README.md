@@ -86,7 +86,7 @@ The table below lists the guest operating systems that are covered by the templa
 | Ubuntu 18.04 LTS | [ubuntu](templates/ubuntu.tpl.yaml) |
 | OpenSUSE Leap 15.0 (no CI) | [opensuse](templates/opensuse.tpl.yaml) |
 | CentOS 7 | [centos7](templates/centos7.tpl.yaml) |
-| CentOS 8 | [centos7](templates/centos8.tpl.yaml) |
+| CentOS 8 | [centos8](templates/centos8.tpl.yaml) |
 
 # Deprecated templates
 
