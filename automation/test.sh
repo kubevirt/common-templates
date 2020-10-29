@@ -94,7 +94,9 @@ export CDI_VERSION=$(curl -s https://api.github.com/repos/kubevirt/containerized
             jq '.[] | select(.prerelease==false) | .tag_name' | sort -V | tail -n1 | tr -d '"')
 oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
 oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
-oc rollout status -n cdi deployment/cdi-operator
+
+oc wait --for=condition=Available --timeout=${timeout}s CDI/cdi -n cdi
+
 oc apply -f - <<EOF
 ---
 apiVersion: rbac.authorization.k8s.io/v1

@@ -92,9 +92,6 @@ run_vm(){
 
     # start vm
     ./virtctl start $vm_name -n $namespace
-    # wait until import pod is running
-
-    oc wait --for=condition=Ready --timeout=${timeout}s dv/$vm_name -n $namespace
 
     oc wait --for=condition=Ready --timeout=${timeout}s vm/$vm_name -n $namespace
 

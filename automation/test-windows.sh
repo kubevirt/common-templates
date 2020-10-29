@@ -34,14 +34,14 @@ spec:
   containers:
   - image: kubevirt/winrmcli
     command: ["/bin/sh","-c"]
-    args: [ "yum install -y iproute iputils net-tools arp-scan; sleep 3000"]
+    args: [ "sleep 3000"]
     imagePullPolicy: Always
     name: winrmcli
 restartPolicy: Always
 ---
 EOF
 
-timeout=1000
+timeout=2000
 sample=10
 current_time=0
 
@@ -93,8 +93,6 @@ run_vm(){
     # start vm
     ./virtctl start $vm_name -n $namespace
 
-    oc wait --for=condition=Ready --timeout=${timeout}s dv/$vm_name -n $namespace
-
     oc wait --for=condition=Ready --timeout=${timeout}s vm/$vm_name -n $namespace
 
     # get ip address of vm
@@ -103,7 +101,7 @@ run_vm(){
     set +e
     current_time=0
     # run ipconfig /all command on windows vm
-    while [[ $(oc exec -n $namespace -it winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all" | grep "IPv4 Address" | wc -l ) -eq 0 ]] ; do 
+    while [[ $(oc exec -n $namespace -i winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all" | grep "IPv4 Address" | wc -l ) -eq 0 ]] ; do 
       current_time=$((current_time + sample))
       if [[ $current_time -gt $timeout ]]; then
         error=true
