@@ -18,24 +18,22 @@
 #
 set -ex
 
+namespace="kubevirt"
 templates_dir='dist/templates'
 default_label='template.kubevirt.io/default-os-variant=true'
 os_label='os.template.kubevirt.io/'
 template='{{range .items}}{{range $key, $val := .metadata.labels}}{{if eq $val "true"}}{{$key}}{{"\n"}}{{end}}{{end}}{{end}}'
 
-make generate
-oc create -f $templates_dir
-
 # Ensure exactly one default variant per OS
-for os in $(oc get templates -o go-template="$template" | grep "^$os_label" | sort -uV); do
-    defaults=$(oc get template -l ${os}=true,template.kubevirt.io/default-os-variant=true -o name | wc -l)
+for os in $(oc get templates -n $namespace -o go-template="$template" | grep "^$os_label" | sort -uV); do
+    defaults=$(oc get template -n $namespace -l ${os}=true,template.kubevirt.io/default-os-variant=true -o name | wc -l)
     if [[ $defaults -eq 1 ]]; then
-	continue
+	    continue
     elif [[ $defaults -eq 0 ]]; then
-	echo "Error: No default variant set for $os"
-	exit 1
+        echo "Error: No default variant set for $os"
+        exit 1
     else
-	echo "Error: There can only be 1 default variant per OS. $os has $defaults"
-	exit 1
+        echo "Error: There can only be 1 default variant per OS. $os has $defaults"
+        exit 1
     fi
 done

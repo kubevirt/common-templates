@@ -18,12 +18,6 @@
 #
 set -ex
 
-make generate
-
-# Deploy templates
-echo "Deploying templates"
-oc create -f dist/templates
-
 templates=("dist/templates/*.yaml")
 for template in $templates; do
 
@@ -39,7 +33,7 @@ for template in $templates; do
 	for os in $template_oss; do
 		for workload in $template_workloads; do
 			for flavor in $template_flavors; do
-				count=$(oc get template -l $os,$workload,$flavor --no-headers | wc -l)
+				count=$(oc get template -n kubevirt -l $os,$workload,$flavor --no-headers | wc -l)
 				if [[ $count -ne 1 ]]; then
 					echo "There are $count templates found with the following labels $os,$workload,$flavor"
 					exit 1
