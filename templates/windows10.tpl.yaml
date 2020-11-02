@@ -14,7 +14,6 @@ metadata:
     openshift.io/documentation-url: "https://github.com/kubevirt/common-templates"
     openshift.io/support-url: "https://github.com/kubevirt/common-templates/issues"
     template.openshift.io/bindable: "false"
-
     template.kubevirt.io/version: v1alpha1
     defaults.template.kubevirt.io/disk: rootdisk
     defaults.template.kubevirt.io/network: default
@@ -24,9 +23,7 @@ metadata:
       /objects[0].spec.template.spec.domain.devices.disks
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
-
     name.os.template.kubevirt.io/win10: {{ lookup('osinfo', 'win10').name }}
-
     validations: |
       [
         {
@@ -59,17 +56,15 @@ metadata:
           "values": ["sata"]
         }
       ]
-
   labels:
     os.template.kubevirt.io/win10: "true"
     workload.template.kubevirt.io/{{ item.workload }}: "true"
     flavor.template.kubevirt.io/{{ item.flavor }}: "true"
     template.kubevirt.io/type: "base"
     template.kubevirt.io/version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
-{% if item.default %}
+    {% if item.default %}
     template.kubevirt.io/default-os-variant: "true"
-{% endif %}
-
+    {% endif %}
 objects:
 - apiVersion: kubevirt.io/v1alpha3
   kind: VirtualMachine
@@ -139,12 +134,12 @@ objects:
             - masquerade: {}
               model: e1000e
               name: default
-{% if item.tablet %}
+            {% if item.tablet %}
             inputs:
               - type: tablet
                 bus: usb
                 name: tablet
-{% endif %}
+            {% endif %}
         terminationGracePeriodSeconds: 3600
         volumes:
         - dataVolume:
@@ -153,7 +148,6 @@ objects:
         networks:
         - name: default
           pod: {}
-
 parameters:
 - name: NAME
   description: VM name
