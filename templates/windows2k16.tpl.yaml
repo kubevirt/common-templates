@@ -13,7 +13,6 @@ metadata:
     openshift.io/documentation-url: "https://github.com/kubevirt/common-templates"
     openshift.io/support-url: "https://github.com/kubevirt/common-templates/issues"
     template.openshift.io/bindable: "false"
-
     template.kubevirt.io/version: v1alpha1
     defaults.template.kubevirt.io/disk: rootdisk
     defaults.template.kubevirt.io/network: default
