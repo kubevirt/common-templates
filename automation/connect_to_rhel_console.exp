@@ -2,8 +2,13 @@
 
 set timeout 300
 
-set kubeconfig [lindex $argv 0]
-set vm_name [lindex $argv 1]
+set vm_name [lindex $argv 0]
 
-spawn ./virtctl --kubeconfig=$kubeconfig console $vm_name
-expect default { exit 1 } "*Welcome*\r"
+spawn ./virtctl console -n kubevirt $vm_name
+send -- "\r"
+expect { 
+    "*login*" {exit 0}
+    "*Welcome*" {exit 0}
+    "*A start job*" {exit 0}
+    exit 1 
+}

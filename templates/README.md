@@ -26,12 +26,12 @@ The UI can then operate on top of template parameters and/or the Template.VM.spe
 
 ```YAML
 # vim: sts=2 sw=2 et
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 kind: Template # Openshift kind of template or something "better"
 metadata:
-  name: windows-10
+  name: windows10-desktop-large
   annotations:
-    openshift.io/display-name: "Desktop Microsoft Windows 7+ template"
+    openshift.io/display-name: "Microsoft Windows 10 VM"
     description: "Basic windows template long description with details"
     openshift.io/long-description: >-
       Long description of the template
@@ -98,9 +98,7 @@ metadata:
     # flavors are tiny, medium, large, etc.
     # workloads are desktop, server, high-performance, io-intensive,
     #               oracle-db, sap-hana...
-    os.template.kubevirt.io/windows2k12r2: "true"
-    os.template.kubevirt.io/windows8: "true"
-    os.template.kubevirt.io/windows7: "true"
+    os.template.kubevirt.io/win10: "true"
     workload.template.kubevirt.io/minimal: "true"
     workload.template.kubevirt.io/io-intensive: "true"
     # flavor.template.kubevirt.io/* not specified means all
@@ -121,10 +119,13 @@ parameters:
 - name: NAME
   description: VM name
   generate: expression
-  from: 'vm-[A-Za-z0-9]{8}'
-- name: MEMORY_SIZE
-  description: Memory size
-  value: 1Gi
+  from: "windows-[a-z0-9]{6}"
+- name: SRC_PVC_NAME
+  description: Name of the PVC to clone
+  value: win10
+- name: SRC_PVC_NAMESPACE
+  description: Namespace of the source PVC
+  value: kubevirt-os-images
 
 objects:
 # The full VM template with placeholders for either scalars like memory
@@ -138,9 +139,13 @@ objects:
     template:
       spec:
         domain:
+          cpu:
+            sockets: 2
+            cores: 1
+            threads: 1
           resources:
             initial:
-              memory: ${MEMORY_SIZE}Mi
+              memory: 4Gi
           devices:
             disks:
             # This should be interpreted as a template disk by the UI,
@@ -234,9 +239,13 @@ spec:
   template:
     spec:
       domain:
+        cpu:
+          sockets: 2
+          cores: 1
+          threads: 1
         resources:
           initial:
-            memory: 8Mi
+            memory: 4Gi
         devices:
           disks:
           - name: default-disk

@@ -1,9 +1,3 @@
 [submodule "osinfo-db"]
 	path = osinfo-db
 	url = https://gitlab.com/libosinfo/osinfo-db.git
-[submodule "automation/kubevirtci"]
-	path = automation/kubevirtci
-	url = https://github.com/kubevirt/kubevirtci.git
-[submodule "ci"]
-	path = ci
-	url = https://github.com/fromanirh/traviskube.git

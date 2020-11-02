@@ -2,10 +2,20 @@
 
 set -ex
 
+template_name=$1
 namespace="kubevirt"
-template_name="windows2k12r2"
 
-oc apply -n kubevirt -f - <<EOF
+image_url=""
+#set secret_ref only for rhel OSes
+secret_ref=""
+if [[ $TARGET =~ rhel.* ]]; then
+  image_url="docker://quay.io/openshift-cnv/ci-common-templates-images:${TARGET}"
+  secret_ref="secretRef: common-templates-container-disk-puller"
+else
+  image_url="docker://quay.io/kubevirt/common-templates:${TARGET}"
+fi;
+
+oc apply -n $namespace -f - <<EOF
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
 metadata:
@@ -13,53 +23,42 @@ metadata:
 spec:
   source:
     registry:
-      secretRef: common-templates-container-disk-puller
-      url: "docker://quay.io/openshift-cnv/ci-common-templates-images:${TARGET}"
+      url: "${image_url}"
+      ${secret_ref}
   pvc:
     accessModes:
       - ReadWriteOnce
     resources:
       requests:
-        storage: 60Gi
+        storage: 30Gi
 EOF
 
-oc apply -f - <<EOF
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: winrmcli
-  namespace: kubevirt
-spec:
-  containers:
-  - image: kubevirt/winrmcli
-    command: ["/bin/sh","-c"]
-    args: [ "sleep 3000"]
-    imagePullPolicy: Always
-    name: winrmcli
-restartPolicy: Always
----
-EOF
-
-timeout=2000
+timeout=600
 sample=10
-current_time=0
 
 oc wait --for=condition=Ready --timeout=${timeout}s dv/${TARGET}-datavolume-original -n $namespace
 
-# Make sure winrmcli pod is ready
-oc wait --for=condition=Ready --timeout=${timeout}s pod/winrmcli -n $namespace
+sizes=("tiny" "small" "medium" "large")
+workloads=("desktop" "server" "highperformance")
 
-sizes=("medium" "large")
-workloads=("server")
+if [[ $TARGET =~ rhel6.* ]]; then
+  workloads=("desktop" "server")
+fi
 
-if [[ $TARGET =~ windows10.* ]]; then
-  template_name="windows10"
+if [[ $TARGET =~ centos6.* ]]; then
+  workloads=("server")
+fi
+
+if [[ $TARGET =~ ubuntu.* ]]; then
   workloads=("desktop")
-elif [[ $TARGET =~ windows2016.* ]]; then
-  template_name="windows2k16"
-elif [[ $TARGET =~ windows2019.* ]]; then
-  template_name="windows2k19"
+fi
+
+if [[ $TARGET =~ opensuse.* ]]; then
+  workloads=("server")
+fi
+
+if [[ $TARGET =~ centos7.* ]] || [[ $TARGET =~ centos8.* ]]; then
+  workloads=("server" "desktop")
 fi
 
 delete_vm(){
@@ -69,9 +68,11 @@ delete_vm(){
   #stop vm
   ./virtctl stop $vm_name -n $namespace
   #delete vm
-  oc process -n $namespace -o json $template_name NAME=$vm_name SRC_PVC_NAME=$TARGET-datavolume-original SRC_PVC_NAMESPACE=kubevirt| \
-  oc delete -f -
+  oc process -n $namespace -o json $template_name NAME=$vm_name SRC_PVC_NAME=$TARGET-datavolume-original SRC_PVC_NAMESPACE=kubevirt | \
+    oc delete -n $namespace -f -
   set -e
+  #wait until vm is deleted
+  while oc get -n $namespace vmi $vm_name 2> >(grep "not found") ; do sleep $sample; done
 }
 
 run_vm(){
@@ -83,34 +84,24 @@ run_vm(){
   #If first try fails, it tries 2 more time to run it, before it fails whole test
   for i in `seq 1 3`; do
     error=false
-
     oc process -n $namespace -o json $template_name NAME=$vm_name SRC_PVC_NAME=$TARGET-datavolume-original SRC_PVC_NAMESPACE=kubevirt | \
     jq 'del(.items[0].spec.dataVolumeTemplates[0].spec.pvc.accessModes) |
     .items[0].spec.dataVolumeTemplates[0].spec.pvc+= {"accessModes": ["ReadWriteOnce"]} | 
     .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
-    oc apply -f -
-    
+    oc apply -n $namespace -f -
+
     # start vm
     ./virtctl start $vm_name -n $namespace
 
     oc wait --for=condition=Ready --timeout=${timeout}s vm/$vm_name -n $namespace
 
-    # get ip address of vm
-    ipAddressVMI=$(oc get vmi $vm_name -o json -n $namespace| jq -r '.status.interfaces[0].ipAddress')
-
     set +e
-    current_time=0
-    # run ipconfig /all command on windows vm
-    while [[ $(oc exec -n $namespace -i winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all" | grep "IPv4 Address" | wc -l ) -eq 0 ]] ; do 
-      current_time=$((current_time + sample))
-      if [[ $current_time -gt $timeout ]]; then
-        error=true
-        break
-      fi
-      sleep $sample;
-    done
+    ./automation/connect_to_rhel_console.exp $vm_name
+    if [ $? -ne 0 ] ; then 
+      error=true
+    fi
     set -e
-
+  
     delete_vm $vm_name $template_name
     #no error were observed, the vm is running
     if ! $error ; then
