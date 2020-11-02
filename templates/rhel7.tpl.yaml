@@ -1,8 +1,7 @@
-{% set version =  "0.13.0" %}
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: {{ os }}-{{ item.workload }}-{{ item.flavor }}-v{{ version }}
+  name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
   annotations:
     openshift.io/display-name: "Red Hat Enterprise Linux 7.0+ VM"
     description: >-
@@ -24,40 +23,41 @@ metadata:
       /objects[0].spec.template.spec.domain.devices.disks
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
-    {% for osl in oslabels %}
+{% for osl in oslabels %}
     name.os.template.kubevirt.io/{{ osl }}: {{ lookup('osinfo', oslabels[0]).name }} or higher
-    {% endfor %}
-    validations: |
-      [
-        {
-          "name": "minimal-required-memory",
-          "path": "jsonpath::.spec.domain.resources.requests.memory",
-          "rule": "integer",
-          "message": "This VM requires more memory.",
-          "min": {{ lookup('osinfo', osinfoname)["minimum_resources.architecture=x86_64|all.ram"] }}
-        }
-      ]
+{% endfor %}
   labels:
-    {% for osl in oslabels %}
+{% for osl in oslabels %}
     os.template.kubevirt.io/{{ osl }}: "true"
-    {% endfor %}
+{% endfor %}
     workload.template.kubevirt.io/{{ item.workload }}: "true"
     flavor.template.kubevirt.io/{{ item.flavor }}: "true"
     template.kubevirt.io/type: "base"
     template.kubevirt.io/version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
-    {% if item.default %}
+{% if item.default %}
     template.kubevirt.io/default-os-variant: "true"
-    {% endif %}
+{% endif %}
 objects:
 - apiVersion: kubevirt.io/v1alpha3
   kind: VirtualMachine
   metadata:
     name: ${NAME}
     labels:
-      vm.kubevirt.io/template: {{ os }}-{{ item.workload }}-{{ item.flavor }}-v{{ version }}
+      vm.kubevirt.io/template: {{ os }}-{{ item.workload }}-{{ item.flavor }}
       vm.kubevirt.io/template.version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
       vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
       app: ${NAME}
+    annotations:
+      vm.kubevirt.io/validations: |
+        [
+          {
+            "name": "minimal-required-memory",
+            "path": "jsonpath::.spec.domain.resources.requests.memory",
+            "rule": "integer",
+            "message": "This VM requires more memory.",
+            "min": {{ lookup('osinfo', osinfoname)["minimum_resources.architecture=x86_64|all.ram"] }}
+          }
+        ]
   spec:
     dataVolumeTemplates:
     - apiVersion: cdi.kubevirt.io/v1beta1
@@ -83,28 +83,28 @@ objects:
           kubevirt.io/size: {{ item.flavor }}
       spec:
         domain:
-          {% if item.iothreads %}
+{% if item.iothreads %}
           ioThreadsPolicy: shared
-          {% endif %}
+{% endif %}
           cpu:
             sockets: {{ item.cpus }}
             cores: 1
             threads: 1
-            {% if cpumodel |default("") %}
+{% if cpumodel |default("") %}
             model: {{ cpumodel }}
-            {% endif %}
+{% endif %}
           resources:
             requests:
               memory: {{ item.memsize }}
           devices:
             rng: {}
             networkInterfaceMultiqueue: true
-            {% if item.tablet %}
+{% if item.tablet %}
             inputs:
               - type: tablet
                 bus: virtio
                 name: tablet
-            {% endif %}
+{% endif %}
             disks:
             - disk:
                 bus: {{ diskbus | default("virtio") }}
