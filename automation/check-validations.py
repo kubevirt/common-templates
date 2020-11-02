@@ -21,7 +21,7 @@ def checkValidations(path):
                 logging.info("Checking " + template["metadata"]["name"])
 
                 try:
-                    json.loads(template["metadata"]["annotations"]["validations"])
+                    json.loads(template["objects"][0]["metadata"]["annotations"]["vm.kubevirt.io/validations"])
                 except Exception as e:
                     logging.info("Validation is not json")
                     raise e

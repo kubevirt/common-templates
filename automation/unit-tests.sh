@@ -3,7 +3,7 @@ set -ex
 make generate
 
 #syntax check
-templates=($(grep -L "template.kubevirt.io/deprecated: \"true\"" dist/templates/*))
+templates=( dist/templates/* )
 namespace="kubevirt"
 
 oc apply -f - <<EOF

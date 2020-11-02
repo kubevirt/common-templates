@@ -11,14 +11,14 @@ In order to be backward and future compatible, consumers of these annotations sh
 
 ## Format
 
-The validations hints are encoded into another template annotation, called `validation`.
+The validations hints are encoded into another VM annotation, called `vm.kubevirt.io/validations`.
 The value of this annotation must be a multi-line string.
 The multi-line string must be valid JSON array of validation objects.
 The format of the validation objects is described below.
 
 Example:
 ```yaml
-validations: |
+vm.kubevirt.io/validations: |
   [
     {
       "name": "validation-rule-01",
@@ -91,10 +91,14 @@ Example: lacks “rule”
 ```yaml
 apiVersion: v1
 kind: Template
+metadata:
+  name: windows-10
+objects:
+- apiVersion: kubevirt.io/v1alpha3
+  kind: VirtualMachine
   metadata:
-    name: windows-10
     annotations:
-      validations: |
+      vm.kubevirt.io/validations: |
         [
           {
             "name": "core-limits",
@@ -110,10 +114,14 @@ Example: lacks “name”, “message”
 ```yaml
 apiVersion: v1
 kind: Template
+metadata:
+  name: windows-10
+objects:
+- apiVersion: kubevirt.io/v1alpha3
+  kind: VirtualMachine
   metadata:
-    name: windows-10
     annotations:
-      validations: |
+      vm.kubevirt.io/validations: |
         [
           {
             “rule”: “integer”,
@@ -128,10 +136,14 @@ Example: lacks “path”
 ```yaml
 apiVersion: v1
 kind: Template
+metadata:
+  name: windows-10
+objects:
+- apiVersion: kubevirt.io/v1alpha3
+  kind: VirtualMachine
   metadata:
-    name: windows-10
     annotations:
-      validations: |
+      vm.kubevirt.io/validations: |
         [
           {
             "rule": "integer",
@@ -187,10 +199,14 @@ Example:
 ```yaml
 apiVersion: v1
 kind: Template
+metadata:
+  name: windows-10
+objects:
+- apiVersion: kubevirt.io/v1alpha3
+  kind: VirtualMachine
   metadata:
-    name: windows-10
     annotations:
-      validations: |
+      vm.kubevirt.io/validations: |
         [
           {
             "name": "core-limits",
@@ -213,10 +229,14 @@ Example:
 ```yaml
 apiVersion: v1
 kind: Template
+metadata:
+  name: windows-10
+objects:
+- apiVersion: kubevirt.io/v1alpha3
+  kind: VirtualMachine
   metadata:
-    name: windows-10
     annotations:
-      validations: |
+      vm.kubevirt.io/validations: |
         [
           {
             "name": "supported-bus",
@@ -240,10 +260,14 @@ Example:
 ```yaml
 apiVersion: v1
 kind: Template
+metadata:
+  name: windows-10
+objects:
+- apiVersion: kubevirt.io/v1alpha3
+  kind: VirtualMachine
   metadata:
-    name: windows-10
     annotations:
-      validations: |
+      vm.kubevirt.io/validations: |
         [
           {
             "name": "non-empty-net",
@@ -262,10 +286,14 @@ Example:
 ```yaml
 apiVersion: v1
 kind: Template
+metadata:
+  name: windows-10
+objects:
+- apiVersion: kubevirt.io/v1alpha3
+  kind: VirtualMachine
   metadata:
-    name: windows-10
     annotations:
-      validations: |
+      vm.kubevirt.io/validations: |
         [
           {
             "name": "supported-bus",
@@ -283,10 +311,14 @@ Example:
 ```yaml
 apiVersion: v1
 kind: Template
+metadata:
+  name: windows-10
+objects:
+- apiVersion: kubevirt.io/v1alpha3
+  kind: VirtualMachine
   metadata:
-    name: windows-10
     annotations:
-      validations: |
+      vm.kubevirt.io/validations: |
         [
           {
             "name": "supported-bus",
@@ -307,10 +339,14 @@ The following examples are meant to describe realistic well formed annotations.
 ```yaml
 apiVersion: v1
 kind: Template
+metadata:
+  name: windows-10
+objects:
+- apiVersion: kubevirt.io/v1alpha3
+  kind: VirtualMachine
   metadata:
-    name: windows-10
     annotations:
-      validations: |
+      vm.kubevirt.io/validations: |
         [
           {
             "name": "core-limits",
@@ -326,10 +362,14 @@ kind: Template
 ```yaml
 apiVersion: v1
 kind: Template
+metadata:
+  name: linux-bus-types
+objects:
+- apiVersion: kubevirt.io/v1alpha3
+  kind: VirtualMachine
   metadata:
-    name: linux-bus-types
     annotations:
-      validations: |
+      vm.kubevirt.io/validations: |
         [
           {
             "name": "supported-bus",
@@ -342,4 +382,3 @@ kind: Template
           }
         ]
 ```
-
