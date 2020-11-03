@@ -128,8 +128,15 @@ objects:
             hyperv:
               relaxed: {}
               vapic: {}
+              vpindex: {}
               spinlocks:
                 spinlocks: 8191
+              synic: {}
+              synictimer: {}
+              tlbflush: {}
+              frequencies: {}
+              reenlightenment: {}
+              ipi: {}
           devices:
             disks:
             - disk:
