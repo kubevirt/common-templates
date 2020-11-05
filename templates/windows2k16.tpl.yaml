@@ -137,6 +137,8 @@ objects:
               frequencies: {}
               reenlightenment: {}
               ipi: {}
+              runtime: {}
+              reset: {}
           devices:
             disks:
             - disk:
