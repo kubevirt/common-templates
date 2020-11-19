@@ -18,6 +18,10 @@
 #
 set -ex
 
+ver_label='^[[:space:]]*template.kubevirt.io/version'
+# Any template can be used here as they all have the same verison label, centos is an arbitrary one
+ver_value=$(grep "$ver_label" dist/templates/centos6-server-large.yaml | tail -1 | cut -f2 -d":" | tr -d ' "')
+ver_label="template.kubevirt.io/version=$ver_value"
 templates=("dist/templates/*.yaml")
 for template in $templates; do
 
@@ -33,9 +37,9 @@ for template in $templates; do
 	for os in $template_oss; do
 		for workload in $template_workloads; do
 			for flavor in $template_flavors; do
-				count=$(oc get template -n kubevirt -l $os,$workload,$flavor --no-headers | wc -l)
+				count=$(oc get template -l $os,$workload,$flavor,$ver_label --no-headers | wc -l)
 				if [[ $count -ne 1 ]]; then
-					echo "There are $count templates found with the following labels $os,$workload,$flavor"
+					echo "There are $count templates found with the following labels $os,$workload,$flavor,$ver_label"
 					exit 1
 				fi
 			done

@@ -61,10 +61,8 @@ metadata:
 
   labels:
     template.kubevirt.io/type: "base"
-    template.kubevirt.io/version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
-{% if item.default %}
-    template.kubevirt.io/default-os-variant: "true"
-{% endif %}
+    # Locking the template version as it is deprecated and should not receive any more updates
+    template.kubevirt.io/version: "v{{ version }}"
 
 objects:
 - apiVersion: kubevirt.io/v1alpha3
