@@ -18,15 +18,18 @@
 #
 set -ex
 
-namespace="kubevirt"
 templates_dir='dist/templates'
 default_label='template.kubevirt.io/default-os-variant=true'
 os_label='os.template.kubevirt.io/'
 template='{{range .items}}{{range $key, $val := .metadata.labels}}{{if eq $val "true"}}{{$key}}{{"\n"}}{{end}}{{end}}{{end}}'
+ver_label='^[[:space:]]*template.kubevirt.io/version'
+# Any template can be used here as they all have the same verison label, centos is an arbitrary one
+ver_value=$(grep "$ver_label" $templates_dir/centos6-server-large.yaml | tail -1 | cut -f2 -d":" | tr -d ' "')
+ver_label="template.kubevirt.io/version=$ver_value"
 
 # Ensure exactly one default variant per OS
-for os in $(oc get templates -n $namespace -o go-template="$template" | grep "^$os_label" | sort -uV); do
-    defaults=$(oc get template -n $namespace -l ${os}=true,template.kubevirt.io/default-os-variant=true -o name | wc -l)
+for os in $(oc get templates -o go-template="$template" | grep "^$os_label" | sort -uV); do
+    defaults=$(oc get template -l ${os}=true,template.kubevirt.io/default-os-variant=true,$ver_label -o name | wc -l)
     if [[ $defaults -eq 1 ]]; then
 	    continue
     elif [[ $defaults -eq 0 ]]; then
