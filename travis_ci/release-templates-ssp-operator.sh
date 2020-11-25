@@ -58,3 +58,41 @@ payload=$(cat <<- EOF
 EOF
 )
 curl -d "$payload" -H "Authorization: token ${GITHUB_TOKEN}" -H "Content-Type: application/json" -X POST https://api.github.com/repos/${SSP_OWNER}/${SSP_REPO}/pulls 1> /dev/null
+
+# Create Pull request for the new SSP Operator also
+cd ..
+
+git clone ${NEW_SSP_REPO_URL}
+cd ${NEW_SSP_REPO}
+
+branch="update-common-templates-${TRAVIS_TAG}"
+git checkout -b $branch
+git reset origin/master --hard
+
+# Replace templates_version to latest release
+sed -i '/Version/c\Version='\"${TRAVIS_TAG}\" internal/operands/common-templates/resource.go
+go fmt internal/operands/common-templates/resource.go
+
+# Copy latest templates to ssp repo
+cp ../dist/common-templates-${TRAVIS_TAG}.yaml data/common-templates-bundle/
+
+# Add only updated files and nothing else
+git add internal/operands/common-templates/resource.go
+git add data/common-templates-bundle/common-templates-${TRAVIS_TAG}.yaml
+
+message="updated common templates to version ${TRAVIS_TAG}"
+git commit -sm "$message"
+git push origin $branch --force
+
+sleep 10
+
+payload=$(cat <<- EOF
+{
+  "title": "${message}",
+  "body": "${message}",
+  "head": "$branch",
+  "base": "master"
+}
+EOF
+)
+curl -d "$payload" -H "Authorization: token ${GITHUB_TOKEN}" -H "Content-Type: application/json" -X POST https://api.github.com/repos/${SSP_OWNER}/${NEW_SSP_REPO_URL}/pulls 1> /dev/null
