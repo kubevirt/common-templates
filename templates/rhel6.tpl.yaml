@@ -102,7 +102,6 @@ objects:
               memory: {{ item.memsize }}
           devices:
             rng: {}
-            networkInterfaceMultiqueue: true
 {% if item.tablet %}
             inputs:
               - type: tablet
@@ -119,6 +118,7 @@ objects:
             interfaces:
             - masquerade: {}
               name: default
+              model: rtl8139
         terminationGracePeriodSeconds: 180
         networks:
         - name: default
