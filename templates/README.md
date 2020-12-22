@@ -284,7 +284,9 @@ status:
 ```
 
 ## terminationGracePeriodSeconds
-All linux templates have terminationGracePeriodSeconds set to 180 seconds, in windows templates it is set to 3600 seconds.
+All Linux templates have terminationGracePeriodSeconds set to 180 seconds.
+In Windows templates it is set to 3600 seconds (1 hour) to reduce the
+probability of an ungraceful shutting down of a Windows VM during update.
 
 ## Future enhancements
 
