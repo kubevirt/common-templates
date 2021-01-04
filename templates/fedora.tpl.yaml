@@ -98,6 +98,10 @@ objects:
 {% if cpumodel |default("") %}
             model: {{ cpumodel }}
 {% endif %}
+{% if item.emulatorthread %}
+            dedicatedCpuPlacement: True
+            isolateEmulatorThread: True
+{% endif %}
           resources:
             requests:
               memory: {{ item.memsize }}
