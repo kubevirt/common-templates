@@ -108,6 +108,10 @@ run_vm(){
         echo "[DEBUG] oc describe all"
         echo
         oc -n ${namespace} describe all
+        echo
+        echo "[DEBUG] oc get nodes"
+        echo
+        oc get nodes --show-labels
         false
     fi
 
