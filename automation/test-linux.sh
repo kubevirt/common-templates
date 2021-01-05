@@ -93,7 +93,23 @@ run_vm(){
     # start vm
     ./virtctl start $vm_name -n $namespace
 
+    # wait for vm to be created
+    # in case of error, retrieve debug information before failing
+    set +e
     oc wait --for=condition=Ready --timeout=${timeout}s vm/$vm_name -n $namespace
+    ret=$?
+    set -e
+    if [[ ${ret} -ne 0 ]]; then
+        echo
+        echo "[DEBUG] oc get all"
+        echo
+        oc -n ${namespace} get all
+        echo
+        echo "[DEBUG] oc describe all"
+        echo
+        oc -n ${namespace} describe all
+        false
+    fi
 
     set +e
     ./automation/connect_to_rhel_console.exp $vm_name
