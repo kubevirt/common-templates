@@ -43,6 +43,15 @@ LATEST_CT=$(curl -L https://api.github.com/repos/kubevirt/common-templates/relea
             jq '.[] | select(.prerelease==false) | .name' | sort -V | tail -n1 | tr -d '"')
 oc apply -f https://github.com/kubevirt/common-templates/releases/download/${LATEST_CT}/common-templates-${LATEST_CT}.yaml
 
+set +e
+python3 automation/validate-pvc-name-stability.py
+RC=${?}
+set -e
+if [ ${RC} -ne 0 ];then
+  echo "[Upgrade] Validation of PVC name stability failed"
+  exit ${RC}
+fi
+
 oc apply -f dist/templates
 
 ./automation/test_duplicate_templates.sh
