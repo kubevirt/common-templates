@@ -81,6 +81,10 @@ run_vm(){
   local template_name=$( oc get -n ${namespace} -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt )
   running=false
 
+  # add cpumanager=true label to all worker nodes
+  # to allow execution of tests using high performance profiles
+  oc label nodes -l node-role.kubernetes.io/worker cpumanager=true
+
   #If first try fails, it tries 2 more time to run it, before it fails whole test
   for i in `seq 1 3`; do
     error=false
