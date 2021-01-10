@@ -101,6 +101,7 @@ objects:
             requests:
               memory: {{ item.memsize }}
           devices:
+            useVirtioTransitional: true
             rng: {}
 {% if item.tablet %}
             inputs:
