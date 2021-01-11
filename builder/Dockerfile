@@ -1,5 +1,5 @@
 #This docker file is used in openshift CI
-FROM fedora:30
+FROM quay.io/kubevirt/common-templates:fedora33CI
 
 RUN dnf install -y jq ansible libosinfo python3-gobject libosinfo intltool make git findutils qemu expect
 RUN chmod uga+w /etc/passwd
