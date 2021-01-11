@@ -1,4 +1,4 @@
-{% set diskbus = diskbus |default("sata") %}
+{% set diskbus = diskbus |default("virtio") %}
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
@@ -119,7 +119,7 @@ objects:
             interfaces:
             - masquerade: {}
               name: default
-              model: e1000e
+              model: virtio
         terminationGracePeriodSeconds: 180
         networks:
         - name: default
