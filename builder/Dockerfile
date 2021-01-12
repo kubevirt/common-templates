@@ -1,7 +1,7 @@
 #This docker file is used in openshift CI
 FROM fedora:30
 
-RUN dnf install -y jq ansible libosinfo python3-gobject libosinfo intltool make git findutils qemu expect
+RUN dnf install -y jq ansible libosinfo python3-gobject python3-openshift libosinfo intltool make git findutils qemu expect
 RUN chmod uga+w /etc/passwd
 
 #set permissions for ansible tmp folder
