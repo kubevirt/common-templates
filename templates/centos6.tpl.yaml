@@ -101,6 +101,7 @@ objects:
             requests:
               memory: {{ item.memsize }}
           devices:
+            networkInterfaceMultiqueue: true
             useVirtioTransitional: true
             rng: {}
 {% if item.tablet %}
@@ -110,7 +111,8 @@ objects:
                 name: tablet
 {% endif %}
             disks:
-            - disk:
+            - bootOrder: 1
+              disk:
                 bus: {{ diskbus | default("virtio") }}
               name: ${NAME}
             - disk:
