@@ -69,8 +69,10 @@ objects:
         name: ${NAME}
       spec:
         pvc:
+          storageClassName: ${STORAGE_CLASS}
+          volumeMode: ${VOLUME_MODE}
           accessModes:
-            - ReadWriteMany
+            - ${ACCESS_MODE}
           resources:
             requests:
               storage: 30Gi
@@ -148,3 +150,12 @@ parameters:
   from: '[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}'
   generate: expression
   name: CLOUD_USER_PASSWORD
+- name: STORAGE_CLASS
+  description: StorageClass of the target PVC
+  required: true
+- name: VOLUME_MODE
+  description: VolumeMode of the target PVC
+  value: Block
+- name: ACCESS_MODE
+  description: AccessMode for the target PVC
+  value: ReadWriteMany

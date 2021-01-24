@@ -171,3 +171,12 @@ parameters:
 - name: SRC_PVC_NAMESPACE
   description: Namespace of the source PVC
   value: kubevirt-os-images
+- name: STORAGE_CLASS
+  description: StorageClass of the target PVC
+  required: true
+- name: VOLUME_MODE
+  description: VolumeMode of the target PVC
+  value: Block
+- name: ACCESS_MODE
+  description: AccessMode for the target PVC
+  value: ReadWriteMany
