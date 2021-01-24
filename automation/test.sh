@@ -17,6 +17,9 @@
 # Copyright 2018 Red Hat, Inc.
 #
 
+oc get sc -oyaml
+exit 1
+
 namespace="kubevirt"
 
 _curl() {
