@@ -98,8 +98,10 @@ objects:
 {% if cpumodel |default("") %}
             model: {{ cpumodel }}
 {% endif %}
-{% if item.emulatorthread %}
+{% if item.iothreads or item.emulatorthread %}
             dedicatedCpuPlacement: True
+{% endif %}
+{% if item.emulatorthread %}
             isolateEmulatorThread: True
 {% endif %}
           resources:
