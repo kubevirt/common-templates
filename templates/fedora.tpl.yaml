@@ -120,6 +120,9 @@ objects:
             - disk:
                 bus: {{ diskbus | default("virtio") }}
               name: ${NAME}
+{% if item.iothreads %}
+              dedicatedIOThread: true
+{% endif %}
             - disk:
                 bus: {{ diskbus | default("virtio") }}
               name: cloudinitdisk
