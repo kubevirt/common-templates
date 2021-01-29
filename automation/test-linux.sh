@@ -94,6 +94,8 @@ run_vm(){
     .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
     oc apply -n $namespace -f -
 
+    ./virtctl version
+    oc get vm $vm_name -n $namespace -oyaml
     # start vm
     ./virtctl start $vm_name -n $namespace
 

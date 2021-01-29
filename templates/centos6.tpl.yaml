@@ -1,4 +1,4 @@
-{% set diskbus = diskbus |default("sata") %}
+{% set diskbus = diskbus |default("virtio") %}
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
@@ -101,6 +101,7 @@ objects:
             requests:
               memory: {{ item.memsize }}
           devices:
+            networkInterfaceMultiqueue: true
             useVirtioTransitional: true
             rng: {}
 {% if item.tablet %}
@@ -110,7 +111,8 @@ objects:
                 name: tablet
 {% endif %}
             disks:
-            - disk:
+            - bootOrder: 1
+              disk:
                 bus: {{ diskbus | default("virtio") }}
               name: ${NAME}
             - disk:
@@ -119,7 +121,7 @@ objects:
             interfaces:
             - masquerade: {}
               name: default
-              model: e1000e
+              model: virtio
         terminationGracePeriodSeconds: 180
         networks:
         - name: default
