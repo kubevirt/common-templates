@@ -19,6 +19,11 @@ identifiers](https://gitlab.com/libosinfo/osinfo-db/tree/master/data/os) from th
 
 ### Ubuntu
 
+- os.template.kubevirt.io/ubuntu20.10
+- os.template.kubevirt.io/ubuntu20.04
+- os.template.kubevirt.io/ubuntu19.10
+- os.template.kubevirt.io/ubuntu19.04
+- os.template.kubevirt.io/ubuntu18.10
 - os.template.kubevirt.io/ubuntu18.04
 - os.template.kubevirt.io/ubuntu17.10
 - os.template.kubevirt.io/ubuntu17.04

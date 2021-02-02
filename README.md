@@ -80,7 +80,7 @@ The table below lists the guest operating systems that are covered by the templa
 | Red Hat Enterprise Linux 6 | [rhel7](templates/rhel6.tpl.yaml) |
 | Red Hat Enterprise Linux 7 | [rhel7](templates/rhel7.tpl.yaml) |
 | Red Hat Enterprise Linux 8 | [rhel8](templates/rhel8.tpl.yaml) |
-| Ubuntu 18.04 LTS | [ubuntu](templates/ubuntu.tpl.yaml) |
+| Ubuntu 20.04 LTS | [ubuntu](templates/ubuntu.tpl.yaml) |
 | OpenSUSE Leap 15.0 | [opensuse](templates/opensuse.tpl.yaml) |
 | CentOS 6 | [centos6](templates/centos6.tpl.yaml) |
 | CentOS 7 | [centos7](templates/centos7.tpl.yaml) |
