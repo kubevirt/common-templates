@@ -29,6 +29,7 @@ kind: DataVolume
 metadata:
   name: ${TARGET}-datavolume-original
 spec:
+  ${contenttype}
   source:
     registry:
       url: "${image_url}"
