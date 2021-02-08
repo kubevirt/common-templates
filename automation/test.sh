@@ -35,7 +35,12 @@ ocenv="OC"
 
 if [ -z "$CLUSTERENV" ]
 then
+<<<<<<< HEAD
     export CLUSTERENV=$ocenv
+=======
+    export KUBE_CMD="oc"
+    echo $KUBE_CMD
+>>>>>>> 043adaf... Modify test scripts to run in both K8s and Openshift environments
 fi
 
 git submodule update --init
@@ -54,6 +59,15 @@ chmod +x virtctl
 ${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
 ${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
+<<<<<<< HEAD
+=======
+if [ "${KUBE_CMD}" == "oc" ]
+then
+    echo $KUBE_CMD
+    ${KUBE_CMD} project $namespace
+fi
+
+>>>>>>> 043adaf... Modify test scripts to run in both K8s and Openshift environments
 sample=10
 current_time=0
 timeout=300
@@ -73,12 +87,20 @@ data:
 ---
 EOF
 
+<<<<<<< HEAD
 key="/tmp/secrets/accessKeyId"
 token="/tmp/secrets/secretKey"
 
 if [ "${KUBE_CMD}" == "$ocenv" ]
 then
     echo $KUBE_CMD
+=======
+if [ "${KUBE_CMD}" == "oc" ]
+then
+    echo $KUBE_CMD
+    key="/tmp/secrets/accessKeyId"
+    token="/tmp/secrets/secretKey"
+>>>>>>> 043adaf... Modify test scripts to run in both K8s and Openshift environments
 
 if [ "${CLUSTERENV}" == "$ocenv" ]
 then
@@ -147,3 +169,4 @@ if [[ $TARGET =~ windows.* ]]; then
   ./automation/test-windows.sh $TARGET
 else
   ./automation/test-linux.sh $TARGET
+fi
