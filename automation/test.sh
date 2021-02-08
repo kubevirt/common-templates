@@ -35,12 +35,7 @@ ocenv="OC"
 
 if [ -z "$CLUSTERENV" ]
 then
-<<<<<<< HEAD
     export CLUSTERENV=$ocenv
-=======
-    export KUBE_CMD="oc"
-    echo $KUBE_CMD
->>>>>>> 01cc3a6... Modify test scripts to run in both K8s and Openshift environments
 fi
 
 git submodule update --init
@@ -56,18 +51,9 @@ curl -Lo virtctl \
     https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VERSION/virtctl-$KUBEVIRT_VERSION-linux-amd64
 chmod +x virtctl
 
-${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
-${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
+oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
+oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
-<<<<<<< HEAD
-=======
-if [ "${KUBE_CMD}" == "oc" ]
-then
-    echo $KUBE_CMD
-    ${KUBE_CMD} project $namespace
-fi
-
->>>>>>> 01cc3a6... Modify test scripts to run in both K8s and Openshift environments
 sample=10
 current_time=0
 timeout=300
@@ -87,11 +73,12 @@ data:
 ---
 EOF
 
-if [ "${KUBE_CMD}" == "oc" ]
+key="/tmp/secrets/accessKeyId"
+token="/tmp/secrets/secretKey"
+
+if [ "${KUBE_CMD}" == "$ocenv" ]
 then
     echo $KUBE_CMD
-    key="/tmp/secrets/accessKeyId"
-    token="/tmp/secrets/secretKey"
 
 if [ "${CLUSTERENV}" == "$ocenv" ]
 then
@@ -99,7 +86,7 @@ then
       id=$(cat $key | tr -d '\n' | base64)
       token=$(cat $token | tr -d '\n' | base64 | tr -d ' \n')
 
-      oc apply -n $namespace -f - <<EOF
+      $ocenv apply -n $namespace -f - <<EOF
 apiVersion: v1
 kind: Secret
 metadata:
@@ -149,12 +136,12 @@ then
     oc wait --for=condition=Available --timeout=${timeout}s deployment/virt-template-validator -n $namespace
     # Apply templates
     echo "Deploying templates"
-    oc apply -n $namespace  -f dist/templates
+    $ocenv apply -n $namespace  -f dist/templates
 fi
 
 # add cpumanager=true label to all nodes
 # to allow execution of tests using high performance profiles
-oc label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
+${KUBE_CMD} label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
 
 if [[ $TARGET =~ windows.* ]]; then
   ./automation/test-windows.sh $TARGET

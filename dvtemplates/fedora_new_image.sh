@@ -6,7 +6,6 @@ error_message() {
     elif [ $1 -eq 2 ]; then
         echo -e "Invalid Image Version"
     elif [ $1 -eq 3 ]; then
-<<<<<<< HEAD
         echo -e "Unable to connect to the Fedora Image repository"
     elif [ $1 -eq 4 ]; then
         echo -e "Container Image for the Latest Fedora version is already present. Exiting"
@@ -18,18 +17,10 @@ error_message() {
         echo -e "End to End Tests fail."
     fi
     exit $1
-=======
-        echo -e "No Container Image found in the registry"
-    elif [ $1 -eq 4 ]; then
-        echo -e "Container Image for the Latest Fedora version is already present"
-    fi
-    exit
->>>>>>> 3546d1c... Add a script to check and download the latest fedora image and build a dvtemplate using it
 }
 
 trap 'error_message $?' EXIT
 
-<<<<<<< HEAD
 #Insecure registry port
 port=5000
 
@@ -41,26 +32,12 @@ wget -qO index.html $BASE_URL || exit 1
 FEDORA_VERSION=`cat index.html | sed -e 's/.*>\(.*\)\/<.*/\1/' | sort -rn | head -n 1 | tr -d ' '`
 re='^ *[0-9]+ *$'
 if ! [[ $FEDORA_VERSION =~ $re ]] ; then
-=======
-#TODO : change it to https://quay.io/containerdisks/fedora_images ?
-FEDORA_REPO="quay.io/shwetaap/fedora_images"
-BASE_URL=https://download.fedoraproject.org/pub/fedora/linux/releases/
-
-wget -qO index.html $BASE_URL || exit 1
-FEDORA_VERSION=`cat index.html | sed -e 's/.*>\(.*\)\/<.*/\1/' | sort -rn | head -n 1`
-version_len=`echo ${FEDORA_VERESION} | wc -w`
-if [ $version_len -gt 1 ]; then
->>>>>>> 3546d1c... Add a script to check and download the latest fedora image and build a dvtemplate using it
     error_message 2
 fi
 echo "Latest Fedora version is : ${FEDORA_VERSION}"
 
 # Fetch the old image
-<<<<<<< HEAD
 docker pull -a $FEDORA_REPO
-=======
-docker pull -a $FEDORA_REPO || exit 3
->>>>>>> 3546d1c... Add a script to check and download the latest fedora image and build a dvtemplate using it
 
 image_tag=$(docker images $FEDORA_REPO --format "{{json .Tag }}" | sort -rn | head -n 1)
 FEDORA_OLD_VERSION=`echo "$image_tag" | tr -d '"'`
