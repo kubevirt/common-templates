@@ -3,9 +3,9 @@ kind: Template
 metadata:
   name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
   annotations:
-    openshift.io/display-name: "Fedora 31+ VM"
+    openshift.io/display-name: "{{ lookup('osinfo', oslabels[0]).name }}+ VM"
     description: >-
-      Template for Fedora 31 VM or newer.
+      Template for {{ lookup('osinfo', oslabels[0]).name }} VM or newer.
       A PVC with the Fedora disk image must be available.
       Recommended disk image:
       https://download.fedoraproject.org/pub/fedora/linux/releases/32/Cloud/x86_64/images/Fedora-Cloud-Base-32-1.6.x86_64.qcow2
