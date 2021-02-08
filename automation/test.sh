@@ -34,6 +34,7 @@ export KUBEVIRT_VERSION=$(_curl -L https://api.github.com/repos/kubevirt/kubevir
 if [ -z "$KUBE_CMD" ]
 then
     export KUBE_CMD="oc"
+    echo $KUBE_CMD
 fi
 
 git submodule update --init
@@ -52,10 +53,11 @@ chmod +x virtctl
 ${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
 ${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
-if ["${KUBE_CMD}"=="oc" ]
+if [ "${KUBE_CMD}" == "oc" ]
 then
+    echo $KUBE_CMD
     ${KUBE_CMD} project $namespace
-fi 
+fi
 
 sample=10
 current_time=0
@@ -76,8 +78,9 @@ data:
 ---
 EOF
 
-if ["${KUBE_CMD}"=="oc" ]
+if [ "${KUBE_CMD}" == "oc" ]
 then
+    echo $KUBE_CMD
     key="/tmp/secrets/accessKeyId"
     token="/tmp/secrets/secretKey"
 
@@ -123,33 +126,33 @@ rules:
 ---
 EOF
 
-export VALIDATOR_VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt-template-validator/releases | \
+if [ "${KUBE_CMD}" == "oc" ]
+then
+    echo $KUBE_CMD
+    export VALIDATOR_VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt-template-validator/releases | \
             jq '.[] | select(.prerelease==false) | .tag_name' | sort -V | tail -n1 | tr -d '"')
 
-git clone -b ${VALIDATOR_VERSION} --depth 1 https://github.com/kubevirt/kubevirt-template-validator kubevirt-template-validator
-
-if ["${KUBE_CMD}"=="oc" ]
-then
+    git clone -b ${VALIDATOR_VERSION} --depth 1 https://github.com/kubevirt/kubevirt-template-validator kubevirt-template-validator
     VALIDATOR_DIR="kubevirt-template-validator/cluster/ocp4"
-else if ["${KUBE_CMD}"=="kubectl" ]
-then      
-    VALIDATOR_DIR="kubevirt-template-validator/cluster/k8s/manifests"
-    ./cluster/k8s/webhook-create-signed-cert.sh
+    sed -i 's/RELEASE_TAG/'$VALIDATOR_VERSION'/' ${VALIDATOR_DIR}/service.yaml
+    ${KUBE_CMD} apply -n kubevirt -f ${VALIDATOR_DIR}
+    ${KUBE_CMD} wait --for=condition=Available --timeout=${timeout}s deployment/virt-template-validator -n $namespace
+    # Apply templates
+    echo "Deploying templates"
+    oc apply -n $namespace  -f dist/templates
 fi
-sed -i 's/RELEASE_TAG/'$VALIDATOR_VERSION'/' ${VALIDATOR_DIR}/service.yaml
-${KUBE_CMD} apply -n kubevirt -f ${VALIDATOR_DIR}
-${KUBE_CMD} wait --for=condition=Available --timeout=${timeout}s deployment/virt-template-validator -n $namespace
 
 # add cpumanager=true label to all worker nodes
 # to allow execution of tests using high performance profiles
 oc label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
 
-# Apply templates
 echo "Deploying templates"
-if ["${KUBE_CMD}"=="oc" ]
-then
-    oc apply -n $namespace  -f dist/templates 
-else if ["${KUBE_CMD}"=="kubectl" ]
+if ["${KUBE_CMD}"=="kubectl" ]
 then      
     oc apply -f dist/templates --local=true
+fi
+    if [[ $TARGET =~ windows.* ]]; then
+  ./automation/test-windows.sh $TARGET
+else
+  ./automation/test-linux.sh $TARGET
 fi
