@@ -29,7 +29,6 @@ kind: DataVolume
 metadata:
   name: ${TARGET}-datavolume-original
 spec:
-  ${contenttype}
   source:
     registry:
       url: "${image_url}"
@@ -76,6 +75,7 @@ fi
 
 delete_vm(){
   vm_name=$1
+  #local template_option
 
   local template_option=$2
 

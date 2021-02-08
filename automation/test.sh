@@ -82,7 +82,7 @@ then
       id=$(cat $key | tr -d '\n' | base64)
       token=$(cat $token | tr -d '\n' | base64 | tr -d ' \n')
 
-      oc apply -n $namespace -f - <<EOF
+      $ocenv apply -n $namespace -f - <<EOF
 apiVersion: v1
 kind: Secret
 metadata:
@@ -132,12 +132,13 @@ then
     oc wait --for=condition=Available --timeout=${timeout}s deployment/virt-template-validator -n $namespace
     # Apply templates
     echo "Deploying templates"
-    oc apply -n $namespace  -f dist/templates
+    $ocenv apply -n $namespace  -f dist/templates
 fi
 
 # add cpumanager=true label to all nodes
 # to allow execution of tests using high performance profiles
-oc label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
+# ${KUBE_CMD} label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
+${KUBE_CMD} label nodes -l kubevirt.io/schedulable cpumanager=true --overwrite
 
 if [[ $TARGET =~ windows.* ]]; then
   ./automation/test-windows.sh $TARGET
