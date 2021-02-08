@@ -141,11 +141,9 @@ fi
 
 # add cpumanager=true label to all nodes
 # to allow execution of tests using high performance profiles
-# ${KUBE_CMD} label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
-${KUBE_CMD} label nodes -l kubevirt.io/schedulable cpumanager=true --overwrite
+${KUBE_CMD} label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
 
 if [[ $TARGET =~ windows.* ]]; then
   ./automation/test-windows.sh $TARGET
 else
   ./automation/test-linux.sh $TARGET
-fi
