@@ -31,11 +31,6 @@ _curl() {
 export KUBEVIRT_VERSION=$(_curl -L https://api.github.com/repos/kubevirt/kubevirt/releases | \
             jq '.[] | select(.prerelease==false) | .name' | sort -V | tail -n1 | tr -d '"')
 
-if [ -z "$KUBE_CMD" ]
-then
-    export KUBE_CMD="oc"
-fi
-
 git submodule update --init
 
 make generate
@@ -49,22 +44,19 @@ curl -Lo virtctl \
     https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VERSION/virtctl-$KUBEVIRT_VERSION-linux-amd64
 chmod +x virtctl
 
-${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
-${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
+#kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
+#kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
-if ["${KUBE_CMD}"=="oc" ]
-then
-    ${KUBE_CMD} project $namespace
-fi 
+#oc project $namespace
 
 sample=10
 current_time=0
 timeout=300
 
 # Waiting for kubevirt cr to report available
-${KUBE_CMD} wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $namespace
+#oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $namespace
 
-${KUBE_CMD} apply -f - <<EOF
+kubectl apply -f - <<EOF
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -76,16 +68,14 @@ data:
 ---
 EOF
 
-if ["${KUBE_CMD}"=="oc" ]
-then
-    key="/tmp/secrets/accessKeyId"
-    token="/tmp/secrets/secretKey"
+key="/tmp/secrets/accessKeyId"
+token="/tmp/secrets/secretKey"
 
-    if test -f "$key" && test -f "$token"; then
-      id=$(cat $key | tr -d '\n' | base64)
-      token=$(cat $token | tr -d '\n' | base64 | tr -d ' \n')
+if test -f "$key" && test -f "$token"; then
+  id=$(cat $key | tr -d '\n' | base64)
+  token=$(cat $token | tr -d '\n' | base64 | tr -d ' \n')
 
-      oc apply -n $namespace -f - <<EOF
+  oc apply -n $namespace -f - <<EOF
 apiVersion: v1
 kind: Secret
 metadata:
@@ -97,17 +87,17 @@ data:
   accessKeyId: "${id}"
   secretKey: "${token}"
 EOF
-    fi
 fi
+
 echo "Deploying CDI"
 export CDI_VERSION=$(curl -s https://api.github.com/repos/kubevirt/containerized-data-importer/releases | \
             jq '.[] | select(.prerelease==false) | .tag_name' | sort -V | tail -n1 | tr -d '"')
-${KUBE_CMD} apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
-${KUBE_CMD} apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
+kubectl apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
+kubectl apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
 
-${KUBE_CMD} wait --for=condition=Available --timeout=${timeout}s CDI/cdi -n cdi
+kubectl wait --for=condition=Available --timeout=${timeout}s CDI/cdi -n cdi
 
-${KUBE_CMD} apply -f - <<EOF
+kubectl apply -f - <<EOF
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -126,24 +116,14 @@ export VALIDATOR_VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevir
 
 git clone -b ${VALIDATOR_VERSION} --depth 1 https://github.com/kubevirt/kubevirt-template-validator kubevirt-template-validator
 
-if ["${KUBE_CMD}"=="oc" ]
-then
-    VALIDATOR_DIR="kubevirt-template-validator/cluster/ocp4"
-else if ["${KUBE_CMD}"=="kubectl" ]
-then      
-    VALIDATOR_DIR="kubevirt-template-validator/cluster/k8s/manifests"
-    ./cluster/k8s/webhook-create-signed-cert.sh
-fi
-sed -i 's/RELEASE_TAG/'$VALIDATOR_VERSION'/' ${VALIDATOR_DIR}/service.yaml
-${KUBE_CMD} apply -n kubevirt -f ${VALIDATOR_DIR}
-${KUBE_CMD} wait --for=condition=Available --timeout=${timeout}s deployment/virt-template-validator -n $namespace
+sed -i 's/RELEASE_TAG/'$VALIDATOR_VERSION'/' kubevirt-template-validator/cluster/ocp4/service.yaml
+
+kubectl apply -n kubevirt -f kubevirt-template-validator/cluster/ocp4
+
+kubectl wait --for=condition=Available --timeout=${timeout}s deployment/virt-template-validator -n $namespace
 
 # Apply templates
 echo "Deploying templates"
-if ["${KUBE_CMD}"=="oc" ]
-then
-    oc apply -n $namespace  -f dist/templates 
-else if ["${KUBE_CMD}"=="kubectl" ]
-then      
-    oc apply -f dist/templates --local=true
-fi
+oc apply -n $namespace  -f dist/templates --local=true
+
+./automation/test-linux.sh $TARGET
