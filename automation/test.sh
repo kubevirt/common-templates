@@ -35,7 +35,12 @@ ocenv="OC"
 
 if [ -z "$CLUSTERENV" ]
 then
+<<<<<<< HEAD
     export CLUSTERENV=$ocenv
+=======
+    export KUBE_CMD="oc"
+    echo $KUBE_CMD
+>>>>>>> 01cc3a6... Modify test scripts to run in both K8s and Openshift environments
 fi
 
 git submodule update --init
@@ -54,6 +59,15 @@ chmod +x virtctl
 ${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
 ${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
+<<<<<<< HEAD
+=======
+if [ "${KUBE_CMD}" == "oc" ]
+then
+    echo $KUBE_CMD
+    ${KUBE_CMD} project $namespace
+fi
+
+>>>>>>> 01cc3a6... Modify test scripts to run in both K8s and Openshift environments
 sample=10
 current_time=0
 timeout=300
@@ -73,8 +87,9 @@ data:
 ---
 EOF
 
-if ["${KUBE_CMD}"=="oc" ]
+if [ "${KUBE_CMD}" == "oc" ]
 then
+    echo $KUBE_CMD
     key="/tmp/secrets/accessKeyId"
     token="/tmp/secrets/secretKey"
 
