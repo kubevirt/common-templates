@@ -23,7 +23,7 @@ else
   image_url="docker://quay.io/kubevirt/common-templates:${TARGET}"
 fi;
 
-oc apply -n $namespace -f - <<EOF
+${KUBE_CMD} apply -n $namespace -f - <<EOF
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
 metadata:
@@ -44,7 +44,7 @@ EOF
 timeout=600
 sample=10
 
-oc wait --for=condition=Ready --timeout=${timeout}s dv/${TARGET}-datavolume-original -n $namespace
+${KUBE_CMD} wait --for=condition=Ready --timeout=${timeout}s dv/${TARGET}-datavolume-original -n $namespace
 
 sizes=("tiny" "small" "medium" "large")
 workloads=("desktop" "server" "highperformance")
@@ -69,8 +69,13 @@ if [[ $TARGET =~ centos7.* ]] || [[ $TARGET =~ centos8.* ]]; then
   workloads=("server" "desktop")
 fi
 
+#if [[ $TARGET =~ fedora ]]; then
+#  workloads=("desktop" "server")
+#fi
+
 delete_vm(){
   vm_name=$1
+  #local template_option
 
   local template_option=$2
 
@@ -82,7 +87,7 @@ delete_vm(){
     oc delete -n $namespace -f -
   set -e
   #wait until vm is deleted
-  while oc get -n $namespace vmi $vm_name 2> >(grep "not found") ; do sleep $sample; done
+  while ${KUBE_CMD} get -n $namespace vmi $vm_name 2> >(grep "not found") ; do sleep $sample; done
 }
 
 run_vm(){
@@ -91,7 +96,19 @@ run_vm(){
   local template_option
   running=false
 
-  set +e
+  # add cpumanager=true label to all worker nodes
+  # to allow execution of tests using high performance profiles
+  # ${KUBE_CMD} label nodes -l kubevirt.io/schedulable cpumanager=true --overwrite
+
+  if [ "${KUBE_CMD}" == "oc" ]; then
+      echo $KUBE_CMD
+      local template_name=$( ${KUBE_CMD} get -n ${namespace} -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt )
+      template_option=${template_name}
+  elif [ "${KUBE_CMD}" == "kubectl" ]; then
+      echo $KUBE_CMD
+      template_option="-f ${template_path} --local"
+      #template_local="--local"
+  fi
 
   if [ "${CLUSTERENV}" == "$ocenv" ]; then
       local template_name=$( oc get -n ${namespace} -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt )
@@ -107,14 +124,14 @@ run_vm(){
     jq 'del(.items[0].spec.dataVolumeTemplates[0].spec.pvc.accessModes) |
     .items[0].spec.dataVolumeTemplates[0].spec.pvc+= {"accessModes": ["ReadWriteOnce"]} | 
     .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
-    oc apply -n $namespace -f -
+    ${KUBE_CMD} apply -n $namespace -f -
 
     ./virtctl version
-    oc get vm $vm_name -n $namespace -oyaml
+    ${KUBE_CMD} get vm $vm_name -n $namespace -oyaml
     # start vm
     ./virtctl start $vm_name -n $namespace
 
-    oc wait --for=condition=Ready --timeout=${timeout}s vm/$vm_name -n $namespace
+    ${KUBE_CMD} wait --for=condition=Ready --timeout=${timeout}s vm/$vm_name -n $namespace
 
     ./automation/connect_to_rhel_console.exp $vm_name
     if [ $? -ne 0 ] ; then 

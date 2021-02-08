@@ -51,17 +51,17 @@ curl -Lo virtctl \
     https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VERSION/virtctl-$KUBEVIRT_VERSION-linux-amd64
 chmod +x virtctl
 
-oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
-oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
+${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
+${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
 sample=10
 current_time=0
 timeout=300
 
 # Waiting for kubevirt cr to report available
-oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $namespace
+${KUBE_CMD} wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $namespace
 
-oc apply -f - <<EOF
+${KUBE_CMD} apply -f - <<EOF
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -76,13 +76,17 @@ EOF
 key="/tmp/secrets/accessKeyId"
 token="/tmp/secrets/secretKey"
 
+if [ "${KUBE_CMD}" == "$ocenv" ]
+then
+    echo $KUBE_CMD
+
 if [ "${CLUSTERENV}" == "$ocenv" ]
 then
     if test -f "$key" && test -f "$token"; then
       id=$(cat $key | tr -d '\n' | base64)
       token=$(cat $token | tr -d '\n' | base64 | tr -d ' \n')
 
-      oc apply -n $namespace -f - <<EOF
+      $ocenv apply -n $namespace -f - <<EOF
 apiVersion: v1
 kind: Secret
 metadata:
@@ -101,12 +105,12 @@ echo "Deploying CDI"
 #            jq '.[] | select(.prerelease==false) | .tag_name' | sort -V | tail -n1 | tr -d '"')
 
 export CDI_VERSION="v1.29.0"
-oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
-oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
+${KUBE_CMD} apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
+${KUBE_CMD} apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
 
-oc wait --for=condition=Available --timeout=${timeout}s CDI/cdi -n cdi
+${KUBE_CMD} wait --for=condition=Available --timeout=${timeout}s CDI/cdi -n cdi
 
-oc apply -f - <<EOF
+${KUBE_CMD} apply -f - <<EOF
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -132,12 +136,13 @@ then
     oc wait --for=condition=Available --timeout=${timeout}s deployment/virt-template-validator -n $namespace
     # Apply templates
     echo "Deploying templates"
-    oc apply -n $namespace  -f dist/templates
+    $ocenv apply -n $namespace  -f dist/templates
 fi
 
-# add cpumanager=true label to all worker nodes
+# add cpumanager=true label to all nodes
 # to allow execution of tests using high performance profiles
-oc label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
+# ${KUBE_CMD} label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
+${KUBE_CMD} label nodes -l kubevirt.io/schedulable cpumanager=true --overwrite
 
 if [[ $TARGET =~ windows.* ]]; then
   ./automation/test-windows.sh $TARGET
