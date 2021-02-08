@@ -29,7 +29,7 @@ elif [[ $TARGET =~ fedora-test.* ]]; then
   # Inform CDI the local registry is insecure
   kubectl patch configmap cdi-insecure-registries -n cdi --type merge -p '{"data":{"mykey": "registry:5000"}}'
   # TODO: Remove after this CDI bug is fixed - https://github.com/kubevirt/containerized-data-importer/issues/1656
-  contenttype="contentType: kubevirt"
+  # contenttype="contentType: kubevirt"
 else
   image_url="docker://quay.io/kubevirt/common-templates:${TARGET}"
 fi;
@@ -40,7 +40,6 @@ kind: DataVolume
 metadata:
   name: ${TARGET}-datavolume-original
 spec:
-  ${contenttype}
   source:
     registry:
       url: "${image_url}"
