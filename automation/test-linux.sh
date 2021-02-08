@@ -26,7 +26,7 @@ else
   image_url="docker://quay.io/kubevirt/common-templates:${TARGET}"
 fi;
 
-oc apply -n $namespace -f - <<EOF
+${KUBE_CMD} apply -n $namespace -f - <<EOF
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
 metadata:
@@ -47,7 +47,7 @@ EOF
 timeout=600
 sample=10
 
-oc wait --for=condition=Ready --timeout=${timeout}s dv/${TARGET}-datavolume-original -n $namespace
+${KUBE_CMD} wait --for=condition=Ready --timeout=${timeout}s dv/${TARGET}-datavolume-original -n $namespace
 
 sizes=("tiny" "small" "medium" "large")
 workloads=("desktop" "server" "highperformance")
@@ -91,7 +91,7 @@ delete_vm(){
     oc delete -n $namespace -f -
   set -e
   #wait until vm is deleted
-  while oc get -n $namespace vmi $vm_name 2> >(grep "not found") ; do sleep $sample; done
+  while ${KUBE_CMD} get -n $namespace vmi $vm_name 2> >(grep "not found") ; do sleep $sample; done
 }
 
 run_vm(){
@@ -124,14 +124,14 @@ run_vm(){
     jq 'del(.items[0].spec.dataVolumeTemplates[0].spec.pvc.accessModes) |
     .items[0].spec.dataVolumeTemplates[0].spec.pvc+= {"accessModes": ["ReadWriteOnce"]} | 
     .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
-    oc apply -n $namespace -f -
+    ${KUBE_CMD} apply -n $namespace -f -
 
     ./virtctl version
-    oc get vm $vm_name -n $namespace -oyaml
+    ${KUBE_CMD} get vm $vm_name -n $namespace -oyaml
     # start vm
     ./virtctl start $vm_name -n $namespace
 
-    oc wait --for=condition=Ready --timeout=${timeout}s vm/$vm_name -n $namespace
+    ${KUBE_CMD} wait --for=condition=Ready --timeout=${timeout}s vm/$vm_name -n $namespace
 
     ./automation/connect_to_rhel_console.exp $vm_name
     if [ $? -ne 0 ] ; then 
