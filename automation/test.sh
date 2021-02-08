@@ -51,17 +51,17 @@ curl -Lo virtctl \
     https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VERSION/virtctl-$KUBEVIRT_VERSION-linux-amd64
 chmod +x virtctl
 
-oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
-oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
+${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
+${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
 sample=10
 current_time=0
 timeout=300
 
 # Waiting for kubevirt cr to report available
-oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $namespace
+${KUBE_CMD} wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $namespace
 
-oc apply -f - <<EOF
+${KUBE_CMD} apply -f - <<EOF
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -101,12 +101,12 @@ echo "Deploying CDI"
 #            jq '.[] | select(.prerelease==false) | .tag_name' | sort -V | tail -n1 | tr -d '"')
 
 export CDI_VERSION="v1.29.0"
-oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
-oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
+${KUBE_CMD} apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
+${KUBE_CMD} apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
 
-oc wait --for=condition=Available --timeout=${timeout}s CDI/cdi -n cdi
+${KUBE_CMD} wait --for=condition=Available --timeout=${timeout}s CDI/cdi -n cdi
 
-oc apply -f - <<EOF
+${KUBE_CMD} apply -f - <<EOF
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
