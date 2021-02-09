@@ -96,8 +96,10 @@ objects:
 {% if cpumodel |default("") %}
             model: {{ cpumodel }}
 {% endif %}
-{% if item.emulatorthread %}
+{% if item.iothreads or item.emulatorthread %}
             dedicatedCpuPlacement: True
+{% endif %}
+{% if item.emulatorthread %}
             isolateEmulatorThread: True
 {% endif %}
           resources:
@@ -116,6 +118,9 @@ objects:
             - disk:
                 bus: {{ diskbus | default("virtio") }}
               name: ${NAME}
+{% if item.iothreads %}
+              dedicatedIOThread: true
+{% endif %}
             - disk:
                 bus: {{ diskbus | default("virtio") }}
               name: cloudinitdisk
