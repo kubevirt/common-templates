@@ -15,6 +15,7 @@ import subprocess
 
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
+from pathlib import Path
 
 try:
     from builtins import int
@@ -28,7 +29,11 @@ from gi.repository import Libosinfo as osinfo
 loader = osinfo.Loader()
 #loader.process_default_path()
 loader.process_path("osinfo-db/data")
-loader.process_path("osinfo-db-override")
+
+override = "osinfo-db-override"
+if Path(override).exists():
+    loader.process_path(override)
+
 db = loader.get_db()
 
 class OsInfoGObjectProxy(object):
