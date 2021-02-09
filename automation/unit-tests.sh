@@ -3,7 +3,7 @@ set -ex
 make generate
 
 #syntax check
-templates=( dist/templates/* )
+templates=`ls dist/templates/*`
 namespace="kubevirt"
 
 oc apply -f - <<EOF
@@ -15,6 +15,12 @@ EOF
 
 oc project $namespace
 
+echo "Printing templates to stdout for debugging"
+for template in $templates; do
+    cat "$template"
+done
+
+echo "Processing all templates to find syntax issues"
 for template in $templates; do
     oc process -f "$template" NAME=test SRC_PVC_NAME=test || exit 1;
 done
