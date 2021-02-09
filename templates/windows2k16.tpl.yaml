@@ -117,6 +117,12 @@ objects:
             sockets: {{ item.cpus }}
             cores: 1
             threads: 1
+{% if item.iothreads or item.emulatorthread %}
+            dedicatedCpuPlacement: True
+{% endif %}
+{% if item.emulatorthread %}
+            isolateEmulatorThread: True
+{% endif %}
           resources:
             requests:
               memory: {{ item.memsize }}
