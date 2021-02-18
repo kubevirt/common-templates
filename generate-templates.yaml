@@ -218,7 +218,7 @@
       icon: ubuntu
       majorrelease: ubuntu
       oslabels:
-       - ubuntu18.04
+       - ubuntu20.04
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: ubuntu
 
