@@ -81,9 +81,7 @@ run_vm(){
   local template_name=$( oc get -n ${namespace} -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt )
   running=false
 
-  # add cpumanager=true label to all worker nodes
-  # to allow execution of tests using high performance profiles
-  oc label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
+  set +e
 
   #If first try fails, it tries 2 more time to run it, before it fails whole test
   for i in `seq 1 3`; do
@@ -101,12 +99,10 @@ run_vm(){
 
     oc wait --for=condition=Ready --timeout=${timeout}s vm/$vm_name -n $namespace
 
-    set +e
     ./automation/connect_to_rhel_console.exp $vm_name
     if [ $? -ne 0 ] ; then 
       error=true
     fi
-    set -e
   
     delete_vm $vm_name $template_name
     #no error were observed, the vm is running
@@ -115,6 +111,8 @@ run_vm(){
       break
     fi
   done
+  
+  set -e
 
   if ! $running ; then
     exit 1 
