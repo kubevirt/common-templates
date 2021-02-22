@@ -47,8 +47,9 @@ set +e
 python3 automation/validate-pvc-name-stability.py
 RC=${?}
 set -e
+echo "[Upgrade][test_id:5749] Validation of PVC name stability"
 if [ ${RC} -ne 0 ];then
-  echo "[Upgrade] Validation of PVC name stability failed"
+  echo "[Upgrade][test_id:5749] Validation of PVC name stability failed"
   exit ${RC}
 fi
 
