@@ -124,6 +124,10 @@ oc apply -n kubevirt -f kubevirt-template-validator/cluster/ocp4
 
 oc wait --for=condition=Available --timeout=${timeout}s deployment/virt-template-validator -n $namespace
 
+# add cpumanager=true label to all worker nodes
+# to allow execution of tests using high performance profiles
+oc label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
+
 # Apply templates
 echo "Deploying templates"
 oc apply -n $namespace  -f dist/templates
