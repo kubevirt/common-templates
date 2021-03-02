@@ -74,7 +74,7 @@ jobs:
           # Update the new common-templates file
           cp ../dist/${SRC_TEMPLATES_FILE} data/common-templates-bundle/${DST_TEMPLATES_FILE}
           cp ../dist/${SRC_TEMPLATES_FILE} internal/operands/common-templates/data/common-templates-bundle/${DST_TEMPLATES_FILE}
-          sed -i 's@Version.*@Version = '\"${VERSION}\"'@g' internal/operands/common-templates/resource.go
+          sed -i "s/\bVersion\s*=.*/Version = \"${VERSION}\"/g" internal/operands/common-templates/version.go
           go fmt ./...
 
           # Commit and push the changes to the update branch
