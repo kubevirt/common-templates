@@ -26,7 +26,7 @@ jobs:
           docker run \
             -v "$(pwd)":/common-templates \
             common-templates-ci \
-            /bin/bash -c "cd /common-templates && export REVISION=1 && make release"
+            /bin/bash -c "cd /common-templates && export REVISION=1 VERSION="${{ steps.get_release.outputs.tag_name }}" && make release"
 
       - name: Upload Release Asset
         id: upload-bundle-asset
