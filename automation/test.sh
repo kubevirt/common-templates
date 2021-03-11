@@ -31,6 +31,7 @@ _curl() {
 export KUBEVIRT_VERSION=$(_curl -L https://api.github.com/repos/kubevirt/kubevirt/releases | \
             jq '.[] | select(.prerelease==false) | .name' | sort -V | tail -n1 | tr -d '"')
 
+
 ocenv="oc"
 k8senv="kubectl"
 
@@ -105,6 +106,7 @@ echo "Deploying CDI"
 #            jq '.[] | select(.prerelease==false) | .tag_name' | sort -V | tail -n1 | tr -d '"')
 
 export CDI_VERSION="v1.29.0"
+
 ${KUBE_CMD} apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
 ${KUBE_CMD} apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
 
@@ -123,6 +125,7 @@ rules:
   verbs: ["*"]
 ---
 EOF
+
 
 if [ "${KUBE_CMD}" == "$ocenv" ]
 then

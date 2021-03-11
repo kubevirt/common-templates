@@ -37,6 +37,8 @@ FEDORA_OLD_VERSION=`echo "$image_tag" | tr -d '"'`
 echo "Fedora version in the Image Registry is : ${FEDORA_OLD_VERSION}"
 
 if [ -z "$image_tag" ]; then
+
+
     #error_message 3
     echo -e "No Container Image found in the registry"
 fi
