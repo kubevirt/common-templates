@@ -1,0 +1,98 @@
+on:
+  release:
+    types: [published]
+
+name: Publish Bundle
+
+jobs:
+  build:
+    name: Publish Bundle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Get Release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+
+      - name: Generate Bundle
+        run: |
+          git submodule init
+          git submodule update
+          docker build -t common-templates-ci ./builder/
+          docker run \
+            -v "$(pwd)":/common-templates \
+            common-templates-ci \
+            /bin/bash -c "cd /common-templates && export REVISION=1 VERSION="${{ steps.get_release.outputs.tag_name }}" && make release"
+
+      - name: Upload Release Asset
+        id: upload-bundle-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./dist/common-templates.yaml
+          asset_name: common-templates.yaml
+          asset_content_type: text/plain
+
+      - name: Install golang
+        uses: actions/setup-go@v2
+
+      - name: Update SSP Operator
+        run: |
+          # Define vars
+          export VERSION="${{ steps.get_release.outputs.tag_name }}"
+          export SRC_TEMPLATES_FILE=common-templates.yaml
+          export DST_TEMPLATES_FILE=common-templates-${VERSION}.yaml
+
+          # If GITHUB_FORK_USER is changed, a new access token should be set as a repo secret (ACTIONS_TOKEN)
+          export GITHUB_FORK_USER=omeryahud
+
+          # Set git configs to sign the commit
+          git config --global user.email "oyahud@redhat.com"
+          git config --global user.name "Common-templates Release Automation"
+
+          # Clone the operator repo with a token to allow pushing before creating a PR
+          git clone https://${GITHUB_FORK_USER}:${{ secrets.ACTIONS_TOKEN }}@github.com/${GITHUB_FORK_USER}/ssp-operator
+
+          # Authenticate with gh cli
+          echo ${{ secrets.ACTIONS_TOKEN }} > token.txt
+          gh auth login --with-token < token.txt
+          rm token.txt
+
+          cd ssp-operator
+          git remote add upstream https://github.com/kubevirt/ssp-operator
+          git fetch upstream
+          git checkout master
+          git rebase upstream/master
+          git checkout -b update-common-templates-${VERSION}
+
+          # Update the new common-templates file
+          cp ../dist/${SRC_TEMPLATES_FILE} data/common-templates-bundle/${DST_TEMPLATES_FILE}
+          cp ../dist/${SRC_TEMPLATES_FILE} internal/operands/common-templates/data/common-templates-bundle/${DST_TEMPLATES_FILE}
+          sed -i "s/\bVersion\s*=.*/Version = \"${VERSION}\"/g" internal/operands/common-templates/version.go
+          go fmt ./...
+
+          # Commit and push the changes to the update branch
+          git add data internal
+          git commit -sm "Update common-templates bundle to version ${VERSION}"
+          git push --set-upstream origin update-common-templates-${VERSION}
+
+          # Create a new PR in the operator repo
+          gh pr create --repo kubevirt/ssp-operator \
+            --base master \
+            --head ${GITHUB_FORK_USER}:update-common-templates-${VERSION} \
+            --title "Update common-templates to ${VERSION}" \
+            --body "$(cat << EOF
+          Update common-templates bundle to ${VERSION} 
+          **Release note**:
+          \`\`\`release-note
+          Update common-templates bundle to ${VERSION}
+          \`\`\`
+          EOF
+          )
+          "

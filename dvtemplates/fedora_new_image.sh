@@ -16,15 +16,17 @@ error_message() {
 trap 'error_message $?' EXIT
 
 #TODO : change it to https://quay.io/containerdisks/fedora_images ?
-FEDORA_REPO="quay.io/shwetaap/fedora_images"
-BASE_URL=https://download.fedoraproject.org/pub/fedora/linux/releases/
+#FEDORA_REPO="quay.io/shwetaap/fedora_images"
+#FEDORA_REPO=$1
+#BASE_URL=https://download.fedoraproject.org/pub/fedora/linux/releases/
 
-wget -qO index.html $BASE_URL || exit 1
-FEDORA_VERSION=`cat index.html | sed -e 's/.*>\(.*\)\/<.*/\1/' | sort -rn | head -n 1`
-version_len=`echo ${FEDORA_VERESION} | wc -w`
-if [ $version_len -gt 1 ]; then
-    error_message 2
-fi
+#wget -qO index.html $BASE_URL || exit 1
+#FEDORA_VERSION=`cat index.html | sed -e 's/.*>\(.*\)\/<.*/\1/' | sort -rn | head -n 1`
+#version_len=`echo ${FEDORA_VERESION} | wc -w`
+#if [ $version_len -gt 1 ]; then
+#    error_message 2
+#fi
+
 echo "Latest Fedora version is : ${FEDORA_VERSION}"
 
 # Fetch the old image
@@ -35,7 +37,10 @@ FEDORA_OLD_VERSION=`echo "$image_tag" | tr -d '"'`
 echo "Fedora version in the Image Registry is : ${FEDORA_OLD_VERSION}"
 
 if [ -z "$image_tag" ]; then
-    error_message 3
+
+
+    #error_message 3
+    echo -e "No Container Image found in the registry"
 fi
 
 # ToDo If we need to check the qcow disk image frp, within the container Disk Image

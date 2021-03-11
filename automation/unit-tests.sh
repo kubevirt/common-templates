@@ -3,7 +3,7 @@ set -ex
 make generate
 
 #syntax check
-templates=( dist/templates/* )
+templates=`ls dist/templates/*`
 namespace="kubevirt"
 
 oc apply -f - <<EOF
@@ -15,6 +15,12 @@ EOF
 
 oc project $namespace
 
+echo "Printing templates to stdout for debugging"
+for template in $templates; do
+    cat "$template"
+done
+
+echo "Processing all templates to find syntax issues"
 for template in $templates; do
     oc process -f "$template" NAME=test SRC_PVC_NAME=test || exit 1;
 done
@@ -47,8 +53,9 @@ set +e
 python3 automation/validate-pvc-name-stability.py
 RC=${?}
 set -e
+echo "[Upgrade][test_id:5749] Validation of PVC name stability"
 if [ ${RC} -ne 0 ];then
-  echo "[Upgrade] Validation of PVC name stability failed"
+  echo "[Upgrade][test_id:5749] Validation of PVC name stability failed"
   exit ${RC}
 fi
 

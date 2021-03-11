@@ -144,13 +144,20 @@ objects:
               runtime: {}
               reset: {}
           devices:
+{% if item.multiqueue %}
+            networkInterfaceMultiqueue: True
+{% endif %}
             disks:
             - disk:
                 bus: sata
               name: ${NAME}
             interfaces:
             - masquerade: {}
+{% if item.multiqueue %}
+              model: virtio
+{% else %}
               model: e1000e
+{% endif %}
               name: default
 {% if item.tablet %}
             inputs:
