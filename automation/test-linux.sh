@@ -4,6 +4,8 @@ set -ex
 
 template_name=$1
 namespace="kubevirt"
+#template_local=""
+#template_option=$template_name
 
 #template_local=""
 #template_option=$template_name
@@ -14,9 +16,7 @@ secret_ref=""
 if [[ $TARGET =~ rhel.* ]]; then
   image_url="docker://quay.io/openshift-cnv/ci-common-templates-images:${TARGET}"
   secret_ref="secretRef: common-templates-container-disk-puller"
-
 elif [[ $TARGET =~ refresh-image-fedora-test.* ]]; then
-
   #dnscont=k8s-1.20-dnsmasq
   #port=$(docker port $dnscont 5000 | awk -F : '{ print $2 }')
   #echo $port
@@ -26,7 +26,6 @@ elif [[ $TARGET =~ refresh-image-fedora-test.* ]]; then
   # Inform CDI the local registry is insecure
 
   ${KUBE_CMD} patch configmap cdi-insecure-registries -n cdi --type merge -p '{"data":{"mykey": "registry:5000"}}'
-
   # TODO: Remove after this CDI bug is fixed - https://github.com/kubevirt/containerized-data-importer/issues/1656
   # contenttype="contentType: kubevirt"
 else
@@ -85,7 +84,6 @@ fi
 
 delete_vm(){
   vm_name=$1
-
   #local template_option
 
   #if [ "${KUBE_CMD}" == "oc" ]; then
@@ -101,9 +99,7 @@ delete_vm(){
   #stop vm
   ./virtctl stop $vm_name -n $namespace
   #delete vm
-
   oc process $2 -n $namespace -o json NAME=$vm_name SRC_PVC_NAME=$TARGET-datavolume-original SRC_PVC_NAMESPACE=kubevirt | \
-
     ${KUBE_CMD} delete -n $namespace -f -
   set -e
   #wait until vm is deleted
@@ -113,13 +109,13 @@ delete_vm(){
 run_vm(){
   vm_name=$1
   template_path="dist/templates/$vm_name.yaml"
-
   local template_option
   running=false
 
   # add cpumanager=true label to all worker nodes
   # to allow execution of tests using high performance profiles
-  ${KUBE_CMD} label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
+  # ${KUBE_CMD} label nodes -l kubevirt.io/schedulable cpumanager=true --overwrite
+
 
   if [ "${KUBE_CMD}" == "oc" ]; then
       echo $KUBE_CMD
@@ -134,7 +130,6 @@ run_vm(){
   #If first try fails, it tries 2 more time to run it, before it fails whole test
   for i in `seq 1 3`; do
     error=false
-
     oc process ${template_option} -n $namespace -o json NAME=$vm_name SRC_PVC_NAME=$TARGET-datavolume-original SRC_PVC_NAMESPACE=kubevirt | \
     jq 'del(.items[0].spec.dataVolumeTemplates[0].spec.pvc.accessModes) |
     .items[0].spec.dataVolumeTemplates[0].spec.pvc+= {"accessModes": ["ReadWriteOnce"]} | 
@@ -161,7 +156,6 @@ run_vm(){
 #	echo $KUBE_CMD
  #       delete_vm $vm_name $template_option
   #  fi
-
     #no error were observed, the vm is running
     if ! $error ; then
       running=true

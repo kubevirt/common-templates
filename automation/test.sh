@@ -31,7 +31,6 @@ _curl() {
 export KUBEVIRT_VERSION=$(_curl -L https://api.github.com/repos/kubevirt/kubevirt/releases | \
             jq '.[] | select(.prerelease==false) | .name' | sort -V | tail -n1 | tr -d '"')
 
-
 ocenv="oc"
 k8senv="kubectl"
 
@@ -126,7 +125,6 @@ rules:
 ---
 EOF
 
-
 if [ "${KUBE_CMD}" == "$ocenv" ]
 then
     echo $KUBE_CMD
@@ -143,9 +141,10 @@ then
     $ocenv apply -n $namespace  -f dist/templates
 fi
 
-# add cpumanager=true label to all worker nodes
+# add cpumanager=true label to all nodes
 # to allow execution of tests using high performance profiles
-${KUBE_CMD} label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
+# ${KUBE_CMD} label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
+${KUBE_CMD} label nodes -l kubevirt.io/schedulable cpumanager=true --overwrite
 
 if [[ $TARGET =~ windows.* ]]; then
   ./automation/test-windows.sh $TARGET
