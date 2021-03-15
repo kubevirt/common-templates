@@ -45,6 +45,7 @@ FEDORA_VERSION=`cat index.html | sed -e 's/.*>\(.*\)\/<.*/\1/' | sort -rn | head
 #if [ $version_len -gt 1 ]; then
 #    error_message 2
 #fi
+
 re='^ *[0-9]+ *$'
 if ! [[ $FEDORA_VERSION =~ $re ]] ; then
     error_message 2

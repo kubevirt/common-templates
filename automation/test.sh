@@ -105,6 +105,7 @@ echo "Deploying CDI"
 #            jq '.[] | select(.prerelease==false) | .tag_name' | sort -V | tail -n1 | tr -d '"')
 
 export CDI_VERSION="v1.29.0"
+
 ${KUBE_CMD} apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
 ${KUBE_CMD} apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
 

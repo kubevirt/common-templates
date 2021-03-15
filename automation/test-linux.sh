@@ -7,6 +7,9 @@ namespace="kubevirt"
 #template_local=""
 #template_option=$template_name
 
+#template_local=""
+#template_option=$template_name
+
 image_url=""
 #set secret_ref only for rhel OSes
 secret_ref=""
@@ -21,6 +24,7 @@ elif [[ $TARGET =~ refresh-image-fedora-test.* ]]; then
   # Local Insecure registry created by kubevirtci
   image_url="docker://registry:5000/disk"
   # Inform CDI the local registry is insecure
+
   ${KUBE_CMD} patch configmap cdi-insecure-registries -n cdi --type merge -p '{"data":{"mykey": "registry:5000"}}'
   # TODO: Remove after this CDI bug is fixed - https://github.com/kubevirt/containerized-data-importer/issues/1656
   # contenttype="contentType: kubevirt"
@@ -111,6 +115,7 @@ run_vm(){
   # add cpumanager=true label to all worker nodes
   # to allow execution of tests using high performance profiles
   # ${KUBE_CMD} label nodes -l kubevirt.io/schedulable cpumanager=true --overwrite
+
 
   if [ "${KUBE_CMD}" == "oc" ]; then
       echo $KUBE_CMD
