@@ -21,22 +21,30 @@ error_message() {
 
 trap 'error_message $?' EXIT
 
-host=$(hostname)
-echo $host
-dnscont=k8s-1.20-dnsmasq
-port=$(docker port $dnscont 5000 | awk -F : '{ print $2 }')
-echo $port
-cat > /etc/docker/daemon.json << EOF
-{
-    "live-restore": true,
-    "insecure-registries": ["$host:$port"]
-}
-EOF
-service docker restart
+#host=$(hostname)
+#echo $host
+#dnscont=k8s-1.20-dnsmasq
+#port=$(docker port $dnscont 5000 | awk -F : '{ print $2 }')
+#echo $port
+port=5000
+### Ignore this
+#cat > /etc/docker/daemon.json << EOF
+#{
+#    "live-restore": true,
+#    "insecure-registries": ["$host:$port"]
+#}
+#EOF
+###
+#cat > /etc/docker/daemon.json << EOF
+#{
+#    "live-restore": true,
+#    "insecure-registries": ["localhost:$port"]
+#}
+#EOF
+#service docker restart
 
-#TODO : change it to https://quay.io/containerdisks/fedora_images ?
-FEDORA_REPO="quay.io/shwetaap/fedora_images"
-#FEDORA_REPO=$1
+#set the final registry to hold the fedora images
+FEDORA_REPO="quay.io/kubevirt/fedora-images"
 BASE_URL=https://download.fedoraproject.org/pub/fedora/linux/releases/
 
 wget -qO index.html $BASE_URL || exit 1
@@ -86,8 +94,10 @@ URL=${IMAGE_URL}${FEDORA_IMAGE}
 wget -q --show-progress $URL || exit 3
 echo -e "Successfully downloaded new Fedora $FEDORA_VERSION image"
 
-docker build . -t ${host}:${port}/disk
-docker push ${host}:${port}/disk || exit 5
+#docker build . -t ${host}:${port}/disk
+#docker push ${host}:${port}/disk || exit 5
+docker build . -t localhost:${port}/disk
+docker push localhost:${port}/disk || exit 5
        # if [ $? -ne 0 ]; then
        #     echo -e "Unable to push the image to the local registry"
        #     exit 1
@@ -105,8 +115,9 @@ export TARGET=refresh-image-fedora-test && export KUBE_CMD=kubectl
 ./automation/test.sh || exit 7
 #
 # If testing passes push the new image to the final Image registry
-cat $QUAY_PASSWORD | docker login --username $(cat $QUAY_USER) --password-stdin=true quay.io
-docker tag ${host}:${port}/disk $FEDORA_REPO:$FEDORA_VERSION
+#cat $QUAY_PASSWORD | docker login --username $(cat $QUAY_USER) --password-stdin=true quay.io
+#docker tag ${host}:${port}/disk $FEDORA_REPO:$FEDORA_VERSION
+docker tag localhost:${port}/disk $FEDORA_REPO:$FEDORA_VERSION
 docker push $FEDORA_REPO:$FEDORA_VERSION || exit 6
     #if [ $? -ne 0 ]; then
     #    echo -e "Unable to push the image to the quay registry"
