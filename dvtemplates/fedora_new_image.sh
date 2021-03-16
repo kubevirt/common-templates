@@ -43,9 +43,8 @@ port=5000
 #EOF
 #service docker restart
 
-#TODO : change it to https://quay.io/containerdisks/fedora_images ?
-FEDORA_REPO="quay.io/shwetaap/fedora_images"
-#FEDORA_REPO=$1
+#set the final registry to hold the fedora images
+FEDORA_REPO="quay.io/kubevirt/fedora-images"
 BASE_URL=https://download.fedoraproject.org/pub/fedora/linux/releases/
 
 wget -qO index.html $BASE_URL || exit 1
