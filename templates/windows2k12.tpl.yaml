@@ -136,7 +136,8 @@ objects:
               spinlocks:
                 spinlocks: 8191
               synic: {}
-              synictimer: {}
+              synictimer:
+                direct: {}
               tlbflush: {}
               frequencies: {}
               reenlightenment: {}
