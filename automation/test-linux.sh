@@ -10,6 +10,9 @@ namespace="kubevirt"
 #template_local=""
 #template_option=$template_name
 
+ocenv="OC"
+k8senv="K8s"
+
 image_url=""
 #set secret_ref only for rhel OSes
 secret_ref=""
@@ -24,15 +27,14 @@ elif [[ $TARGET =~ refresh-image-fedora-test.* ]]; then
   # Local Insecure registry created by kubevirtci
   image_url="docker://registry:5000/disk"
   # Inform CDI the local registry is insecure
-
-  ${KUBE_CMD} patch configmap cdi-insecure-registries -n cdi --type merge -p '{"data":{"mykey": "registry:5000"}}'
+  oc patch configmap cdi-insecure-registries -n cdi --type merge -p '{"data":{"mykey": "registry:5000"}}'
   # TODO: Remove after this CDI bug is fixed - https://github.com/kubevirt/containerized-data-importer/issues/1656
   # contenttype="contentType: kubevirt"
 else
   image_url="docker://quay.io/kubevirt/common-templates:${TARGET}"
 fi;
 
-${KUBE_CMD} apply -n $namespace -f - <<EOF
+oc apply -n $namespace -f - <<EOF
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
 metadata:
@@ -53,7 +55,7 @@ EOF
 timeout=600
 sample=10
 
-${KUBE_CMD} wait --for=condition=Ready --timeout=${timeout}s dv/${TARGET}-datavolume-original -n $namespace
+oc wait --for=condition=Ready --timeout=${timeout}s dv/${TARGET}-datavolume-original -n $namespace
 
 sizes=("tiny" "small" "medium" "large")
 workloads=("desktop" "server" "highperformance")
@@ -84,7 +86,8 @@ fi
 
 delete_vm(){
   vm_name=$1
-  #local template_option
+
+  local template_option=$2
 
   #if [ "${KUBE_CMD}" == "oc" ]; then
   #    echo $KUBE_CMD
@@ -99,11 +102,11 @@ delete_vm(){
   #stop vm
   ./virtctl stop $vm_name -n $namespace
   #delete vm
-  oc process $2 -n $namespace -o json NAME=$vm_name SRC_PVC_NAME=$TARGET-datavolume-original SRC_PVC_NAMESPACE=kubevirt | \
-    ${KUBE_CMD} delete -n $namespace -f -
+  oc process ${template_option} -n $namespace -o json NAME=$vm_name SRC_PVC_NAME=$TARGET-datavolume-original SRC_PVC_NAMESPACE=kubevirt | \
+    oc delete -n $namespace -f -
   set -e
   #wait until vm is deleted
-  while ${KUBE_CMD} get -n $namespace vmi $vm_name 2> >(grep "not found") ; do sleep $sample; done
+  while oc get -n $namespace vmi $vm_name 2> >(grep "not found") ; do sleep $sample; done
 }
 
 run_vm(){
@@ -112,17 +115,14 @@ run_vm(){
   local template_option
   running=false
 
-  # add cpumanager=true label to all worker nodes
-  # to allow execution of tests using high performance profiles
-  # ${KUBE_CMD} label nodes -l kubevirt.io/schedulable cpumanager=true --overwrite
+  set +e
 
-
-  if [ "${KUBE_CMD}" == "oc" ]; then
-      echo $KUBE_CMD
-      local template_name=$( ${KUBE_CMD} get -n ${namespace} -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt )
+  if [ "${CLUSTERENV}" == "$ocenv" ]; then
+      echo ${CLUSTERENV}
+      local template_name=$( oc get -n ${namespace} -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt )
       template_option=${template_name}
-  elif [ "${KUBE_CMD}" == "kubectl" ]; then
-      echo $KUBE_CMD
+  elif [ "${CLUSTERENV}" == "$k8senv" ]; then
+      echo ${CLUSTERENV}
       template_option="-f ${template_path} --local"
       #template_local="--local"
   fi
@@ -134,14 +134,14 @@ run_vm(){
     jq 'del(.items[0].spec.dataVolumeTemplates[0].spec.pvc.accessModes) |
     .items[0].spec.dataVolumeTemplates[0].spec.pvc+= {"accessModes": ["ReadWriteOnce"]} | 
     .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
-    ${KUBE_CMD} apply -n $namespace -f -
+    oc apply -n $namespace -f -
 
     ./virtctl version
-    ${KUBE_CMD} get vm $vm_name -n $namespace -oyaml
+    oc get vm $vm_name -n $namespace -oyaml
     # start vm
     ./virtctl start $vm_name -n $namespace
 
-    ${KUBE_CMD} wait --for=condition=Ready --timeout=${timeout}s vm/$vm_name -n $namespace
+    oc wait --for=condition=Ready --timeout=${timeout}s vm/$vm_name -n $namespace
 
     ./automation/connect_to_rhel_console.exp $vm_name
     if [ $? -ne 0 ] ; then 
