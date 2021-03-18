@@ -51,17 +51,17 @@ curl -Lo virtctl \
     https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VERSION/virtctl-$KUBEVIRT_VERSION-linux-amd64
 chmod +x virtctl
 
-${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
-${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
+oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
+oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
 sample=10
 current_time=0
 timeout=300
 
 # Waiting for kubevirt cr to report available
-${KUBE_CMD} wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $namespace
+oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $namespace
 
-${KUBE_CMD} apply -f - <<EOF
+oc apply -f - <<EOF
 ---
 apiVersion: v1
 kind: ConfigMap
