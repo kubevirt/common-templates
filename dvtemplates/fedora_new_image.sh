@@ -111,7 +111,7 @@ cd ${PWD}/../;
 curl https://mirror.openshift.com/pub/openshift-v4/clients/oc/4.4/linux/oc.tar.gz | tar -C . -xzf -
 chmod +x oc
 mv oc /usr/bin
-export TARGET=refresh-image-fedora-test && export KUBE_CMD=kubectl
+export TARGET=refresh-image-fedora-test && export CLUSTERENV=K8s
 ./automation/test.sh || exit 7
 #
 # If testing passes push the new image to the final Image registry
