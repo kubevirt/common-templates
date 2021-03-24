@@ -35,17 +35,7 @@ ocenv="OC"
 
 if [ -z "$CLUSTERENV" ]
 then
-<<<<<<< HEAD
-<<<<<<< HEAD
     export CLUSTERENV=$ocenv
-=======
-    export KUBE_CMD="oc"
-    echo $KUBE_CMD
->>>>>>> 043adaf... Modify test scripts to run in both K8s and Openshift environments
-=======
-    export CLUSTERENV=$ocenv
-    echo $CLUSTERENV
->>>>>>> 62f753a... Revert back to using oc client
 fi
 
 git submodule update --init
@@ -64,15 +54,6 @@ chmod +x virtctl
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
-<<<<<<< HEAD
-=======
-if [ "${KUBE_CMD}" == "oc" ]
-then
-    echo $KUBE_CMD
-    ${KUBE_CMD} project $namespace
-fi
-
->>>>>>> 043adaf... Modify test scripts to run in both K8s and Openshift environments
 sample=10
 current_time=0
 timeout=300
@@ -92,24 +73,8 @@ data:
 ---
 EOF
 
-<<<<<<< HEAD
 key="/tmp/secrets/accessKeyId"
 token="/tmp/secrets/secretKey"
-
-if [ "${CLUSTERENV}" == "$ocenv" ]
-then
-<<<<<<< HEAD
-    echo $KUBE_CMD
-=======
-if [ "${KUBE_CMD}" == "oc" ]
-then
-    echo $KUBE_CMD
-    key="/tmp/secrets/accessKeyId"
-    token="/tmp/secrets/secretKey"
->>>>>>> 043adaf... Modify test scripts to run in both K8s and Openshift environments
-=======
-    echo $CLUSTERENV
->>>>>>> 62f753a... Revert back to using oc client
 
 if [ "${CLUSTERENV}" == "$ocenv" ]
 then

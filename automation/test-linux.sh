@@ -7,9 +7,6 @@ namespace="kubevirt"
 ocenv="OC"
 k8senv="K8s"
 
-ocenv="OC"
-k8senv="K8s"
-
 image_url=""
 #set secret_ref only for rhel OSes
 secret_ref=""
@@ -72,10 +69,6 @@ if [[ $TARGET =~ centos7.* ]] || [[ $TARGET =~ centos8.* ]]; then
   workloads=("server" "desktop")
 fi
 
-#if [[ $TARGET =~ fedora ]]; then
-#  workloads=("desktop" "server")
-#fi
-
 delete_vm(){
   vm_name=$1
 
@@ -97,9 +90,6 @@ run_vm(){
   template_path="dist/templates/$vm_name.yaml"
   local template_option
   running=false
-
-  # add cpumanager=true label to all worker nodes
-  # to allow execution of tests using high performance profiles
 
   if [ "${CLUSTERENV}" == "$ocenv" ]; then
       local template_name=$( oc get -n ${namespace} -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt )
