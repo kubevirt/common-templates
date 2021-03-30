@@ -31,6 +31,13 @@ _curl() {
 export KUBEVIRT_VERSION=$(_curl -L https://api.github.com/repos/kubevirt/kubevirt/releases | \
             jq '.[] | select(.prerelease==false) | .name' | sort -V | tail -n1 | tr -d '"')
 
+ocenv="OC"
+
+if [ -z "$CLUSTERENV" ]
+then
+    export CLUSTERENV=$ocenv
+fi
+
 git submodule update --init
 
 make generate
@@ -46,8 +53,6 @@ chmod +x virtctl
 
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
-
-oc project $namespace
 
 sample=10
 current_time=0
@@ -71,11 +76,13 @@ EOF
 key="/tmp/secrets/accessKeyId"
 token="/tmp/secrets/secretKey"
 
-if test -f "$key" && test -f "$token"; then
-  id=$(cat $key | tr -d '\n' | base64)
-  token=$(cat $token | tr -d '\n' | base64 | tr -d ' \n')
+if [ "${CLUSTERENV}" == "$ocenv" ]
+then
+    if test -f "$key" && test -f "$token"; then
+      id=$(cat $key | tr -d '\n' | base64)
+      token=$(cat $token | tr -d '\n' | base64 | tr -d ' \n')
 
-  oc apply -n $namespace -f - <<EOF
+      oc apply -n $namespace -f - <<EOF
 apiVersion: v1
 kind: Secret
 metadata:
@@ -87,8 +94,8 @@ data:
   accessKeyId: "${id}"
   secretKey: "${token}"
 EOF
+    fi
 fi
-
 echo "Deploying CDI"
 #export CDI_VERSION=$(curl -s https://api.github.com/repos/kubevirt/containerized-data-importer/releases | \
 #            jq '.[] | select(.prerelease==false) | .tag_name' | sort -V | tail -n1 | tr -d '"')
@@ -113,24 +120,24 @@ rules:
 ---
 EOF
 
-export VALIDATOR_VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt-template-validator/releases | \
+if [ "${CLUSTERENV}" == "$ocenv" ]
+then
+    export VALIDATOR_VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt-template-validator/releases | \
             jq '.[] | select(.prerelease==false) | .tag_name' | sort -V | tail -n1 | tr -d '"')
 
-git clone -b ${VALIDATOR_VERSION} --depth 1 https://github.com/kubevirt/kubevirt-template-validator kubevirt-template-validator
-
-sed -i 's/RELEASE_TAG/'$VALIDATOR_VERSION'/' kubevirt-template-validator/cluster/ocp4/service.yaml
-
-oc apply -n kubevirt -f kubevirt-template-validator/cluster/ocp4
-
-oc wait --for=condition=Available --timeout=${timeout}s deployment/virt-template-validator -n $namespace
+    git clone -b ${VALIDATOR_VERSION} --depth 1 https://github.com/kubevirt/kubevirt-template-validator kubevirt-template-validator
+    VALIDATOR_DIR="kubevirt-template-validator/cluster/ocp4"
+    sed -i 's/RELEASE_TAG/'$VALIDATOR_VERSION'/' ${VALIDATOR_DIR}/service.yaml
+    oc apply -n kubevirt -f ${VALIDATOR_DIR}
+    oc wait --for=condition=Available --timeout=${timeout}s deployment/virt-template-validator -n $namespace
+    # Apply templates
+    echo "Deploying templates"
+    oc apply -n $namespace  -f dist/templates
+fi
 
 # add cpumanager=true label to all worker nodes
 # to allow execution of tests using high performance profiles
 oc label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
-
-# Apply templates
-echo "Deploying templates"
-oc apply -n $namespace  -f dist/templates
 
 if [[ $TARGET =~ windows.* ]]; then
   ./automation/test-windows.sh $TARGET
