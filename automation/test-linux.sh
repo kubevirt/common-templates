@@ -69,6 +69,10 @@ if [[ $TARGET =~ centos7.* ]] || [[ $TARGET =~ centos8.* ]]; then
   workloads=("server" "desktop")
 fi
 
+#if [[ $TARGET =~ fedora ]]; then
+#  workloads=("desktop" "server")
+#fi
+
 delete_vm(){
   vm_name=$1
 
@@ -96,6 +100,16 @@ run_vm(){
       template_option=${template_name}
   elif [ "${CLUSTERENV}" == "$k8senv" ]; then
       template_option="-f ${template_path} --local"
+  fi
+
+  if [ "${CLUSTERENV}" == "$ocenv" ]; then
+      echo ${CLUSTERENV}
+      local template_name=$( oc get -n ${namespace} -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt )
+      template_option=${template_name}
+  elif [ "${CLUSTERENV}" == "$k8senv" ]; then
+      echo ${CLUSTERENV}
+      template_option="-f ${template_path} --local"
+      #template_local="--local"
   fi
 
   #If first try fails, it tries 2 more time to run it, before it fails whole test

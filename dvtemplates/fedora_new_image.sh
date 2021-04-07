@@ -47,7 +47,6 @@ if [ -z "$image_tag" ]; then
     echo -e "No Container Image found in the registry"
 fi
 
-
 if [[ "$FEDORA_VERSION" == "$FEDORA_OLD_VERSION" ]]; then
     error_message 4
 fi
@@ -66,6 +65,7 @@ docker push localhost:${port}/disk || exit 5
 
 # Run tests
 cd ${PWD}/../;
+
 curl https://mirror.openshift.com/pub/openshift-v4/clients/oc/4.4/linux/oc.tar.gz | tar -C . -xzf -
 chmod +x oc
 mv oc /usr/bin
