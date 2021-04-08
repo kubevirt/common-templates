@@ -70,7 +70,7 @@ delete_vm(){
   ./virtctl stop $vm_name -n $namespace
   #delete vm
   oc process -n $namespace -o json $template_name NAME=$vm_name SRC_PVC_NAME=$TARGET-datavolume-original SRC_PVC_NAMESPACE=kubevirt| \
-  oc delete -f -
+  oc delete -n $namespace -f -
   set -e
 }
 
@@ -90,7 +90,7 @@ run_vm(){
     jq 'del(.items[0].spec.dataVolumeTemplates[0].spec.pvc.accessModes) |
     .items[0].spec.dataVolumeTemplates[0].spec.pvc+= {"accessModes": ["ReadWriteOnce"]} | 
     .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
-    oc apply -f -
+    oc apply -n $namespace -f -
     
     # start vm
     ./virtctl start $vm_name -n $namespace

@@ -36,7 +36,6 @@ ocenv="OC"
 if [ -z "$CLUSTERENV" ]
 then
     export CLUSTERENV=$ocenv
-    echo $CLUSTERENV
 fi
 
 git submodule update --init
@@ -79,8 +78,6 @@ token="/tmp/secrets/secretKey"
 
 if [ "${CLUSTERENV}" == "$ocenv" ]
 then
-    echo $CLUSTERENV
-
     if test -f "$key" && test -f "$token"; then
       id=$(cat $key | tr -d '\n' | base64)
       token=$(cat $token | tr -d '\n' | base64 | tr -d ' \n')
@@ -125,7 +122,6 @@ EOF
 
 if [ "${CLUSTERENV}" == "$ocenv" ]
 then
-    echo $CLUSTERENV
     export VALIDATOR_VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt-template-validator/releases | \
             jq '.[] | select(.prerelease==false) | .tag_name' | sort -V | tail -n1 | tr -d '"')
 
@@ -140,8 +136,6 @@ then
 fi
 
 # add cpumanager=true label to all nodes
-# oc label nodes -l kubevirt.io/schedulable cpumanager=true --overwrite
-# add cpumanager=true label to all worker nodes
 # to allow execution of tests using high performance profiles
 oc label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
 

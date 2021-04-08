@@ -4,12 +4,6 @@ set -ex
 
 template_name=$1
 namespace="kubevirt"
-#template_local=""
-#template_option=$template_name
-
-#template_local=""
-#template_option=$template_name
-
 ocenv="OC"
 k8senv="K8s"
 
@@ -20,16 +14,11 @@ if [[ $TARGET =~ rhel.* ]]; then
   image_url="docker://quay.io/openshift-cnv/ci-common-templates-images:${TARGET}"
   secret_ref="secretRef: common-templates-container-disk-puller"
 elif [[ $TARGET =~ refresh-image-fedora-test.* ]]; then
-  #dnscont=k8s-1.20-dnsmasq
-  #port=$(docker port $dnscont 5000 | awk -F : '{ print $2 }')
-  #echo $port
   template_name=fedora
   # Local Insecure registry created by kubevirtci
   image_url="docker://registry:5000/disk"
   # Inform CDI the local registry is insecure
   oc patch configmap cdi-insecure-registries -n cdi --type merge -p '{"data":{"mykey": "registry:5000"}}'
-  # TODO: Remove after this CDI bug is fixed - https://github.com/kubevirt/containerized-data-importer/issues/1656
-  # contenttype="contentType: kubevirt"
 else
   image_url="docker://quay.io/kubevirt/common-templates:${TARGET}"
 fi;
@@ -89,15 +78,6 @@ delete_vm(){
 
   local template_option=$2
 
-  #if [ "${KUBE_CMD}" == "oc" ]; then
-  #    echo $KUBE_CMD
-  #    template_option=$2
-  #elif [ "${KUBE_CMD}" == "kubectl" ]; then
-  #    echo $KUBE_CMD
-  #    template_option="-f $2 --local"
-#      template_local="--local"
-  #fi
-
   set +e
   #stop vm
   ./virtctl stop $vm_name -n $namespace
@@ -115,7 +95,12 @@ run_vm(){
   local template_option
   running=false
 
-  set +e
+  if [ "${CLUSTERENV}" == "$ocenv" ]; then
+      local template_name=$( oc get -n ${namespace} -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt )
+      template_option=${template_name}
+  elif [ "${CLUSTERENV}" == "$k8senv" ]; then
+      template_option="-f ${template_path} --local"
+  fi
 
   if [ "${CLUSTERENV}" == "$ocenv" ]; then
       echo ${CLUSTERENV}
@@ -149,13 +134,6 @@ run_vm(){
     fi
   
     delete_vm $vm_name $template_option
-   # if [ "${KUBE_CMD}" == "oc" ]; then
-     #   echo $KUBE_CMD
-     #   delete_vm $vm_name $template_option
-    #elif [ "${KUBE_CMD}" == "kubectl" ]; then
-#	echo $KUBE_CMD
- #       delete_vm $vm_name $template_option
-  #  fi
     #no error were observed, the vm is running
     if ! $error ; then
       running=true
