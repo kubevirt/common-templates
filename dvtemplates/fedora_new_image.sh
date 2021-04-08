@@ -29,7 +29,7 @@ FEDORA_REPO="quay.io/kubevirt/fedora-images"
 BASE_URL=https://download.fedoraproject.org/pub/fedora/linux/releases/
 
 wget -qO index.html $BASE_URL || exit 1
-FEDORA_VERSION=`cat index.html | sed -e 's/.*>\(.*\)\/<.*/\1/' | sort -rn | head -n 1`
+FEDORA_VERSION=`cat index.html | sed -e 's/.*>\(.*\)\/<.*/\1/' | sort -rn | head -n 1 | tr -d ' '`
 re='^ *[0-9]+ *$'
 if ! [[ $FEDORA_VERSION =~ $re ]] ; then
     error_message 2
