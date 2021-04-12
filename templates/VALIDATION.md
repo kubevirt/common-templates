@@ -94,7 +94,7 @@ kind: Template
 metadata:
   name: windows-10
 objects:
-- apiVersion: kubevirt.io/v1alpha3
+- apiVersion: kubevirt.io/v1
   kind: VirtualMachine
   metadata:
     annotations:
@@ -117,7 +117,7 @@ kind: Template
 metadata:
   name: windows-10
 objects:
-- apiVersion: kubevirt.io/v1alpha3
+- apiVersion: kubevirt.io/v1
   kind: VirtualMachine
   metadata:
     annotations:
@@ -139,7 +139,7 @@ kind: Template
 metadata:
   name: windows-10
 objects:
-- apiVersion: kubevirt.io/v1alpha3
+- apiVersion: kubevirt.io/v1
   kind: VirtualMachine
   metadata:
     annotations:
@@ -202,7 +202,7 @@ kind: Template
 metadata:
   name: windows-10
 objects:
-- apiVersion: kubevirt.io/v1alpha3
+- apiVersion: kubevirt.io/v1
   kind: VirtualMachine
   metadata:
     annotations:
@@ -232,7 +232,7 @@ kind: Template
 metadata:
   name: windows-10
 objects:
-- apiVersion: kubevirt.io/v1alpha3
+- apiVersion: kubevirt.io/v1
   kind: VirtualMachine
   metadata:
     annotations:
@@ -263,7 +263,7 @@ kind: Template
 metadata:
   name: windows-10
 objects:
-- apiVersion: kubevirt.io/v1alpha3
+- apiVersion: kubevirt.io/v1
   kind: VirtualMachine
   metadata:
     annotations:
@@ -289,7 +289,7 @@ kind: Template
 metadata:
   name: windows-10
 objects:
-- apiVersion: kubevirt.io/v1alpha3
+- apiVersion: kubevirt.io/v1
   kind: VirtualMachine
   metadata:
     annotations:
@@ -314,7 +314,7 @@ kind: Template
 metadata:
   name: windows-10
 objects:
-- apiVersion: kubevirt.io/v1alpha3
+- apiVersion: kubevirt.io/v1
   kind: VirtualMachine
   metadata:
     annotations:
@@ -342,7 +342,7 @@ kind: Template
 metadata:
   name: windows-10
 objects:
-- apiVersion: kubevirt.io/v1alpha3
+- apiVersion: kubevirt.io/v1
   kind: VirtualMachine
   metadata:
     annotations:
@@ -365,7 +365,7 @@ kind: Template
 metadata:
   name: linux-bus-types
 objects:
-- apiVersion: kubevirt.io/v1alpha3
+- apiVersion: kubevirt.io/v1
   kind: VirtualMachine
   metadata:
     annotations:
