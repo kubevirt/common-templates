@@ -35,12 +35,7 @@ ocenv="OC"
 
 if [ -z "$CLUSTERENV" ]
 then
-<<<<<<< HEAD
     export CLUSTERENV=$ocenv
-=======
-    export KUBE_CMD="oc"
-    echo $KUBE_CMD
->>>>>>> 043adaf... Modify test scripts to run in both K8s and Openshift environments
 fi
 
 git submodule update --init
@@ -56,26 +51,17 @@ curl -Lo virtctl \
     https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VERSION/virtctl-$KUBEVIRT_VERSION-linux-amd64
 chmod +x virtctl
 
-${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
-${KUBE_CMD} apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
+oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
+oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
-<<<<<<< HEAD
-=======
-if [ "${KUBE_CMD}" == "oc" ]
-then
-    echo $KUBE_CMD
-    ${KUBE_CMD} project $namespace
-fi
-
->>>>>>> 043adaf... Modify test scripts to run in both K8s and Openshift environments
 sample=10
 current_time=0
 timeout=300
 
 # Waiting for kubevirt cr to report available
-${KUBE_CMD} wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $namespace
+oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $namespace
 
-${KUBE_CMD} apply -f - <<EOF
+oc apply -f - <<EOF
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -87,20 +73,8 @@ data:
 ---
 EOF
 
-<<<<<<< HEAD
 key="/tmp/secrets/accessKeyId"
 token="/tmp/secrets/secretKey"
-
-if [ "${KUBE_CMD}" == "$ocenv" ]
-then
-    echo $KUBE_CMD
-=======
-if [ "${KUBE_CMD}" == "oc" ]
-then
-    echo $KUBE_CMD
-    key="/tmp/secrets/accessKeyId"
-    token="/tmp/secrets/secretKey"
->>>>>>> 043adaf... Modify test scripts to run in both K8s and Openshift environments
 
 if [ "${CLUSTERENV}" == "$ocenv" ]
 then
@@ -108,7 +82,7 @@ then
       id=$(cat $key | tr -d '\n' | base64)
       token=$(cat $token | tr -d '\n' | base64 | tr -d ' \n')
 
-      $ocenv apply -n $namespace -f - <<EOF
+      oc apply -n $namespace -f - <<EOF
 apiVersion: v1
 kind: Secret
 metadata:
@@ -126,12 +100,12 @@ echo "Deploying CDI"
 #export CDI_VERSION=$(curl -s https://api.github.com/repos/kubevirt/containerized-data-importer/releases | \
 #            jq '.[] | select(.prerelease==false) | .tag_name' | sort -V | tail -n1 | tr -d '"')
 export CDI_VERSION="v1.29.0"
-${KUBE_CMD} apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
-${KUBE_CMD} apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
+oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
+oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
 
-${KUBE_CMD} wait --for=condition=Available --timeout=${timeout}s CDI/cdi -n cdi
+oc wait --for=condition=Available --timeout=${timeout}s CDI/cdi -n cdi
 
-${KUBE_CMD} apply -f - <<EOF
+oc apply -f - <<EOF
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -157,14 +131,14 @@ then
     oc wait --for=condition=Available --timeout=${timeout}s deployment/virt-template-validator -n $namespace
     # Apply templates
     echo "Deploying templates"
-    $ocenv apply -n $namespace  -f dist/templates
+    oc apply -n $namespace  -f dist/templates
 fi
 
 # add cpumanager=true label to all nodes
 # oc label nodes -l kubevirt.io/schedulable cpumanager=true --overwrite
 # add cpumanager=true label to all worker nodes
 # to allow execution of tests using high performance profiles
-${KUBE_CMD} label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
+oc label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
 
 if [[ $TARGET =~ windows.* ]]; then
   ./automation/test-windows.sh $TARGET
