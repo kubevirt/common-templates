@@ -7,14 +7,21 @@ namespace="kubevirt"
 ocenv="OC"
 k8senv="K8s"
 
+ocenv="OC"
+k8senv="K8s"
+
 image_url=""
 #set secret_ref only for rhel OSes
 secret_ref=""
 if [[ $TARGET =~ rhel.* ]]; then
   image_url="docker://quay.io/openshift-cnv/ci-common-templates-images:${TARGET}"
   secret_ref="secretRef: common-templates-container-disk-puller"
-elif [[ $TARGET =~ refresh-image-fedora-test.* ]]; then
-  template_name=fedora
+elif [[ $TARGET =~ refresh-image.* ]]; then
+  if [[ $TARGET =~ refresh-image-fedora.* ]]; then
+      template_name=fedora
+  elif [[ $TARGET =~ refresh-image-centos.* ]]; then
+      template_name=`echo $TARGET | sed -e 's/.*\(centos.*\)-test/\1/'`
+  fi
   # Local Insecure registry created by kubevirtci
   image_url="docker://registry:5000/disk"
   # Inform CDI the local registry is insecure
@@ -75,6 +82,8 @@ fi
 
 delete_vm(){
   vm_name=$1
+
+  local template_option=$2
 
   local template_option=$2
 
