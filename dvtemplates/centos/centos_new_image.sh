@@ -31,6 +31,8 @@ BASE_URL=https://cloud.centos.org/centos/
 
 wget -qO index.html $BASE_URL || exit 1
 CentOS_VERSION=`cat index.html | sed -e 's/.*>\([0-9]\+\)\/<.*/\1/' | sort -rn | head -n 1 | tr -d ' '`
+# Use the following once we start building centos*-stream templates
+#cat index.html | sed -e 's/.*>\([0-9]\+\-stream\)\/<.*/\1/' | sort -rn
 #CentOS_VERSION=`curl $RELEASE_URL | jq '.[] | select(.version|test("^[0-9]+$")) | .version' | sort -rn | uniq | head -n 1 | tr -d '"'`
 re='^[0-9]+$'
 if ! [[ $CentOS_VERSION =~ $re ]] ; then
