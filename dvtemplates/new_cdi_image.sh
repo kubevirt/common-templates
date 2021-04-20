@@ -10,6 +10,7 @@ error_message() {
         echo -e "Unable to connect to the OS Image repository"
     elif [ $1 -eq 4 ]; then
         echo -e "Container Image for the Latest $OS version is already present. Exiting"
+	exit 0
     elif [ $1 -eq 5 ]; then
         echo -e "Unable to push the image to the local Registry."
     elif [ $1 -eq 6 ]; then
@@ -27,16 +28,16 @@ trap 'error_message $?' EXIT
 #Insecure registry port
 port=5000
 
-# Check if OS_IMAGE is set
-if [ -z "$OS_IMAGE" ]; then
+# Check if TARGET_OS is set
+if [ -z "$TARGET_OS" ]; then
     error_message 8
 fi
 
 FEDORA_OS="fedora"
 CENTOS="centos"
 
-#set the final registry to hold the contianer disk images
-if [[ "${OS_IMAGE}" == "${CENTOS}" ]]; then
+# Set the Image registry and identify the latest version of the OS
+if [[ "${TARGET_OS}" == "${CENTOS}" ]]; then
     cd ${PWD}/centos
     OS_REPO="quay.io/shwetaap/centos-images"
     BASE_URL=https://cloud.centos.org/centos/
@@ -45,7 +46,7 @@ if [[ "${OS_IMAGE}" == "${CENTOS}" ]]; then
     # Use the following once we start building centos*-stream templates
     #cat index.html | sed -e 's/.*>\([0-9]\+\-stream\)\/<.*/\1/' | sort -rn
     #CentOS_VERSION=`curl $RELEASE_URL | jq '.[] | select(.version|test("^[0-9]+$")) | .version' | sort -rn | uniq | head -n 1 | tr -d '"'`
-elif [[ "${OS_IMAGE}" == "${FEDORA_OS}" ]]; then
+elif [[ "${TARGET_OS}" == "${FEDORA_OS}" ]]; then
     cd ${PWD}/fedora
     OS_REPO="quay.io/kubevirt/fedora-images"
     RELEASE_URL=https://getfedora.org/releases.json
@@ -56,7 +57,7 @@ re='^[0-9]+$'
 if ! [[ $OS_VERSION =~ $re ]] ; then
     error_message 2
 fi
-echo "Latest ${OS_IMAGE} version is : ${OS_VERSION}"
+echo "Latest ${TARGET_OS} version is : ${OS_VERSION}"
 
 # Fetch the old image
 docker pull -a $OS_REPO
@@ -65,31 +66,33 @@ docker pull -a $OS_REPO
 OS_OLD_VERSION=$(docker images $OS_REPO --format "{{json .}}" | jq 'select(.Tag|test("^[0-9]+$")) | .Tag' | sort -rn | head -n 1 | tr -d '"')
 #CentOS_OLD_VERSION=`echo "$image_tag" | tr -d '"'`
 
-echo "${OS_IMAGE} version in the Image Registry is : ${OS_OLD_VERSION}"
+echo "${TARGET_OS} version in the Image Registry is : ${OS_OLD_VERSION}"
 
 if [ -z "${OS_OLD_VERSION}" ]; then
     echo -e "No Container Image found in the registry"
 fi
 
-
 if [[ "$OS_VERSION" == "$OS_OLD_VERSION" ]]; then
-    error_message 4 "$OS_IMAGE"
+    error_message 4 "$TARGET_OS"
 fi
 
-if [[ "${OS_IMAGE}" == "${CENTOS}" ]]; then
+#Download the latest OS Image
+if [[ "${TARGET_OS}" == "${CENTOS}" ]]; then
     IMAGE_URL=${BASE_URL}${OS_VERSION}/x86_64/images/
     wget -qO image.html $IMAGE_URL/CHECKSUM || exit 3
     CentOS_IMAGE=$(grep ^#.*GenericCloud.*qcow2 image.html | sed -e 's/.*\(CentOS.*qcow2\).*/\1/')
 
     URL=${IMAGE_URL}${CentOS_IMAGE}
-    echo "Image url : $URl"
-elif [[ "${OS_IMAGE}" == "${FEDORA_OS}" ]]; then
-    URL=`cat release.html | jq '.[] | select(.link|test(".*qcow2")) | select(.version=='\"$FEDORA_VERSION\"' and .variant=="Cloud" and .arch=="x86_64") | .link'`
+    echo "Image url : $URL"
+elif [[ "${TARGET_OS}" == "${FEDORA_OS}" ]]; then
+    URL=`cat release.html | jq '.[] | select(.link|test(".*qcow2")) | select(.version=='\"$OS_VERSION\"' and .variant=="Cloud" and .arch=="x86_64") | .link' | tr -d '"'`
+    echo "Image url : $URL"
 fi
 
 wget -q --show-progress $URL || exit 3
-echo -e "Successfully downloaded new ${OS_IMAGE} version: ${OS_VERSION} image"
+echo -e "Successfully downloaded new ${TARGET_OS} version: ${OS_VERSION} image"
 
+# Build and push the qcow2 Image in a Container to a local registry for testing
 docker build . -t localhost:${port}/disk
 docker push localhost:${port}/disk || exit 5
 
@@ -98,7 +101,7 @@ cd ${PWD}/../../;
 curl https://mirror.openshift.com/pub/openshift-v4/clients/oc/4.4/linux/oc.tar.gz | tar -C . -xzf -
 chmod +x oc
 mv oc /usr/bin
-export TARGET=refresh-image-${OS_IMAGE}${OS_VERSION}-test && export CLUSTERENV=K8s
+export TARGET=refresh-image-${TARGET_OS}${OS_VERSION}-test && export CLUSTERENV=K8s
 ./automation/test.sh || exit 7
 #
 # If testing passes push the new image to the final Image registry
