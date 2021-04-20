@@ -53,6 +53,8 @@ chmod +x virtctl
 
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
+#oc apply -f https://github.com/kubevirt/kubevirt/releases/download/v0.39.0/kubevirt-operator.yaml
+#oc apply -f https://github.com/kubevirt/kubevirt/releases/download/v0.39.0/kubevirt-cr.yaml
 
 sample=10
 current_time=0
@@ -61,17 +63,19 @@ timeout=300
 # Waiting for kubevirt cr to report available
 oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $namespace
 
-oc apply -f - <<EOF
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: kubevirt-config
-  namespace: kubevirt
-data:
-  feature-gates: "DataVolumes"
----
-EOF
+#oc apply -f - <<EOF
+#---
+#apiVersion: v1
+#kind: ConfigMap
+#metadata:
+#  name: kubevirt-config
+#  namespace: kubevirt
+#data:
+#  feature-gates: "DataVolumes"
+#---
+#EOF
+
+oc patch kubevirt kubevirt -n $namespace --type merge -p '{"spec":{"configuration":{"developerConfiguration":{"featureGates": ["DataVolumes", "CPUManager"]}}}}'
 
 key="/tmp/secrets/accessKeyId"
 token="/tmp/secrets/secretKey"
@@ -138,7 +142,7 @@ fi
 # oc label nodes -l kubevirt.io/schedulable cpumanager=true --overwrite
 # add cpumanager=true label to all worker nodes
 # to allow execution of tests using high performance profiles
-oc label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
+#oc label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
 
 if [[ $TARGET =~ windows.* ]]; then
   ./automation/test-windows.sh $TARGET
