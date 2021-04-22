@@ -61,17 +61,7 @@ timeout=300
 # Waiting for kubevirt cr to report available
 oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $namespace
 
-oc apply -f - <<EOF
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: kubevirt-config
-  namespace: kubevirt
-data:
-  feature-gates: "DataVolumes"
----
-EOF
+oc patch kubevirt kubevirt -n $namespace --type merge -p '{"spec":{"configuration":{"developerConfiguration":{"featureGates": ["DataVolumes", "CPUManager"]}}}}'
 
 key="/tmp/secrets/accessKeyId"
 token="/tmp/secrets/secretKey"
@@ -134,10 +124,6 @@ then
     echo "Deploying templates"
     oc apply -n $namespace  -f dist/templates
 fi
-
-# add cpumanager=true label to all worker nodes
-# to allow execution of tests using high performance profiles
-oc label nodes -l node-role.kubernetes.io/worker cpumanager=true --overwrite
 
 if [[ $TARGET =~ windows.* ]]; then
   ./automation/test-windows.sh $TARGET
