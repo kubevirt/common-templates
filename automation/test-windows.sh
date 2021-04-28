@@ -51,11 +51,11 @@ oc wait --for=condition=Ready --timeout=${timeout}s dv/${TARGET}-datavolume-orig
 oc wait --for=condition=Ready --timeout=${timeout}s pod/winrmcli -n $namespace
 
 sizes=("medium" "large")
-workloads=("server" "highperformance")
+workloads=("server")
 
 if [[ $TARGET =~ windows10.* ]]; then
   template_name="windows10"
-  workloads=("desktop" "highperformance")
+  workloads=("desktop")
 elif [[ $TARGET =~ windows2016.* ]]; then
   template_name="windows2k16"
 elif [[ $TARGET =~ windows2019.* ]]; then
