@@ -32,7 +32,7 @@ metadata:
   namespace: kubevirt
 spec:
   containers:
-  - image: kubevirt/winrmcli
+  - image: quay.io/kubevirt/winrmcli
     command: ["/bin/sh","-c"]
     args: [ "sleep 3000"]
     imagePullPolicy: Always
@@ -51,7 +51,7 @@ oc wait --for=condition=Ready --timeout=${timeout}s dv/${TARGET}-datavolume-orig
 oc wait --for=condition=Ready --timeout=${timeout}s pod/winrmcli -n $namespace
 
 sizes=("medium" "large")
-workloads=("server")
+workloads=("server" "highperformance")
 
 if [[ $TARGET =~ windows10.* ]]; then
   template_name="windows10"

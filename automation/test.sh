@@ -17,6 +17,29 @@
 # Copyright 2018 Red Hat, Inc.
 #
 
+# Start CPU manager only for templates which require it.
+if [[ $TARGET =~ rhel7.* ]] || [[ $TARGET =~ rhel8.* ]] || [[ $TARGET =~ fedora.* ]] || [[ $TARGET =~ windows2.* ]]; then
+  oc label machineconfigpool worker custom-kubelet=enabled
+  oc create -f - <<EOF
+---
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  name: custom-config 
+spec:
+  machineConfigPoolSelector:
+    matchLabels:
+      custom-kubelet: enabled
+  kubeletConfig: 
+    cpuManagerPolicy: static
+    reservedSystemCPUs: "2"
+EOF
+
+  oc wait --for=condition=Updating --timeout=300s machineconfigpool worker
+  # it can take a while to enable CPU manager
+  oc wait --for=condition=Updated --timeout=900s machineconfigpool worker
+fi
+
 namespace="kubevirt"
 
 _curl() {
