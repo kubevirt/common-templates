@@ -69,8 +69,7 @@ delete_vm(){
   #stop vm
   ./virtctl stop $vm_name -n $namespace
   #delete vm
-  oc process -n $namespace -o json $template_name NAME=$vm_name SRC_PVC_NAME=$TARGET-datavolume-original SRC_PVC_NAMESPACE=kubevirt| \
-  oc delete -n $namespace -f -
+  oc delete vm $vm_name -n $namespace
   set -e
 }
 
