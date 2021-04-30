@@ -124,6 +124,9 @@ objects:
 {% if item.emulatorthread %}
             isolateEmulatorThread: True
 {% endif %}
+            features:
+            - name: vmx
+              policy: require
           resources:
             requests:
               memory: {{ item.memsize }}
@@ -145,6 +148,7 @@ objects:
               ipi: {}
               runtime: {}
               reset: {}
+              evmcs: {}
           devices:
 {% if item.multiqueue %}
             networkInterfaceMultiqueue: True
