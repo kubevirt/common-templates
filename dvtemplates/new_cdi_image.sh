@@ -59,7 +59,7 @@ if [[ "${TARGET_OS}" == "${CENTOS}" ]]; then
     re='^[0-9]+.[0-9]+.[0-9]+$'
 elif [[ "${TARGET_OS}" == "${FEDORA_OS}" ]]; then
     cd "${PWD}/fedora"
-    OS_REPO="quay.io/kubevirt/fedora-images"
+    OS_REPO="quay.io/kubevirt/fedora-container-disk-images"
     RELEASE_URL=https://getfedora.org/releases.json
     wget -qO release.html $RELEASE_URL || exit "$ERROR_URL_UNREACHABLE"
     OS_VERSION=`cat release.html | jq '.[] | select(.version|test("^[0-9]+$")) | .version' | sort -rn | uniq | head -n 1 | tr -d '"'`
@@ -73,7 +73,7 @@ echo "Latest ${TARGET_OS} version is : ${OS_VERSION}"
 
 # Fetch the old image
 docker pull -a $OS_REPO
-OS_OLD_VERSION=$(docker images $OS_REPO --format "{{json .}}" | jq 'select(.Tag|test("^[0-9]+$")) | .Tag' | sort -rn | head -n 1 | tr -d '"')
+OS_OLD_VERSION=$(docker images $OS_REPO --format "{{json .}}" | jq 'select(.Tag|test('\"$re\"')) | .Tag' | sort -rn | head -n 1 | tr -d '"')
 echo "${TARGET_OS} version in the Image Registry is : ${OS_OLD_VERSION}"
 
 if [ -z "${OS_OLD_VERSION}" ]; then
@@ -111,5 +111,7 @@ export TARGET=refresh-image-${TARGET_OS}-test && export CLUSTERENV=K8s
 ./automation/test.sh || exit "$ERROR_TESTS_FAIL"
 #
 # If testing passes push the new image to the final Image registry
-docker tag localhost:${port}/disk $OS_REPO:$OS_VERSION
-docker push $OS_REPO:$OS_VERSION || exit "$ERROR_QUAY_REGISTRY"
+for tag in {$OS_VERSION,latest}; do
+    docker tag localhost:${port}/disk ${OS_REPO}:${tag}
+    docker push ${OS_REPO}:${tag} || exit "$ERROR_QUAY_REGISTRY"
+done
