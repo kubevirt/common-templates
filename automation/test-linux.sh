@@ -51,7 +51,7 @@ sample=10
 oc wait --for=condition=Ready --timeout=${timeout}s dv/${TARGET}-datavolume-original -n $namespace
 
 sizes=("tiny" "small" "medium" "large")
-workloads=("desktop" "server")
+workloads=("desktop" "server" "highperformance")
 
 if [[ $TARGET =~ rhel6.* ]]; then
   workloads=("desktop" "server")
