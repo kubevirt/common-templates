@@ -8,6 +8,36 @@
       path: "{{ playbook_dir }}/dist/templates"
       state: directory
 
+  - name: Load RHEL 9 versions
+    set_fact:
+      rhel9_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel9\\.') |list |sort }}"
+
+  - name: Generate RHEL 9 templates
+    template:
+      src: rhel9.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: tiny,   workload: server,          memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
+    - {flavor: tiny,   workload: desktop,         memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
+    - {flavor: tiny,   workload: highperformance, memsize: "1.5Gi", cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
+    - {flavor: small,  workload: server,          memsize: "2Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
+    - {flavor: small,  workload: desktop,         memsize: "2Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
+    - {flavor: small,  workload: highperformance, memsize: "2Gi",   cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
+    - {flavor: medium, workload: server,          memsize: "4Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
+    - {flavor: medium, workload: desktop,         memsize: "4Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
+    - {flavor: medium, workload: highperformance, memsize: "4Gi",   cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
+    - {flavor: large,  workload: server,          memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: False, default: False}
+    - {flavor: large,  workload: desktop,         memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: True,  default: False}
+    - {flavor: large,  workload: highperformance, memsize: "8Gi",   cpus: 2, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
+    vars:
+      os: rhel9
+      icon: rhel
+      majorrelease: rhel9
+      oslabels: "{{ rhel9_labels }}"
+      osinfoname: "{{ oslabels[0] }}"
+      cloudusername: cloud-user
+
+
   - name: Load RHEL 8 versions
     set_fact:
       rhel8_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel8\\.') |list |sort }}"
