@@ -38,7 +38,7 @@ metadata:
     template.kubevirt.io/default-os-variant: "true"
 {% endif %}
 objects:
-- apiVersion: kubevirt.io/v1alpha3
+- apiVersion: kubevirt.io/v1
   kind: VirtualMachine
   metadata:
     name: ${NAME}
@@ -48,9 +48,6 @@ objects:
       vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
       app: ${NAME}
     annotations:
-      vm.kubevirt.io/os: "{{ os }}"
-      vm.kubevirt.io/workload: "{{ item.workload }}"
-      vm.kubevirt.io/flavor: "{{ item.flavor }}"
       vm.kubevirt.io/validations: |
         [
           {
@@ -81,6 +78,10 @@ objects:
     running: false
     template:
       metadata:
+        annotations:
+          vm.kubevirt.io/os: "{{ os }}"
+          vm.kubevirt.io/workload: "{{ item.workload }}"
+          vm.kubevirt.io/flavor: "{{ item.flavor }}"
         labels:
           kubevirt.io/domain: ${NAME}
           kubevirt.io/size: {{ item.flavor }}
