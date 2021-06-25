@@ -1,0 +1,15 @@
+name: validate-no-offensive-lang
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: make validate-no-offensive-lang
+      run: make validate-no-offensive-lang

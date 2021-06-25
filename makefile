@@ -32,6 +32,9 @@ e2e-tests:
 unit-tests:
 	./automation/unit-tests.sh
 
+validate-no-offensive-lang:
+	./automation/validate-no-offensive-lang.sh
+
 generate: generate-templates.yaml $(METASOURCES)
 	# Just build the XML files, no need to export to tarball
 	make -C osinfo-db/ OSINFO_DB_EXPORT=echo
