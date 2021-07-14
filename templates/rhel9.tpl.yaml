@@ -86,6 +86,12 @@ objects:
           kubevirt.io/domain: ${NAME}
           kubevirt.io/size: {{ item.flavor }}
       spec:
+        readinessProbe:
+          guestAgentPing: {}
+          failureThreshold: 10
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
         domain:
 {% if item.iothreads %}
           ioThreadsPolicy: shared
