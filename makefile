@@ -29,6 +29,9 @@ release: dist/common-templates.yaml
 e2e-tests:
 	./automation/test.sh
 
+go-tests:
+	go test -v ./tests/
+
 unit-tests:
 	./automation/unit-tests.sh
 
@@ -40,4 +43,4 @@ generate: generate-templates.yaml $(METASOURCES)
 	make -C osinfo-db/ OSINFO_DB_EXPORT=echo
 	ansible-playbook generate-templates.yaml
 
-.PHONY: all generate release e2e-tests unit-tests
+.PHONY: all generate release e2e-tests unit-tests go-tests

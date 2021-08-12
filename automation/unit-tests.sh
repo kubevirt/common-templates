@@ -47,7 +47,7 @@ oc delete -f dist/templates
 
 LATEST_CT=$(curl -L https://api.github.com/repos/kubevirt/common-templates/releases | \
             jq '.[] | select(.prerelease==false) | .name' | sort -V | tail -n1 | tr -d '"')
-oc apply -f https://github.com/kubevirt/common-templates/releases/download/${LATEST_CT}/common-templates-${LATEST_CT}.yaml
+oc apply -f https://github.com/kubevirt/common-templates/releases/download/${LATEST_CT}/common-templates.yaml
 
 set +e
 python3 automation/validate-pvc-name-stability.py
