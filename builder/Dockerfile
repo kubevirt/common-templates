@@ -1,7 +1,7 @@
 #This docker file is used in openshift CI
 FROM quay.io/kubevirt/common-templates:fedora33CI
 
-RUN dnf install -y jq ansible libosinfo python3-gobject python3-openshift libosinfo intltool make git findutils qemu expect
+RUN dnf install -y jq ansible libosinfo python3-gobject python3-openshift libosinfo intltool make git findutils qemu expect golang
 RUN chmod uga+w /etc/passwd
 
 #set permissions for ansible tmp folder
