@@ -86,9 +86,7 @@ run_vm(){
     error=false
 
     oc process -n $namespace -o json $template_name NAME=$vm_name SRC_PVC_NAME=$TARGET-datavolume-original SRC_PVC_NAMESPACE=kubevirt | \
-    jq 'del(.items[0].spec.dataVolumeTemplates[0].spec.pvc.accessModes) |
-    .items[0].spec.dataVolumeTemplates[0].spec.pvc+= {"accessModes": ["ReadWriteOnce"]} | 
-    .items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
+    jq '.items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
     oc apply -n $namespace -f -
     
     # start vm
