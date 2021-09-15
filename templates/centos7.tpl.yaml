@@ -65,9 +65,7 @@ objects:
       metadata:
         name: ${NAME}
       spec:
-        pvc:
-          accessModes:
-            - ReadWriteMany
+        storage:
           resources:
             requests:
               storage: 30Gi
