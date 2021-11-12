@@ -1,11 +1,8 @@
 approvers:
-  - omeryahud
-  - ksimon1
-reviewers:
-  - omeryahud
   - ksimon1
   - akrejcir
-  - vatsalparekh
+reviewers:
+  - ksimon1
+  - akrejcir
   - borod108
-  - shwetaap
   - rnetser
