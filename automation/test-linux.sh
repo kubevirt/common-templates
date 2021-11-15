@@ -23,6 +23,7 @@ elif [[ $TARGET =~ refresh-image.* ]]; then
   image_url="docker://registry:5000/disk"
   # Inform CDI the local registry is insecure
   oc patch configmap cdi-insecure-registries -n cdi --type merge -p '{"data":{"mykey": "registry:5000"}}'
+  oc patch storageProfile local --type merge -p '{"spec": {"claimPropertySets":[{"accessModes": ["ReadWriteOnce"], "volumeMode": "Filesystem"}]}}'
 else
   image_url="docker://quay.io/kubevirt/common-templates:${TARGET}"
 fi;

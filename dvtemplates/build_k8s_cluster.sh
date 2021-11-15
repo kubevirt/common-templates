@@ -6,7 +6,7 @@ set -e
 cd "${PWD}/../kubevirtci"
 export KUBEVIRTCI_TAG=$(curl -L https://storage.googleapis.com/kubevirt-prow/release/kubevirt/kubevirtci/latest)
 export KUBEVIRTCI_GOCLI_CONTAINER=quay.io/kubevirtci/gocli:"${KUBEVIRTCI_TAG}"
-export KUBEVIRT_PROVIDER=k8s-1.20
+export KUBEVIRT_PROVIDER=k8s-1.22
 export KUBEVIRT_MEMORY_SIZE=10240M
 export KUBEVIRT_PROVIDER_EXTRA_ARGS="--registry-port 5000"
 make cluster-up
