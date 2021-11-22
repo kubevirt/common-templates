@@ -3,7 +3,7 @@ kind: Template
 metadata:
   name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
   annotations:
-    openshift.io/display-name: "Red Hat Enterprise Linux 9.0 Alpha VM"
+    openshift.io/display-name: "Red Hat Enterprise Linux 9.0 Beta VM"
     description: >-
       Red Hat Enterprise Linux Beta releases are made 
       available only for testing purposes. Red Hat provides 
