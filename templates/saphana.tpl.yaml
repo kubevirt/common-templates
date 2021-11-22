@@ -1,0 +1,182 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
+  annotations:
+    openshift.io/display-name: "Red Hat Enterprise Linux 8.4 VM for SAP HANA workloads"
+    description: >-
+      Template for Red Hat Enterprise Linux 8.4 for SAP HANA workloads.
+      Please consult the SAP HANA guide for node setup requirements.
+    tags: "hidden,kubevirt,virtualmachine,linux,rhel,sap,hana"
+    iconClass: "icon-{{ icon }}"
+    openshift.io/provider-display-name: "KubeVirt"
+    openshift.io/documentation-url: "https://github.com/kubevirt/common-templates"
+    openshift.io/support-url: "https://github.com/kubevirt/common-templates/issues"
+    template.openshift.io/bindable: "false"
+    template.kubevirt.io/version: v1alpha1
+    defaults.template.kubevirt.io/disk: rootdisk
+    name.os.template.kubevirt.io/rhel8.4: Red Hat Enterprise Linux 8.0 or higher
+  labels:
+    os.template.kubevirt.io/rhel8.4: "true"
+    workload.template.kubevirt.io/{{ item.workload }}: "true"
+    flavor.template.kubevirt.io/{{ item.flavor }}: "true"
+    template.kubevirt.io/type: "base"
+    template.kubevirt.io/version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
+{% if item.default %}
+    template.kubevirt.io/default-os-variant: "true"
+{% endif %}
+objects:
+  - apiVersion: kubevirt.io/v1
+    kind: VirtualMachine
+    metadata:
+      labels:
+        vm.kubevirt.io/template: {{ os }}-{{ item.workload }}-{{ item.flavor }}
+        vm.kubevirt.io/template.version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
+        vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
+        app: ${NAME}
+      name: ${NAME}
+      annotations:
+        vm.kubevirt.io/validations: |
+          []
+    spec:
+      dataVolumeTemplates:
+        - apiVersion: cdi.kubevirt.io/v1beta1
+          kind: DataVolume
+          metadata:
+            name: ${NAME}
+          spec:
+            storage:
+              resources:
+                requests:
+                  storage: 50Gi
+            source:
+              registry:
+                url: ${SRC_CONTAINERDISK}
+                pullMethod: node
+      running: false
+      template:
+        metadata:
+          annotations:
+            vm.kubevirt.io/os: "{{ os }}"
+            vm.kubevirt.io/workload: "{{ item.workload }}"
+            vm.kubevirt.io/flavor: "{{ item.flavor }}"
+          labels:
+            kubevirt.io/domain: ${NAME}
+            kubevirt.io/size: {{ item.flavor }}
+        spec:
+          hostname: ${NAME}
+          domain:
+            ioThreadsPolicy: auto
+            cpu:
+              cores: {{ '${{CPU_CORES}}' }}
+              threads: {{ '${{CPU_THREADS}}' }}
+              sockets: {{ '${{CPU_SOCKETS}}' }}
+              model: host-passthrough
+              isolateEmulatorThread: true
+              dedicatedCpuPlacement: true
+              features:
+                - name: "invtsc"
+                  policy: "require"
+              numa:
+                guestMappingPassthrough : {}
+            devices:
+              blockMultiQueue: true
+              networkInterfaceMultiqueue: true
+              disks:
+                - disk:
+                    bus: virtio
+                  dedicatedIOThread: true
+                  name: ${NAME}
+                - disk:
+                    bus: virtio
+                  name: cloudinitdisk
+                - disk:
+                    bus: virtio
+                  name: downwardmetrics
+              interfaces:
+                - masquerade: {}
+                  name: default
+                - name: sriov-net1
+                  sriov: {}
+                - name: sriov-net2
+                  sriov: {}
+                - name: sriov-net3
+                  sriov: {}
+            machine:
+              type: ""
+            resources:
+              requests:
+                memory: ${MEMORY_OVERHEAD}
+            memory:
+              guest: ${MEMORY}
+              hugepages:
+                pageSize: ${HUGEPAGES_PAGE_SIZE}
+          terminationGracePeriodSeconds: 3600
+          volumes:
+            - dataVolume:
+                name: ${NAME}
+              name: ${NAME}
+            - cloudInitNoCloud:
+                userData: |-
+                  #cloud-config
+                  user: {{ cloudusername }}
+                  password: ${CLOUD_USER_PASSWORD}
+                  chpasswd: { expire: False }
+              name: cloudinitdisk
+            - downwardMetrics: {}
+              name: downwardmetrics
+          networks:
+            - name: default
+              pod: {}
+            - multus:
+                networkName: ${SRIOV_NETWORK_NAME1}
+              name: sriov-net1
+            - multus:
+                networkName: ${SRIOV_NETWORK_NAME2}
+              name: sriov-net2
+            - multus:
+                networkName: ${SRIOV_NETWORK_NAME3}
+              name: sriov-net3
+          nodeSelector:
+            kubernetes.io/hostname: ${TARGET_NODE_NAME}
+parameters:
+  - description: Name for the new VM
+    name: NAME
+    required: true
+  - description: Amount of memory
+    name: MEMORY
+    value: 24Gi
+  - description: Amount of memory overhead for qemu
+    name: MEMORY_OVERHEAD
+    value: 44Gi
+  - description: Amount of cores
+    name: CPU_CORES
+    value: "4"
+  - description: Amount of threads
+    name: CPU_THREADS
+    value: "1"
+  - description: Amount of sockets
+    name: CPU_SOCKETS
+    value: "1"
+  - description: Name of the sriov network1
+    name: SRIOV_NETWORK_NAME1
+    value: "default/sriov-net1"
+  - description: Name of the sriov network2
+    name: SRIOV_NETWORK_NAME2
+    value: "default/sriov-net2"
+  - description: Name of the sriov network3
+    name: SRIOV_NETWORK_NAME3
+    value: "default/sriov-net3"
+  - description: Page size of huge pages
+    name: HUGEPAGES_PAGE_SIZE
+    value: "1Gi"
+  - name: SRC_CONTAINERDISK
+    description: Name of the source container disk to import
+    value: "docker://registry.access.redhat.com/rhel8/rhel-guest-image:8.4.0"
+  - description: Randomized password for the cloud-init user {{ cloudusername }}
+    from: '[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}'
+    generate: expression
+    name: CLOUD_USER_PASSWORD
+  - description: Name of the node where this VM needs to run
+    name: TARGET_NODE_NAME
+    required: true
