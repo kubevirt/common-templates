@@ -51,8 +51,7 @@ _curl() {
 		curl $@
 	fi
 }
-export KUBEVIRT_VERSION=$(_curl -L https://api.github.com/repos/kubevirt/kubevirt/releases | \
-            jq '.[] | select(.prerelease==false) | .name' | sort -V | tail -n1 | tr -d '"')
+export KUBEVIRT_VERSION=$(curl -L https://storage.googleapis.com/kubevirt-prow/devel/release/kubevirt/kubevirt/stable.txt)
 
 ocenv="OC"
 
@@ -84,7 +83,7 @@ timeout=300
 # Waiting for kubevirt cr to report available
 oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $namespace
 
-oc patch kubevirt kubevirt -n $namespace --type merge -p '{"spec":{"configuration":{"developerConfiguration":{"featureGates": ["DataVolumes", "CPUManager"]}}}}'
+oc patch kubevirt kubevirt -n $namespace --type merge -p '{"spec":{"configuration":{"developerConfiguration":{"featureGates": ["DataVolumes", "CPUManager", "NUMA", "DownwardMetrics"]}}}}'
 
 key="/tmp/secrets/accessKeyId"
 token="/tmp/secrets/secretKey"
