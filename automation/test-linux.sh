@@ -28,11 +28,13 @@ else
   image_url="docker://quay.io/kubevirt/common-templates:${TARGET}"
 fi
 
+dv_name="${TARGET}-datavolume-original"
+
 oc apply -n $namespace -f - <<EOF
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
 metadata:
-  name: ${TARGET}-datavolume-original
+  name: ${dv_name}
 spec:
   source:
     registry:
@@ -49,7 +51,19 @@ EOF
 timeout=600
 sample=10
 
-oc wait --for=condition=Ready --timeout=${timeout}s dv/${TARGET}-datavolume-original -n $namespace
+oc wait --for=condition=Ready --timeout=${timeout}s dv/${dv_name} -n $namespace
+
+oc apply -n $namespace -f - <<EOF
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataSource
+metadata:
+  name: ${dv_name}
+spec:
+  source:
+    pvc:
+      name: ${dv_name}
+      namespace: ${namespace}
+EOF
 
 apply_only=false
 sizes=("tiny" "small" "medium" "large")
@@ -134,7 +148,7 @@ run_vm() {
   #If first try fails, it tries 2 more time to run it, before it fails whole test
   for i in $(seq 1 3); do
     error=false
-    oc process ${template_option} -n $namespace -o json NAME=$vm_name SRC_PVC_NAME=$TARGET-datavolume-original SRC_PVC_NAMESPACE=kubevirt |
+    oc process ${template_option} -n $namespace -o json NAME=$vm_name DATA_SOURCE_NAME=${dv_name} DATA_SOURCE_NAMESPACE=${namespace} |
       jq '.items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' |
       oc apply -n $namespace -f -
 

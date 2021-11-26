@@ -5,11 +5,13 @@ set -ex
 namespace="kubevirt"
 template_name="windows2k12r2"
 
-oc apply -n kubevirt -f - <<EOF
+dv_name="${TARGET}-datavolume-original"
+
+oc apply -n ${namespace} -f - <<EOF
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
 metadata:
-  name: ${TARGET}-datavolume-original
+  name: ${dv_name}
 spec:
   source:
     registry:
@@ -45,7 +47,19 @@ timeout=2000
 sample=10
 current_time=0
 
-oc wait --for=condition=Ready --timeout=${timeout}s dv/${TARGET}-datavolume-original -n $namespace
+oc wait --for=condition=Ready --timeout=${timeout}s dv/${dv_name} -n $namespace
+
+oc apply -n ${namespace} -f - <<EOF
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataSource
+metadata:
+  name: ${dv_name}
+spec:
+  source:
+    pvc:
+      name: ${dv_name}
+      namespace: ${namespace}
+EOF
 
 # Make sure winrmcli pod is ready
 oc wait --for=condition=Ready --timeout=${timeout}s pod/winrmcli -n $namespace
@@ -85,7 +99,7 @@ run_vm(){
   for i in `seq 1 3`; do
     error=false
 
-    oc process -n $namespace -o json $template_name NAME=$vm_name SRC_PVC_NAME=$TARGET-datavolume-original SRC_PVC_NAMESPACE=kubevirt | \
+    oc process -n $namespace -o json $template_name NAME=$vm_name DATA_SOURCE_NAME=${dv_name} DATA_SOURCE_NAMESPACE=${namespace} | \
     jq '.items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
     oc apply -n $namespace -f -
     
