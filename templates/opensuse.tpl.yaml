@@ -73,8 +73,8 @@ objects:
               storage: 30Gi
         sourceRef:
           kind: DataSource
-          name: ${DATA_SOURCE_NAME}
-          namespace: ${DATA_SOURCE_NAMESPACE}
+          name: ${SRC_PVC_NAME}
+          namespace: ${SRC_PVC_NAMESPACE}
     running: false
     template:
       metadata:
@@ -139,10 +139,10 @@ parameters:
   from: '{{ os }}-[a-z0-9]{16}'
   generate: expression
   name: NAME
-- name: DATA_SOURCE_NAME
+- name: SRC_PVC_NAME
   description: Name of the DataSource to clone
   value: '{{ majorrelease }}'
-- name: DATA_SOURCE_NAMESPACE
+- name: SRC_PVC_NAMESPACE
   description: Namespace of the DataSource
   value: kubevirt-os-images
 - description: Randomized password for the cloud-init user {{ cloudusername }}
