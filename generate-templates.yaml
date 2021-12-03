@@ -43,7 +43,7 @@
 
   - name: Generate RHEL 8 SAP HANA template
     template:
-      src: saphana.tpl.yaml
+      src: rhel8.saphana.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
       - {flavor: tiny,  workload: saphana, default: False}
