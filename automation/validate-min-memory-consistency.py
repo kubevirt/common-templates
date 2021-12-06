@@ -24,6 +24,10 @@ def newestOsLabel(template):
 def minMemoryReqInTemplate(template):
     object = template["objects"][0]
     min_str = object["spec"]["template"]["spec"]["domain"]["resources"]["requests"]["memory"]
+    if min_str.startswith("${"):
+        for param in template["parameters"]:
+            if param["name"] == min_str[2:-1]:
+                min_str = param["value"]
     min_gi_float = float(min_str.replace("Gi",""))
     return int(min_gi_float * (1024**3))
 
