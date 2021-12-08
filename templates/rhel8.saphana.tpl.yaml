@@ -153,42 +153,55 @@ objects:
             kubernetes.io/hostname: ${TARGET_NODE_NAME}
 parameters:
   - description: Name for the new VM
+    displayName: Name
     name: NAME
     required: true
+  - description: Name of the node where this VM needs to run
+    displayName: Target Node
+    name: TARGET_NODE_NAME
+    required: true
   - description: Amount of memory
+    displayName: Memory
     name: MEMORY
     value: 24Gi
   - description: Amount of memory overhead for qemu
+    displayName: Memory Overhead
     name: MEMORY_OVERHEAD
     value: 44Gi
   - description: Amount of cores
+    displayName: CPU Cores
     name: CPU_CORES
     value: "4"
   - description: Amount of threads
+    displayName: CPU Threads
     name: CPU_THREADS
     value: "1"
   - description: Amount of sockets
+    displayName: CPU Sockets
     name: CPU_SOCKETS
     value: "1"
-  - description: Name of the sriov network1
+  - description: Name of the SR-IOV network1
+    displayName: SR-IOV network1
     name: SRIOV_NETWORK_NAME1
     value: "default/sriov-net1"
-  - description: Name of the sriov network2
+  - description: Name of the SR-IOV network2
+    displayName: SR-IOV network2
     name: SRIOV_NETWORK_NAME2
     value: "default/sriov-net2"
-  - description: Name of the sriov network3
+  - description: Name of the SR-IOV network3
+    displayName: SR-IOV network3
     name: SRIOV_NETWORK_NAME3
     value: "default/sriov-net3"
   - description: Page size of huge pages
+    displayName: Huge page size
     name: HUGEPAGES_PAGE_SIZE
     value: "1Gi"
   - name: SRC_CONTAINERDISK
     description: Name of the source container disk to import
+    displayName: Source container disk
     value: "docker://registry.access.redhat.com/rhel8/rhel-guest-image:8.4.0"
   - description: Randomized password for the cloud-init user {{ cloudusername }}
+    displayName: Cloud user password
     from: '[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}'
     generate: expression
     name: CLOUD_USER_PASSWORD
-  - description: Name of the node where this VM needs to run
-    name: TARGET_NODE_NAME
-    required: true
