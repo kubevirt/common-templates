@@ -120,11 +120,11 @@ parameters:
   description: VM name
   generate: expression
   from: "windows-[a-z0-9]{6}"
-- name: SRC_PVC_NAME
-  description: Name of the PVC to clone
+- name: DATA_SOURCE_NAME
+  description: Name of the DataSource to clone
   value: win10
-- name: SRC_PVC_NAMESPACE
-  description: Namespace of the source PVC
+- name: DATA_SOURCE_NAMESPACE
+  description: Namespace of the DataSource
   value: kubevirt-os-images
 
 objects:

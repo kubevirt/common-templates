@@ -6,7 +6,7 @@ import os.path
 import yaml
 import sys
 
-from kubernetes import client, config
+from kubernetes import config
 from openshift.dynamic import DynamicClient
 
 
@@ -24,20 +24,21 @@ def validatePVCNames(path, liveTemplates):
             templateName = template["metadata"]["name"]
             logging.info("Checking PVC name stability for: {}".format(templateName))
 
-            pvcName = getPVCNameFrom(template)
-            pvcNamespace = getPVCNamespaceFrom(template)
+            ds_name = getDataSourceOrPvcNameFrom(template)
+            ds_namespace = getDataSourceOrPvcNamespaceFrom(template)
 
             matchingLiveTemplate = liveTemplates.get(templateName)
-            if matchingLiveTemplate:
-                liveTemplatePVCName = getPVCNameFrom(matchingLiveTemplate)
-                liveTemplatePVCNamespace = getPVCNamespaceFrom(matchingLiveTemplate)
-
-                if pvcName != liveTemplatePVCName:
-                    errors.append("PVC name: {} was modified in: {}".format(pvcName, templateName))
-                if pvcNamespace != liveTemplatePVCNamespace:
-                    errors.append("PVC namespace: {} was modified in: {}".format(pvcNamespace, templateName))
-            else:
+            if matchingLiveTemplate is None:
                 logging.info("Missing liveTemplate for {}".format(templateName))
+                continue
+
+            live_template_ds_name = getDataSourceOrPvcNameFrom(matchingLiveTemplate)
+            live_template_ds_namespace = getDataSourceOrPvcNamespaceFrom(matchingLiveTemplate)
+
+            if ds_name != live_template_ds_name:
+                errors.append("PVC name: {} was modified in: {}".format(ds_name, templateName))
+            if ds_namespace != live_template_ds_namespace:
+                errors.append("PVC namespace: {} was modified in: {}".format(ds_namespace, templateName))
 
     if errors:
         error_message = "\n".join(errors)
@@ -52,12 +53,20 @@ def getParamFrom(template, paramName):
     return None
 
 
-def getPVCNameFrom(template):
-    return getParamFrom(template, "SRC_PVC_NAME")
+def getDataSourceOrPvcNameFrom(template):
+    ds_name = getParamFrom(template, "DATA_SOURCE_NAME")
+    if ds_name is None:
+        return getParamFrom(template, "SRC_PVC_NAME")
+
+    return ds_name
 
 
-def getPVCNamespaceFrom(template):
-    return getParamFrom(template, "SRC_PVC_NAMESPACE")
+def getDataSourceOrPvcNamespaceFrom(template):
+    ds_namespace = getParamFrom(template, "DATA_SOURCE_NAMESPACE")
+    if ds_namespace is None:
+        return getParamFrom(template, "SRC_PVC_NAMESPACE")
+
+    return ds_namespace
 
 
 def fetchLiveTemplates():
