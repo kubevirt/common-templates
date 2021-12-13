@@ -88,8 +88,8 @@ objects:
                 storage: 60Gi
           sourceRef:
             kind: DataSource
-            name: ${DATA_SOURCE_NAME}
-            namespace: ${DATA_SOURCE_NAMESPACE}
+            name: ${SRC_PVC_NAME}
+            namespace: ${SRC_PVC_NAMESPACE}
     running: false
     template:
       metadata:
@@ -178,9 +178,9 @@ parameters:
   description: VM name
   generate: expression
   from: "windows-[a-z0-9]{6}"
-- name: DATA_SOURCE_NAME
+- name: SRC_PVC_NAME
   description: Name of the DataSource to clone
   value: win2k16
-- name: DATA_SOURCE_NAMESPACE
+- name: SRC_PVC_NAMESPACE
   description: Namespace of the DataSource
   value: kubevirt-os-images

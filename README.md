@@ -53,8 +53,8 @@ $ oc process --local -f dist/templates/windows10-desktop-medium.yaml
 $ oc process --local -f dist/templates/windows10-desktop-medium.yaml  --parameters
 NAME                    DESCRIPTION                       GENERATOR           VALUE
 NAME                    VM name                           expression          windows-[a-z0-9]{6}
-DATA_SOURCE_NAME        Name of the DataSource to clone                       win10
-DATA_SOURCE_NAMESPACE   Namespace of the DataSource                           kubevirt-os-images
+SRC_PVC_NAME        Name of the DataSource to clone                       win10
+SRC_PVC_NAMESPACE   Namespace of the DataSource                           kubevirt-os-images
 
 $ oc process --local -f dist/templates/windows10-desktop-medium.yaml | kubectl apply -f -
 virtualmachine.kubevirt.io/windows10-rt1ap2 created
