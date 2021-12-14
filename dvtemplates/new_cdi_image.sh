@@ -104,7 +104,7 @@ docker push localhost:${port}/disk || exit "$ERROR_LOCAL_REGISTRY"
 
 # Run tests
 cd "${PWD}/../../"
-curl https://mirror.openshift.com/pub/openshift-v4/clients/oc/4.4/linux/oc.tar.gz | tar -C . -xzf -
+curl https://mirror2.openshift.com/pub/openshift-v4/clients/oc/4.4/linux/oc.tar.gz | tar -C . -xzf -
 chmod +x oc
 mv oc /usr/bin
 export TARGET=refresh-image-${TARGET_OS}-test && export CLUSTERENV=K8s

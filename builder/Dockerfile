@@ -9,6 +9,6 @@ RUN mkdir -p /.ansible/tmp
 RUN chmod -R 777 /.ansible
 
 # download oc client binary
-RUN curl https://mirror.openshift.com/pub/openshift-v4/clients/oc/4.6/linux/oc.tar.gz | tar -C . -xzf -
+RUN curl https://mirror2.openshift.com/pub/openshift-v4/clients/oc/4.6/linux/oc.tar.gz | tar -C . -xzf -
 RUN chmod +x oc
 RUN mv oc /usr/bin
