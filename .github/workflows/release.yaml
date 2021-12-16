@@ -50,10 +50,10 @@ jobs:
           export DST_TEMPLATES_FILE=common-templates-${VERSION}.yaml
 
           # If GITHUB_FORK_USER is changed, a new access token should be set as a repo secret (ACTIONS_TOKEN)
-          export GITHUB_FORK_USER=omeryahud
+          export GITHUB_FORK_USER=ksimon1
 
           # Set git configs to sign the commit
-          git config --global user.email "oyahud@redhat.com"
+          git config --global user.email "ksimon@redhat.com"
           git config --global user.name "Common-templates Release Automation"
 
           # Clone the operator repo with a token to allow pushing before creating a PR
