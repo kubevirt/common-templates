@@ -41,9 +41,7 @@
     set_fact:
       rhel8_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel8\\.') |list |sort }}"
 
-  # The SAP HANA template will not be generated
   - name: Generate RHEL 8 SAP HANA template
-    when: 0 > 1 # This template is disabled
     template:
       src: rhel8.saphana.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
