@@ -85,7 +85,7 @@ if [[ $TARGET =~ opensuse.* ]]; then
   workloads=("server")
 fi
 
-if [[ $TARGET =~ centos7.* ]] || [[ $TARGET =~ centos8.* ]]; then
+if [[ $TARGET =~ centos7.* ]] || [[ $TARGET =~ centos-stream.* ]]; then
   workloads=("server" "desktop")
 fi
 if [[ $TARGET =~ .*saphana.* ]]; then

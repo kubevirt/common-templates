@@ -134,9 +134,9 @@
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: cloud-user
 
-  - name: Generate CentOS 8 templates
+  - name: Generate CentOS Stream 8 templates
     template:
-      src: centos8.tpl.yaml
+      src: centos-stream8.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
     - {flavor: tiny,   workload: server,  memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
@@ -148,13 +148,36 @@
     - {flavor: large,  workload: server,  memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: False, default: False}
     - {flavor: large,  workload: desktop, memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: True,  default: False}
     vars:
-      os: centos8
+      os: centos-stream8
       icon: centos
-      majorrelease: centos8
+      majorrelease: centos-stream8
       oslabels:
-       - centos8
+       - centos-stream8
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: centos
+
+  - name: Generate CentOS Stream 9 templates
+    template:
+      src: centos-stream9.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+    - {flavor: tiny,   workload: server,  memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
+    - {flavor: tiny,   workload: desktop, memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
+    - {flavor: small,  workload: server,  memsize: "2Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
+    - {flavor: small,  workload: desktop, memsize: "2Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
+    - {flavor: medium, workload: server,  memsize: "4Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
+    - {flavor: medium, workload: desktop, memsize: "4Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
+    - {flavor: large,  workload: server,  memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: False, default: False}
+    - {flavor: large,  workload: desktop, memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: True,  default: False}
+    vars:
+      os: centos-stream9
+      icon: centos
+      majorrelease: centos-stream9
+      oslabels:
+       - centos-stream9
+      osinfoname: "{{ oslabels[0] }}"
+      cloudusername: centos
+
 
   - name: Generate CentOS 7 templates
     template:

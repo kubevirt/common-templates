@@ -3,11 +3,11 @@ kind: Template
 metadata:
   name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
   annotations:
-    openshift.io/display-name: "CentOS 8.0+ VM"
+    openshift.io/display-name: "CentOS Stream 9 VM"
     description: >-
-      Template for CentOS 8 VM or newer.
-      A PVC with the CentOS disk image must be available.
-    tags: "hidden,kubevirt,virtualmachine,linux,centos"
+      Template for CentOS Stream 9 VM or newer.
+      A PVC with the CentOS Stream disk image must be available.
+    tags: "hidden,kubevirt,virtualmachine,linux,centosstream"
     iconClass: "icon-{{ icon }}"
     openshift.io/provider-display-name: "KubeVirt"
     openshift.io/documentation-url: "https://github.com/kubevirt/common-templates"
