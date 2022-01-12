@@ -150,15 +150,15 @@ objects:
                 networkName: ${SRIOV_NETWORK_NAME3}
               name: sriov-net3
           nodeSelector:
-            kubernetes.io/hostname: ${TARGET_NODE_NAME}
+            kubevirt.io/workload: ${WORKLOAD_NODE_LABEL_VALUE}
 parameters:
   - description: Name for the new VM
     displayName: Name
     name: NAME
     required: true
-  - description: Name of the node where this VM needs to run
-    displayName: Target Node
-    name: TARGET_NODE_NAME
+  - description: Value of the node label selector key
+    displayName: "The value of the kubevirt.io/workload node selector label key. The target node needs to match this label"
+    name: WORKLOAD_NODE_LABEL_VALUE
     required: true
   - description: Amount of memory
     displayName: Memory
