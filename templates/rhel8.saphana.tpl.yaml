@@ -183,15 +183,15 @@ parameters:
   - description: Name of the SR-IOV network1
     displayName: SR-IOV network1
     name: SRIOV_NETWORK_NAME1
-    value: "default/sriov-net1"
+    required: true
   - description: Name of the SR-IOV network2
     displayName: SR-IOV network2
     name: SRIOV_NETWORK_NAME2
-    value: "default/sriov-net2"
+    required: true
   - description: Name of the SR-IOV network3
     displayName: SR-IOV network3
     name: SRIOV_NETWORK_NAME3
-    value: "default/sriov-net3"
+    required: true
   - description: Page size of huge pages
     displayName: Huge page size
     name: HUGEPAGES_PAGE_SIZE
