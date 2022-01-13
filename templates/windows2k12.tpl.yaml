@@ -149,7 +149,11 @@ objects:
 {% endif %}
             disks:
             - disk:
+{% if item.workload == "highperformance" %}
+                bus: virtio
+{% else %}
                 bus: sata
+{% endif %}
               name: ${NAME}
             interfaces:
             - masquerade: {}
