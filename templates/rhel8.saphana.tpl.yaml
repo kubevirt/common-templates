@@ -150,15 +150,20 @@ objects:
                 networkName: ${SRIOV_NETWORK_NAME3}
               name: sriov-net3
           nodeSelector:
-            kubernetes.io/hostname: ${TARGET_NODE_NAME}
+            kubevirt.io/workload: ${WORKLOAD_NODE_LABEL_VALUE}
+          tolerations:
+            - key: kubevirt.io/workload
+              operator: Equal
+              value: hana
+              effect: NoSchedule
 parameters:
   - description: Name for the new VM
     displayName: Name
     name: NAME
     required: true
-  - description: Name of the node where this VM needs to run
-    displayName: Target Node
-    name: TARGET_NODE_NAME
+  - description: Value of the node label selector key
+    displayName: "The value of the kubevirt.io/workload node selector label key. The target node needs to match this label"
+    name: WORKLOAD_NODE_LABEL_VALUE
     required: true
   - description: Amount of memory
     displayName: Memory
@@ -183,15 +188,15 @@ parameters:
   - description: Name of the SR-IOV network1
     displayName: SR-IOV network1
     name: SRIOV_NETWORK_NAME1
-    value: "default/sriov-net1"
+    required: true
   - description: Name of the SR-IOV network2
     displayName: SR-IOV network2
     name: SRIOV_NETWORK_NAME2
-    value: "default/sriov-net2"
+    required: true
   - description: Name of the SR-IOV network3
     displayName: SR-IOV network3
     name: SRIOV_NETWORK_NAME3
-    value: "default/sriov-net3"
+    required: true
   - description: Page size of huge pages
     displayName: Huge page size
     name: HUGEPAGES_PAGE_SIZE
@@ -199,7 +204,7 @@ parameters:
   - name: SRC_CONTAINERDISK
     description: Name of the source container disk to import
     displayName: Source container disk
-    value: "docker://registry.access.redhat.com/rhel8/rhel-guest-image:8.4.0"
+    value: "docker://registry.redhat.io/rhel8/rhel-guest-image:8.4.0"
   - description: Randomized password for the cloud-init user {{ cloudusername }}
     displayName: Cloud user password
     from: '[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}'
