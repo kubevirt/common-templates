@@ -151,6 +151,11 @@ objects:
               name: sriov-net3
           nodeSelector:
             kubevirt.io/workload: ${WORKLOAD_NODE_LABEL_VALUE}
+          tolerations:
+            - key: kubevirt.io/workload
+              operator: Equal
+              value: hana
+              effect: NoSchedule
 parameters:
   - description: Name for the new VM
     displayName: Name
