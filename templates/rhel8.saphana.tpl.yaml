@@ -107,13 +107,10 @@ objects:
                   model: virtio
                 - name: sriov-net1
                   sriov: {}
-                  model: virtio
                 - name: sriov-net2
                   sriov: {}
-                  model: virtio
                 - name: sriov-net3
                   sriov: {}
-                  model: virtio
             machine:
               type: ""
             resources:
