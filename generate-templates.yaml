@@ -273,7 +273,7 @@
 
   - name: Load OpenSUSE import urls
     set_fact:
-      opensuse_import_urls: "{{ lookup('osinfo', 'opensuse15.0') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+      opensuse_import_urls: "{{ lookup('osinfo', 'opensuse15.3') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
 
   - name: Generate OpenSUSE templates
     template:
@@ -289,7 +289,7 @@
       icon: opensuse
       majorrelease: opensuse
       oslabels:
-       - opensuse15.0
+       - opensuse15.3
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: opensuse
       import_urls: "{{ opensuse_import_urls }}"
