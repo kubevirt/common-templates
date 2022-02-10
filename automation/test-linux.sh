@@ -78,7 +78,7 @@ if [[ $TARGET =~ centos6.* ]]; then
 fi
 
 if [[ $TARGET =~ ubuntu.* ]]; then
-  workloads=("desktop")
+  workloads=("desktop" "server")
 fi
 
 if [[ $TARGET =~ opensuse.* ]]; then
