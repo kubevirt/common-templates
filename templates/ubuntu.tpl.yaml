@@ -1,5 +1,4 @@
 {% set codename = lookup('osinfo', oslabels[0]).codename %}
-{% set adjective, animal = (codename|lower).split(' ') %}
 {% set displayname = lookup('osinfo', oslabels[0]).name %}
 apiVersion: template.openshift.io/v1
 kind: Template
@@ -10,8 +9,6 @@ metadata:
     description: >-
       Template for {{ displayname }} ({{ codename }}) VM.
       A PVC with the Ubuntu disk image must be available.
-      Recommended disk image:
-      http://cloud-images.ubuntu.com/{{ adjective }}/current/{{ adjective }}-server-cloudimg-amd64.img
     tags: "hidden,kubevirt,virtualmachine,ubuntu"
     iconClass: "icon-{{ icon }}"
     openshift.io/provider-display-name: "KubeVirt"
@@ -20,6 +17,14 @@ metadata:
     template.openshift.io/bindable: "false"
     template.kubevirt.io/version: v1alpha1
     defaults.template.kubevirt.io/disk: rootdisk
+{% if item.workload != "desktop" %}
+{% if import_urls | length > 0 %}
+    template.kubevirt.io/import-urls: |
+{% for url in import_urls %}
+      {{ url }}
+{% endfor %}
+{% endif %}
+{% endif %}
     template.kubevirt.io/editable: |
       /objects[0].spec.template.spec.domain.cpu.sockets
       /objects[0].spec.template.spec.domain.cpu.cores

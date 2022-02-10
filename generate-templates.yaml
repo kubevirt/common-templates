@@ -134,6 +134,10 @@
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: cloud-user
 
+  - name: Load CentOS Stream 8 import urls
+    set_fact:
+      centos8stream_import_urls: "{{ lookup('osinfo', 'centos-stream8') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+
   - name: Generate CentOS Stream 8 templates
     template:
       src: centos-stream8.tpl.yaml
@@ -155,6 +159,11 @@
        - centos-stream8
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: centos
+      import_urls: "{{ centos8stream_import_urls }}"
+
+  - name: Load CentOS Stream 9 import urls
+    set_fact:
+      centos9stream_import_urls: "{{ lookup('osinfo', 'centos-stream9') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
 
   - name: Generate CentOS Stream 9 templates
     template:
@@ -177,7 +186,11 @@
        - centos-stream9
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: centos
+      import_urls: "{{ centos9stream_import_urls }}"
 
+  - name: Load CentOS 7 import urls
+    set_fact:
+      centos7_import_urls: "{{ lookup('osinfo', 'centos7.0') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
 
   - name: Generate CentOS 7 templates
     template:
@@ -200,6 +213,7 @@
        - centos7.0
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: centos
+      import_urls: "{{ centos7_import_urls }}"
 
   - name: Load CentOS 6 versions
     set_fact:
@@ -224,7 +238,12 @@
 
   - name: Load Fedora versions
     set_fact:
-      fedora_labels: "{{ lookup('osinfo', 'distro=fedora') |select('osinfo_active') |map(attribute='short_id') |list |sort }}"
+      fedora_labels: "{{ lookup('osinfo', 'distro=fedora') |select('osinfo_active') |map(attribute='short_id') |select('match', '^fedora\\d+$') |list |sort }}"
+
+  - name: Load Fedora import urls
+    set_fact:
+      fedora_import_urls: "{{ fedora_import_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+    loop: "{{ fedora_labels }}"
 
   - name: Generate Fedora templates
     template:
@@ -250,6 +269,11 @@
       oslabels: "{{ fedora_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: fedora
+      import_urls: "{{ fedora_import_urls }}"
+
+  - name: Load OpenSUSE import urls
+    set_fact:
+      opensuse_import_urls: "{{ lookup('osinfo', 'opensuse15.0') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
 
   - name: Generate OpenSUSE templates
     template:
@@ -268,6 +292,11 @@
        - opensuse15.0
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: opensuse
+      import_urls: "{{ opensuse_import_urls }}"
+
+  - name: Load Ubuntu import urls
+    set_fact:
+      ubuntu_import_urls: "{{ lookup('osinfo', 'ubuntu20.04') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
 
   - name: Generate Ubuntu templates
     template:
@@ -287,6 +316,7 @@
        - ubuntu20.04
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: ubuntu
+      import_urls: "{{ ubuntu_import_urls }}"
 
   - name: Generate Windows server 2012 R2 templates
     template:

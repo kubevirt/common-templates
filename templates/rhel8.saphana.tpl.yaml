@@ -15,6 +15,10 @@ metadata:
     template.openshift.io/bindable: "false"
     template.kubevirt.io/version: v1alpha1
     defaults.template.kubevirt.io/disk: rootdisk
+{% if item.workload != "desktop" %}
+    template.kubevirt.io/containerdisks: |
+      registry.redhat.io/rhel8/rhel-guest-image
+{% endif %}
     name.os.template.kubevirt.io/rhel8.4: Red Hat Enterprise Linux 8.0 or higher
   labels:
     os.template.kubevirt.io/rhel8.4: "true"

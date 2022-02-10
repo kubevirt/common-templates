@@ -15,6 +15,16 @@ metadata:
     template.openshift.io/bindable: "false"
     template.kubevirt.io/version: v1alpha1
     defaults.template.kubevirt.io/disk: rootdisk
+{% if item.workload != "desktop" %}
+    template.kubevirt.io/containerdisks: |
+      quay.io/containerdisks/centos-stream:8
+{% if import_urls | length > 0 %}
+    template.kubevirt.io/import-urls: |
+{% for url in import_urls %}
+      {{ url }}
+{% endfor %}
+{% endif %}
+{% endif %}
     template.kubevirt.io/editable: |
       /objects[0].spec.template.spec.domain.cpu.sockets
       /objects[0].spec.template.spec.domain.cpu.cores
