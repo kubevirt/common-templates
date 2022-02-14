@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<libosinfo version="0.0.1">
+  <os id="http://centos.org/centos-stream/9">
+    <image arch="x86_64" format="qcow2" cloud-init="true">
+      <url>https://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-GenericCloud-9-20220211.1.x86_64.qcow2</url>
+    </image>
+  </os>
+</libosinfo>
