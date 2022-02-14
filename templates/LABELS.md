@@ -1,16 +1,7 @@
 # Available labels
 
-This file describes the labels we will be using to select
+This file exemplarily describes the labels we will be using to select
 the workload a template is supposed to be used for.
-
-Some of them are not going to be used immediately and serve
-as examples.
-
-## Deprecated templates
-
-When a template is deprecated, the following annotation is applied to it: `template.kubevirt.io/deprecated: "true"`.
-
-The template itself is not removed for backward compatibility reasons.
 
 ## Operating systems
 
@@ -19,73 +10,36 @@ identifiers](https://gitlab.com/libosinfo/osinfo-db/tree/master/data/os) from th
 
 ### Ubuntu
 
-- os.template.kubevirt.io/ubuntu20.10
-- os.template.kubevirt.io/ubuntu20.04
-- os.template.kubevirt.io/ubuntu19.10
-- os.template.kubevirt.io/ubuntu19.04
-- os.template.kubevirt.io/ubuntu18.10
-- os.template.kubevirt.io/ubuntu18.04
-- os.template.kubevirt.io/ubuntu17.10
-- os.template.kubevirt.io/ubuntu17.04
-- os.template.kubevirt.io/ubuntu16.10
-- os.template.kubevirt.io/ubuntu16.04
+- os.template.kubevirt.io/ubuntuXX.XX (e.g. ubuntu20.04)
 
 ### Fedora
 
-- os.template.kubevirt.io/fedora29
-- os.template.kubevirt.io/fedora28
-- os.template.kubevirt.io/fedora27
-- os.template.kubevirt.io/fedora26
-- os.template.kubevirt.io/fedora25
-- os.template.kubevirt.io/fedora24
-- os.template.kubevirt.io/fedora23
+- os.template.kubevirt.io/fedoraXX (e.g. fedora 35)
 
 ### CentOS
 
-- os.template.kubevirt.io/centos7.0
-- os.template.kubevirt.io/centos6.9
-- os.template.kubevirt.io/centos6.8
-- os.template.kubevirt.io/centos6.7
+- os.template.kubevirt.io/centosX.X (e.g. centos7.0)
+- os.template.kubevirt.io/centos-streamX (e.g. centos-stream9)
 
 ### Red Hat Enterprise Linux
 
-- os.template.kubevirt.io/rhel7.0
-- os.template.kubevirt.io/rhel7.1
-- os.template.kubevirt.io/rhel7.2
-- os.template.kubevirt.io/rhel7.3
-- os.template.kubevirt.io/rhel7.4
-- os.template.kubevirt.io/rhel7.5
-- os.template.kubevirt.io/rhel6.0
-- os.template.kubevirt.io/rhel6.1
-- os.template.kubevirt.io/rhel6.2
-- os.template.kubevirt.io/rhel6.3
-- os.template.kubevirt.io/rhel6.4
-- os.template.kubevirt.io/rhel6.5
-- os.template.kubevirt.io/rhel6.6
-- os.template.kubevirt.io/rhel6.7
-- os.template.kubevirt.io/rhel6.8
-- os.template.kubevirt.io/rhel6.9
-- os.template.kubevirt.io/rhel6.10
+- os.template.kubevirt.io/rhelX.X (e.g. rhel8.0)
 
 ### openSUSE
 
-- os.template.kubevirt.io/opensuse15.0
+- os.template.kubevirt.io/opensuseX.X (e.g. opensuse15.3)
 
 ### Microsoft Windows
 
-- os.template.kubevirt.io/win2k19
-- os.template.kubevirt.io/win2k16
-- os.template.kubevirt.io/win2k12r2
-- os.template.kubevirt.io/win2k12
-- os.template.kubevirt.io/win10
+- os.template.kubevirt.io/win2kXX (e.g. win2k19)
+- os.template.kubevirt.io/winXX (e.g. win10)
 
 ## Workload profiles
 
 - workload.template.kubevirt.io/desktop
 - workload.template.kubevirt.io/server
-- workload.template.kubevirt.io/cpu-intensive
-- workload.template.kubevirt.io/io-intensive
-- workload.template.kubevirt.io/sap-hana
+- workload.template.kubevirt.io/highperformance
+- workload.template.kubevirt.io/saphana
 
 ## Flavors
 
@@ -93,5 +47,3 @@ identifiers](https://gitlab.com/libosinfo/osinfo-db/tree/master/data/os) from th
 - flavor.template.kubevirt.io/small
 - flavor.template.kubevirt.io/medium
 - flavor.template.kubevirt.io/large
-- flavor.template.kubevirt.io/xlarge
-
