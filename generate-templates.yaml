@@ -251,7 +251,11 @@
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: fedora
 
-  - name: Generate OpenSUSE templates
+  - name: Load openSUSE versions
+    set_fact:
+      opensuse_labels: "{{ lookup('osinfo', 'distro=opensuse') |select('osinfo_active') |map(attribute='short_id') |list |sort }}"
+
+  - name: Generate openSUSE templates
     template:
       src: opensuse.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
@@ -264,8 +268,7 @@
       os: opensuse
       icon: opensuse
       majorrelease: opensuse
-      oslabels:
-       - opensuse15.0
+      oslabels: "{{ opensuse_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: opensuse
 

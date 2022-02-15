@@ -3,10 +3,10 @@ kind: Template
 metadata:
   name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
   annotations:
-    openshift.io/display-name: "OpenSUSE Leap 15.0 VM"
+    openshift.io/display-name: "{{ lookup('osinfo', oslabels[0]).name }}+ VM"
     description: >-
-      Template for OpenSUSE Leap 15.0 VM.
-      A PVC with the OpenSUSE disk image must be available.
+      Template for {{ lookup('osinfo', oslabels[0]).name }} VM or newer.
+      A PVC with the openSUSE disk image must be available.
       Recommended disk image:
       https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.0/images/
     tags: "hidden,kubevirt,virtualmachine,linux,opensuse"
