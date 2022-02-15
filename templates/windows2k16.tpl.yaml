@@ -154,7 +154,7 @@ objects:
 {% else %}
                 bus: sata
 {% endif %}
-              name: ${NAME}
+              name: rootdisk
             interfaces:
             - masquerade: {}
 {% if item.multiqueue %}
@@ -173,7 +173,7 @@ objects:
         volumes:
         - dataVolume:
             name: ${NAME}
-          name: ${NAME}
+          name: rootdisk
         networks:
         - name: default
           pod: {}

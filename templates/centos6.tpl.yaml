@@ -113,7 +113,7 @@ objects:
             - bootOrder: 1
               disk:
                 bus: {{ diskbus | default("virtio") }}
-              name: ${NAME}
+              name: rootdisk
             - disk:
                 bus: {{ diskbus | default("virtio") }}
               name: cloudinitdisk
@@ -128,7 +128,7 @@ objects:
         volumes:
         - dataVolume:
             name: ${NAME}
-          name: ${NAME}
+          name: rootdisk
         - cloudInitNoCloud:
             userData: |-
               #cloud-config
