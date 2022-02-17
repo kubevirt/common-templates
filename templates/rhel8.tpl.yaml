@@ -15,6 +15,8 @@ metadata:
     template.openshift.io/bindable: "false"
     template.kubevirt.io/version: v1alpha1
     defaults.template.kubevirt.io/disk: rootdisk
+    template.kubevirt.io/containerdisks: |
+      registry.redhat.io/rhel8/rhel-guest-image
     template.kubevirt.io/editable: |
       /objects[0].spec.template.spec.domain.cpu.sockets
       /objects[0].spec.template.spec.domain.cpu.cores
