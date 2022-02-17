@@ -1,14 +1,13 @@
 {% set codename = lookup('osinfo', oslabels[0]).codename %}
 {% set adjective, animal = (codename|lower).split(' ') %}
-{% set displayname = lookup('osinfo', oslabels[0]).name %}
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
   name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
   annotations:
-    openshift.io/display-name: {{ displayname }} ({{ codename }}) VM"
+    openshift.io/display-name: "Ubuntu {{ lookup('osinfo', oslabels[0]).version }}+ VM"
     description: >-
-      Template for {{ displayname }} ({{ codename }}) VM.
+      Template for Ubuntu {{ lookup('osinfo', oslabels[0]).version }} VM or newer.
       A PVC with the Ubuntu disk image must be available.
       Recommended disk image:
       http://cloud-images.ubuntu.com/{{ adjective }}/current/{{ adjective }}-server-cloudimg-amd64.img
@@ -29,7 +28,7 @@ metadata:
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
 {% for osl in oslabels %}
-    name.os.template.kubevirt.io/{{ osl }}: {{ displayname }} or higher
+    name.os.template.kubevirt.io/{{ osl }}: Ubuntu {{ lookup('osinfo', oslabels[0]).version }} or higher
 {% endfor %}
   labels:
 {% for osl in oslabels %}

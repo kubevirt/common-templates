@@ -272,22 +272,26 @@
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: opensuse
 
+  - name: Load Ubuntu versions
+    set_fact:
+      ubuntu_labels: "{{ lookup('osinfo', 'distro=ubuntu') |select('osinfo_active') |map(attribute='short_id') |list |sort }}"
+
   - name: Generate Ubuntu templates
     template:
       src: ubuntu.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-      #minimal memory requirement for ubuntu is 2Gi, for now we don't have mechanism how to deprecate template
-    - {flavor: tiny,   workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True, default: False}
-    - {flavor: small,  workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True, default: True}
+    - {flavor: small,  workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True, default: False}
+    - {flavor: small,  workload: server,  memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True, default: True}
     - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True, default: False}
+    - {flavor: medium, workload: server,  memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True, default: False}
     - {flavor: large,  workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, tablet: True, default: False}
+    - {flavor: large,  workload: server,  memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, tablet: True, default: False}
     vars:
       os: ubuntu
       icon: ubuntu
       majorrelease: ubuntu
-      oslabels:
-       - ubuntu20.04
+      oslabels: "{{ ubuntu_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: ubuntu
 
