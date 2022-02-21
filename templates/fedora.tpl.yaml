@@ -93,6 +93,12 @@ objects:
           kubevirt.io/size: {{ item.flavor }}
       spec:
         domain:
+          features:
+            smm:
+              enabled: true
+          firmware:
+            bootloader:
+              efi: {}
 {% if item.iothreads %}
           ioThreadsPolicy: shared
 {% endif %}
