@@ -1,14 +1,20 @@
-#This docker file is used in openshift CI
-FROM quay.io/kubevirt/common-templates:fedora33CI
+# This Dockerfile is used in openshift CI
+FROM quay.io/fedora/fedora:latest
 
-RUN dnf install -y jq ansible libosinfo python3-gobject python3-openshift libosinfo intltool make git findutils qemu expect golang
-RUN chmod uga+w /etc/passwd
+# Install dependencies and tools
+RUN dnf install -y jq ansible python3-gobject python3-openshift libosinfo make git findutils expect golang
 
-#set permissions for ansible tmp folder
-RUN mkdir -p /.ansible/tmp
-RUN chmod -R 777 /.ansible
+# Allow writes to /etc/passwd so a user for ansible can be added by CI commands
+RUN chmod a+w /etc/passwd
 
-# download oc client binary
-RUN curl https://mirror2.openshift.com/pub/openshift-v4/clients/oc/4.6/linux/oc.tar.gz | tar -C . -xzf -
-RUN chmod +x oc
-RUN mv oc /usr/bin
+# Create ansible tmp folder and set permissions
+RUN mkdir -p /.ansible/tmp && \
+    chmod -R 777 /.ansible
+
+# Download oc client binary
+RUN curl https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/oc/latest/linux/oc.tar.gz | tar -C /usr/local/bin -xzf - oc && \
+    chmod +x /usr/local/bin/oc
+
+# Download yq binary
+RUN curl https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq && \
+    chmod +x /usr/local/bin/yq
