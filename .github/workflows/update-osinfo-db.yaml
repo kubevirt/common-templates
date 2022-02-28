@@ -1,0 +1,60 @@
+name: Update osinfo-db
+on:
+  schedule:
+    - cron: "0 8 * * 1"
+jobs:
+  update-osinfo-db:
+    name: Update osinfo-db
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for osinfo-db update and create PR if necessary
+        run: |
+          # If GITHUB_FORK_USER is changed, a new access token should be set as a repo secret (ACTIONS_TOKEN)
+          GITHUB_FORK_USER=ksimon1
+
+          # Set git configs to sign the commit
+          git config --global user.email "ksimon@redhat.com"
+          git config --global user.name "Common-templates osinfo-db Update Automation"
+
+          # Clone the common-templates repo with a token to allow pushing before creating a PR
+          git clone "https://${GITHUB_FORK_USER}:${{ secrets.ACTIONS_TOKEN }}@github.com/${GITHUB_FORK_USER}/common-templates"
+
+          # Authenticate with gh cli
+          echo "${{ secrets.ACTIONS_TOKEN }}" > token.txt
+          gh auth login --with-token < token.txt
+          rm token.txt
+
+          # Fetch common-templates changes
+          cd common-templates || exit
+          git remote add upstream https://github.com/kubevirt/common-templates
+          git fetch upstream
+          git reset --hard upstream/master
+
+          # Fetch osinfo-db changes
+          git submodule init
+          make update-osinfo-db
+
+          # Create PR if osinfo-db submodule commit id does not match index
+          if [[ $(git submodule status osinfo-db | cut -c 1) == "+" ]]; then
+            OSINFO_DB_VERSION=$(git --git-dir=osinfo-db/.git --work-tree=osinfo-db describe)
+            OSINFO_DB_BRANCH="update-osinfo-db-${OSINFO_DB_VERSION}"
+
+            git checkout -b "$OSINFO_DB_BRANCH"
+            git add osinfo-db
+            git commit -sm "Update osinfo-db to $OSINFO_DB_VERSION"
+            git push --set-upstream --force origin "$OSINFO_DB_BRANCH"
+
+            # Create a new PR in the common-templates repo
+            gh pr create --repo kubevirt/common-templates \
+              --base master \
+              --head "${GITHUB_FORK_USER}:${OSINFO_DB_BRANCH}" \
+              --title "Update osinfo-db to $OSINFO_DB_VERSION" \
+              --body "$(cat <<- EOF
+          		Update osinfo-db to $OSINFO_DB_VERSION
+          		**Release note**:
+          		\`\`\`release-note
+          		Update osinfo-db to $OSINFO_DB_VERSION
+          		\`\`\`
+          		EOF
+              )"
+          fi
