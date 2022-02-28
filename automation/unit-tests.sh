@@ -76,3 +76,9 @@ if [ $? -eq 1 ]; then
   echo "[Upgrade] Validation of default label failed "
   exit 1
 fi
+
+./automation/test_containerdisk_annotations.sh
+if [ $? -eq 1 ]; then
+  echo "[Upgrade] Validation of containerdisk annotation failed "
+  exit 1
+fi
