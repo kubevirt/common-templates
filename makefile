@@ -43,4 +43,7 @@ generate: generate-templates.yaml $(METASOURCES)
 	make -C osinfo-db/ OSINFO_DB_EXPORT=echo
 	ansible-playbook generate-templates.yaml
 
+update-osinfo-db:
+	git submodule update --remote osinfo-db
+
 .PHONY: all generate release e2e-tests unit-tests go-tests
