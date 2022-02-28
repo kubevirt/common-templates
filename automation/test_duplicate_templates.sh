@@ -18,31 +18,37 @@
 #
 set -ex
 
-ver_label='^[[:space:]]*template.kubevirt.io/version'
-# Any template can be used here as they all have the same verison label, centos is an arbitrary one
-ver_value=$(grep "$ver_label" dist/templates/centos6-server-large.yaml | tail -1 | cut -f2 -d":" | tr -d ' "')
-ver_label="template.kubevirt.io/version=$ver_value"
-templates=("dist/templates/*.yaml")
-for template in $templates; do
+# Any template can be used here as they all have the same version label, fedora is an arbitrary one
+ver_label=$( \
+  yq -o props '.metadata.labels | with_entries(select(.key == "template.kubevirt.io/version"))' \
+  dist/templates/fedora-server-large.yaml \
+)
 
-	os_name_prefix="^[[:space:]]*os.template.kubevirt.io/"
-	template_oss=$(grep "$os_name_prefix" $template | cut -f1 -d":")
+templates=(dist/templates/*.yaml)
 
-	workload_prefix="workload.template.kubevirt.io/"
-	template_workloads=$(grep "$workload_prefix" $template | cut -f1 -d":")
+for template in "${templates[@]}"; do
+  readarray -t template_oss < <( \
+    yq -o props '.metadata.labels | with_entries(select(.key == "os.template.kubevirt.io/*"))' "$template" \
+  )
 
-	flavor_prefix="flavor.template.kubevirt.io/"
-	template_flavors=$(grep "$flavor_prefix" $template | cut -f1 -d":")
+  readarray -t template_workloads < <( \
+    yq -o props '.metadata.labels | with_entries(select(.key == "workload.template.kubevirt.io/*"))' "$template" \
+  )
 
-	for os in $template_oss; do
-		for workload in $template_workloads; do
-			for flavor in $template_flavors; do
-				count=$(oc get template -l $os,$workload,$flavor,$ver_label --no-headers | wc -l)
-				if [[ $count -ne 1 ]]; then
-					echo "There are $count templates found with the following labels $os,$workload,$flavor,$ver_label"
-					exit 1
-				fi
-			done
-		done
-	done
+  readarray -t template_flavors < <( \
+    yq -o props '.metadata.labels | with_entries(select(.key == "flavor.template.kubevirt.io/*"))' "$template" \
+  )
+
+  for os in "${template_oss[@]}"; do
+    for workload in "${template_workloads[@]}"; do
+      for flavor in "${template_flavors[@]}"; do
+        count=$(oc get template -l "$os,$workload,$flavor,$ver_label" --no-headers | wc -l)
+
+        if [[ $count -ne 1 ]]; then
+          echo "There are $count templates found with the following labels $os,$workload,$flavor,$ver_label"
+          exit 1
+        fi
+      done
+    done
+  done
 done
