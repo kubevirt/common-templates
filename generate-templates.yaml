@@ -238,7 +238,7 @@
 
   - name: Load Fedora versions
     set_fact:
-      fedora_labels: "{{ lookup('osinfo', 'distro=fedora') |select('osinfo_active') |map(attribute='short_id') |select('match', '^fedora\\d+$') |list |sort }}"
+      fedora_labels: "{{ lookup('osinfo', 'distro=fedora') |select('osinfo_active') |map(attribute='short_id') |select('match', '^fedora3[5-9]|^fedora[4-9][0-9]') |list |sort }}"
 
   - name: Load Fedora image urls
     set_fact:
