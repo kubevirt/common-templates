@@ -3,6 +3,12 @@
 This file exemplarily describes the labels we will be using to select
 the workload a template is supposed to be used for.
 
+## Deprecated templates
+
+When a template is deprecated, the following annotation is applied to it: `template.kubevirt.io/deprecated: "true"`.
+
+The template itself is not removed for backward compatibility reasons.
+
 ## Operating systems
 
 The operating system labels must match the [libosinfo
