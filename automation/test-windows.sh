@@ -4,6 +4,7 @@ set -ex
 
 namespace="kubevirt"
 template_name="windows2k12r2"
+username="Administrator"
 
 dv_name="${TARGET}-datavolume-original"
 
@@ -70,6 +71,10 @@ workloads=("server" "highperformance")
 if [[ $TARGET =~ windows10.* ]]; then
   template_name="windows10"
   workloads=("desktop")
+elif [[ $TARGET =~ windows11.* ]]; then
+  template_name="windows11"
+  username="Administrator11"
+  workloads=("desktop")
 elif [[ $TARGET =~ windows2016.* ]]; then
   template_name="windows2k16"
 elif [[ $TARGET =~ windows2019.* ]]; then
@@ -78,7 +83,6 @@ fi
 
 delete_vm(){
   vm_name=$1
-  local template_name=$2
   set +e
   #stop vm
   ./virtctl stop $vm_name -n $namespace
@@ -113,7 +117,7 @@ run_vm(){
 
     current_time=0
     # run ipconfig /all command on windows vm
-    while [[ $(oc exec -n $namespace -i winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username "Administrator" -password "Heslo123" "ipconfig /all" | grep "IPv4 Address" | wc -l ) -eq 0 ]] ; do 
+    while [[ $(oc exec -n $namespace -i winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username $username -password "Heslo123" "ipconfig /all" | grep "IPv4 Address" | wc -l ) -eq 0 ]] ; do
       # VM can be stopped during test and recreated. That will change IP, so to be sure, get IP at every iteration
       ipAddressVMI=$(oc get vmi $vm_name -o json -n $namespace| jq -r '.status.interfaces[0].ipAddress')
       current_time=$((current_time + sample))
