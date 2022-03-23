@@ -91,6 +91,12 @@ objects:
             interfaces:
             - masquerade: {}
               name: default
+          features:
+            smm:
+              enabled: true
+          firmware:
+            bootloader:
+              efi: {}
         terminationGracePeriodSeconds: 180
         networks:
         - name: default
