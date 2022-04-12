@@ -26,6 +26,17 @@ metadata:
     template.kubevirt.io/default-os-variant: "true"
 {% endif %}
 objects:
+  - apiVersion: migrations.kubevirt.io/v1alpha1
+    kind: MigrationPolicy
+    metadata:
+      name: ${NAME}
+    spec:
+      allowAutoConverge: true
+      allowPostCopy: false
+      selectors:
+        virtualMachineInstanceSelector:
+          matchLabels:
+            app: ${NAME}
   - apiVersion: kubevirt.io/v1
     kind: VirtualMachine
     metadata:
@@ -69,6 +80,7 @@ objects:
             vm.kubevirt.io/workload: "{{ item.workload }}"
             vm.kubevirt.io/flavor: "{{ item.flavor }}"
           labels:
+            app: ${NAME}
             kubevirt.io/domain: ${NAME}
             kubevirt.io/size: {{ item.flavor }}
         spec:
