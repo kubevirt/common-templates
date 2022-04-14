@@ -22,8 +22,8 @@ jobs:
         run: |
           git submodule init
           git submodule update
-          docker build -t common-templates-ci ./builder/
-          docker run \
+          podman build -t common-templates-ci ./builder/
+          podman run \
             -v "$(pwd)":/common-templates \
             common-templates-ci \
             /bin/bash -c "cd /common-templates && export REVISION=1 VERSION="${{ steps.get_release.outputs.tag_name }}" && make release"
