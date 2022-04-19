@@ -41,20 +41,6 @@
     set_fact:
       rhel8_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel8\\.') |list |sort }}"
 
-  - name: Generate RHEL 8 SAP HANA template
-    template:
-      src: rhel8.saphana.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-      - {flavor: tiny,  workload: saphana, default: False}
-    vars:
-      os: rhel8
-      icon: rhel
-      majorrelease: rhel8
-      oslabels: "{{ rhel8_labels }}"
-      osinfoname: "{{ oslabels[0] }}"
-      cloudusername: cloud-user
-
   - name: Generate RHEL 8 templates
     template:
       src: rhel8.tpl.yaml
