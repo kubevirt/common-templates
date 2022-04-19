@@ -65,7 +65,6 @@ spec:
       namespace: ${namespace}
 EOF
 
-apply_only=false
 sizes=("tiny" "small" "medium" "large")
 workloads=("desktop" "server" "highperformance")
 
@@ -102,27 +101,6 @@ delete_vm() {
   set -e
   #wait until vm is deleted
   while oc get -n $namespace vmi $vm_name 2> >(grep "not found"); do sleep $sample; done
-}
-
-only_apply_vm() {
-  vm_name=$1
-  template_path="dist/templates/$vm_name.yaml"
-  local template_option
-  running=false
-
-  set +e
-
-  if [ "${CLUSTERENV}" == "$ocenv" ]; then
-    local template_name=$(oc get -n ${namespace} -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt)
-    template_option=${template_name}
-  elif [ "${CLUSTERENV}" == "$k8senv" ]; then
-    template_option="-f ${template_path} --local"
-  fi
-
-  error=false
-  oc process ${template_option} -n $namespace -o json NAME=$vm_name SRC_PVC_NAME=$TARGET-datavolume-original SRC_PVC_NAMESPACE=kubevirt |
-    jq '.items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' |
-    oc apply -n $namespace -f -
 }
 
 run_vm() {
@@ -177,10 +155,6 @@ run_vm() {
 for size in ${sizes[@]}; do
   for workload in ${workloads[@]}; do
     vm_name=$template_name-$workload-$size
-    if [[ "${apply_only}" == "true" ]]; then
-      only_apply_vm $vm_name
-    else
-      run_vm $vm_name
-    fi
+    run_vm $vm_name
   done
 done
