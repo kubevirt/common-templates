@@ -88,11 +88,6 @@ fi
 if [[ $TARGET =~ centos7.* ]] || [[ $TARGET =~ centos-stream.* ]]; then
   workloads=("server" "desktop")
 fi
-if [[ $TARGET =~ .*saphana.* ]]; then
-  workloads=("saphana")
-  sizes=("tiny")
-  apply_only=true
-fi
 
 delete_vm() {
   vm_name=$1
