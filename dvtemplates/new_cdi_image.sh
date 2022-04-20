@@ -72,8 +72,8 @@ fi
 echo "Latest ${TARGET_OS} version is : ${OS_VERSION}"
 
 # Fetch the old image
-docker pull -a $OS_REPO
-OS_OLD_VERSION=$(docker images $OS_REPO --format "{{json .}}" | jq 'select(.Tag|test('\"$re\"')) | .Tag' | sort -rn | head -n 1 | tr -d '"')
+podman pull -a $OS_REPO
+OS_OLD_VERSION=$(podman images $OS_REPO --format "{{json .}}" | jq 'select(.Tag|test('\"$re\"')) | .Tag' | sort -rn | head -n 1 | tr -d '"')
 echo "${TARGET_OS} version in the Image Registry is : ${OS_OLD_VERSION}"
 
 if [ -z "${OS_OLD_VERSION}" ]; then
@@ -99,8 +99,8 @@ wget -q --show-progress $URL || exit "$ERROR_IMAGE_URL_UNREACHABLE"
 echo -e "Successfully downloaded new ${TARGET_OS} version: ${OS_VERSION} image"
 
 # Build and push the qcow2 Image in a Container to a local registry for testing
-docker build . --label $IMG_LABEL -t localhost:${port}/disk
-docker push localhost:${port}/disk || exit "$ERROR_LOCAL_REGISTRY"
+podman build . --label $IMG_LABEL -t localhost:${port}/disk
+podman push localhost:${port}/disk || exit "$ERROR_LOCAL_REGISTRY"
 
 # Run tests
 cd "${PWD}/../../"
@@ -112,6 +112,6 @@ export TARGET=refresh-image-${TARGET_OS}-test && export CLUSTERENV=K8s
 #
 # If testing passes push the new image to the final Image registry
 for tag in {$OS_VERSION,latest}; do
-    docker tag localhost:${port}/disk ${OS_REPO}:${tag}
-    docker push ${OS_REPO}:${tag} || exit "$ERROR_QUAY_REGISTRY"
+    podman tag localhost:${port}/disk ${OS_REPO}:${tag}
+    podman push ${OS_REPO}:${tag} || exit "$ERROR_QUAY_REGISTRY"
 done

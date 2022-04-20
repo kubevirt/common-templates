@@ -13,7 +13,7 @@ make cluster-up
 export KUBECONFIG=$(cluster-up/kubeconfig.sh)
 
 # Login details for the Quay Registry
-cat "$QUAY_PASSWORD" | docker login --username $(cat "$QUAY_USER") --password-stdin=true quay.io
+cat "$QUAY_PASSWORD" | podman login --username $(cat "$QUAY_USER") --password-stdin=true quay.io
 
 # Execute the script to build a CentOS/Fedora Container Disk Image
 cd "${PWD}/../common-templates/dvtemplates/"
