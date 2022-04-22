@@ -45,7 +45,6 @@ identifiers](https://gitlab.com/libosinfo/osinfo-db/tree/master/data/os) from th
 - workload.template.kubevirt.io/desktop
 - workload.template.kubevirt.io/server
 - workload.template.kubevirt.io/highperformance
-- workload.template.kubevirt.io/saphana
 
 ## Flavors
 

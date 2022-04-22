@@ -25,7 +25,7 @@ ver_label=$( \
   dist/templates/fedora-server-large.yaml \
 )
 
-templates=(dist/templates/+(centos7|centos-stream|fedora|rhel8|rhel9)-!(saphana)-*.yaml)
+templates=(dist/templates/+(centos7|centos-stream|fedora|rhel8|rhel9)-*.yaml)
 
 for template in "${templates[@]}"; do
   readarray -t template_oss < <( \

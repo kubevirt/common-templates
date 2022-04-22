@@ -23,11 +23,7 @@ done
 
 echo "Processing all templates to find syntax issues"
 for template in $templates; do
-  if [[ $template =~ .*saphana.* ]]; then
-    oc process -f "$template" NAME=test WORKLOAD_NODE_LABEL_VALUE="somevalue" SRIOV_NETWORK_NAME1="default/sriov1"  SRIOV_NETWORK_NAME2="default/sriov1"  SRIOV_NETWORK_NAME3="default/sriov1"|| exit 1
-  else
-    oc process -f "$template" NAME=test DATA_SOURCE_NAME=test || exit 1
-  fi
+  oc process -f "$template" NAME=test DATA_SOURCE_NAME=test || exit 1
 done
 
 oc create -f dist/templates
