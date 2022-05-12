@@ -1,11 +1,11 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: windows2k12r2-{{ item.workload }}-{{ item.flavor }}
+  name: windows11-{{ item.workload }}-{{ item.flavor }}
   annotations:
-    openshift.io/display-name: "Microsoft Windows Server 2012 R2 VM"
+    openshift.io/display-name: "Microsoft Windows 11 VM"
     description: >-
-      Template for Microsoft Windows Server 2012 R2 VM.
+      Template for Microsoft Windows 11 VM.
       A PVC with the Windows disk image must be available.
     tags: "hidden,kubevirt,virtualmachine,windows"
     iconClass: "icon-windows"
@@ -22,9 +22,9 @@ metadata:
       /objects[0].spec.template.spec.domain.devices.disks
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
-    name.os.template.kubevirt.io/win2k12r2: {{ lookup('osinfo', 'win2k12r2').name }}
+    name.os.template.kubevirt.io/win11: {{ lookup('osinfo', osinfoname).name }}
   labels:
-    os.template.kubevirt.io/win2k12r2: "true"
+    os.template.kubevirt.io/win11: "true"
     workload.template.kubevirt.io/{{ item.workload }}: "true"
     flavor.template.kubevirt.io/{{ item.flavor }}: "true"
     template.kubevirt.io/type: "base"
@@ -38,7 +38,7 @@ objects:
   metadata:
     name: ${NAME}
     labels:
-      vm.kubevirt.io/template: windows2k12r2-{{ item.workload }}-{{ item.flavor }}
+      vm.kubevirt.io/template: windows11-{{ item.workload }}-{{ item.flavor }}
       vm.kubevirt.io/template.version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
       vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
       app: ${NAME}
@@ -50,7 +50,7 @@ objects:
             "path": "jsonpath::.spec.domain.resources.requests.memory",
             "rule": "integer",
             "message": "This VM requires more memory.",
-            "min": {{ lookup('osinfo', osinfoname)["minimum_resources.0.ram"] }}
+            "min": {{ lookup('osinfo', osinfoname)["minimum_resources.architecture=x86_64.ram"] }}
           }, {
             "name": "windows-virtio-bus",
             "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
@@ -73,6 +73,12 @@ objects:
             "rule": "enum",
             "message": "cd bus has to be sata",
             "values": ["sata"]
+          }, {
+            "name": "minimal-required-cores",
+            "path": "jsonpath::.spec.domain.cpu.cores",
+            "rule": "integer",
+            "message": "This VM requires more cores.",
+            "min": 2
           }
         ]
   spec:
@@ -85,7 +91,7 @@ objects:
           storage:
             resources:
               requests:
-                storage: 60Gi
+                storage: 64Gi
           sourceRef:
             kind: DataSource
             name: ${DATA_SOURCE_NAME}
@@ -94,7 +100,7 @@ objects:
     template:
       metadata:
         annotations:
-          vm.kubevirt.io/os: "windows2k12r2"
+          vm.kubevirt.io/os: "windows11"
           vm.kubevirt.io/workload: "{{ item.workload }}"
           vm.kubevirt.io/flavor: "{{ item.flavor }}"
         labels:
@@ -114,7 +120,7 @@ objects:
               hyperv: {}
           cpu:
             sockets: {{ item.cpus }}
-            cores: 1
+            cores: 2
             threads: 1
 {% if item.iothreads or item.emulatorthread %}
             dedicatedCpuPlacement: True
@@ -128,6 +134,7 @@ objects:
           features:
             acpi: {}
             apic: {}
+            smm: {}
             hyperv:
               relaxed: {}
               vapic: {}
@@ -143,6 +150,10 @@ objects:
               ipi: {}
               runtime: {}
               reset: {}
+          firmware:
+            bootloader:
+              efi:
+                secureBoot: true
           devices:
 {% if item.multiqueue %}
             networkInterfaceMultiqueue: True
@@ -169,6 +180,7 @@ objects:
                 bus: usb
                 name: tablet
 {% endif %}
+            tpm: {}
         terminationGracePeriodSeconds: 3600
         volumes:
         - dataVolume:
@@ -184,7 +196,7 @@ parameters:
   from: "windows-[a-z0-9]{6}"
 - name: DATA_SOURCE_NAME
   description: Name of the DataSource to clone
-  value: win2k12r2
+  value: win11
 - name: DATA_SOURCE_NAMESPACE
   description: Namespace of the DataSource
   value: kubevirt-os-images
