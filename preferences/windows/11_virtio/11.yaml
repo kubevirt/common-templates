@@ -1,0 +1,14 @@
+apiVersion: flavor.kubevirt.io/v1alpha1
+kind: VirtualMachinePreference
+metadata:
+  name: 11_virtio
+spec:
+  devices:
+    preferredDiskBus: virtio
+    preferredInterfaceModel: virtio
+    preferredTPM: {}
+  features:
+    preferredSmm: {}
+  firmware:
+    preferredUseEfi: true
+    preferredUseSecureBoot: true

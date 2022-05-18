@@ -1,0 +1,5 @@
+apiVersion: flavor.kubevirt.io/v1alpha1
+kind: VirtualMachineFlavor
+metadata:
+  name: desktop
+spec:

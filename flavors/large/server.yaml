@@ -1,0 +1,11 @@
+apiVersion: flavor.kubevirt.io/v1alpha1
+kind: VirtualMachineFlavor
+metadata:
+  name: large
+  labels:
+    kubevirt.io/size: large
+spec:
+  cpu:
+    guest: 2
+  memory:
+    guest: 8Gi

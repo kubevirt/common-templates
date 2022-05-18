@@ -1,0 +1,8 @@
+apiVersion: flavor.kubevirt.io/v1alpha1
+kind: VirtualMachinePreference
+metadata:
+  name: rhel
+spec:
+  devices:
+    preferredDiskBus: virtio
+    preferredInterfaceModel: virtio

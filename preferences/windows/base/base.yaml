@@ -1,0 +1,39 @@
+apiVersion: flavor.kubevirt.io/v1alpha1
+kind: VirtualMachinePreference
+metadata:
+  name: windows
+spec:
+  clock:
+    preferredClockOffset: 
+      utc: {}
+    preferredTimer:
+      hpet:
+        present: false
+      pit:
+        tickPolicy: delay
+      rtc:
+       tickPolicy: catchup
+      hyperv: {}
+  cpu:
+    preferredCPUTopology: preferSockets
+  features:
+    preferredAcpi: {}
+    preferredApic: {}
+    preferredHyperv:
+      relaxed: {}
+      vapic: {}
+      vpindex: {}
+      spinlocks:
+        spinlocks: 8191
+      synic: {}
+      synictimer:
+        direct: {}
+      tlbflush: {}
+      frequencies: {}
+      reenlightenment: {}
+      ipi: {}
+      runtime: {}
+      reset: {}
+  devices:
+    preferredDiskBus: sata
+    preferredInterfaceModel: e1000e

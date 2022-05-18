@@ -1,0 +1,4 @@
+apiVersion: flavor.kubevirt.io/v1alpha1
+kind: VirtualMachinePreference
+metadata:
+  name: 10_virtio

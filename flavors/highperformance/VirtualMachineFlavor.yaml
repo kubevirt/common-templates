@@ -1,0 +1,9 @@
+apiVersion: flavor.kubevirt.io/v1alpha1
+kind: VirtualMachineFlavor
+metadata:
+  name: highperformance
+spec:
+  ioThreadsPolicy: shared
+  cpu:
+    isolateEmulatorThread: true
+    dedicatedCPUPlacement: true

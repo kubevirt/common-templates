@@ -1,7 +1,7 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: windows11-{{ item.workload }}-{{ item.flavor }}
+  name: windows11
   annotations:
     openshift.io/display-name: "Microsoft Windows 11 VM"
     description: >-
@@ -17,28 +17,23 @@ metadata:
     defaults.template.kubevirt.io/disk: rootdisk
     defaults.template.kubevirt.io/network: default
     template.kubevirt.io/editable: |
-      /objects[0].spec.template.spec.domain.cpu.cores
-      /objects[0].spec.template.spec.domain.resources.requests.memory
+      /objects[0].spec.flavor
+      /objects[0].spec.preference
       /objects[0].spec.template.spec.domain.devices.disks
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
     name.os.template.kubevirt.io/win11: {{ lookup('osinfo', osinfoname).name }}
   labels:
     os.template.kubevirt.io/win11: "true"
-    workload.template.kubevirt.io/{{ item.workload }}: "true"
-    flavor.template.kubevirt.io/{{ item.flavor }}: "true"
     template.kubevirt.io/type: "base"
     template.kubevirt.io/version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
-{% if item.default %}
-    template.kubevirt.io/default-os-variant: "true"
-{% endif %}
 objects:
 - apiVersion: kubevirt.io/v1
   kind: VirtualMachine
   metadata:
     name: ${NAME}
     labels:
-      vm.kubevirt.io/template: windows11-{{ item.workload }}-{{ item.flavor }}
+      vm.kubevirt.io/template: windows11
       vm.kubevirt.io/template.version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
       vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
       app: ${NAME}
@@ -82,6 +77,12 @@ objects:
           }
         ]
   spec:
+    flavor:
+      name: ${FLAVOR_NAME}
+      Kind: VirtualMachineFlavor
+    preference:
+      name: ${PREFERENCE_NAME}
+      Kind: VirtualMachinePreference
     dataVolumeTemplates:
       - apiVersion: cdi.kubevirt.io/v1beta1
         kind: DataVolume
@@ -101,94 +102,23 @@ objects:
       metadata:
         annotations:
           vm.kubevirt.io/os: "windows11"
-          vm.kubevirt.io/workload: "{{ item.workload }}"
-          vm.kubevirt.io/flavor: "{{ item.flavor }}"
         labels:
           kubevirt.io/domain: ${NAME}
-          kubevirt.io/size: {{ item.flavor }}
       spec:
         domain:
-          clock:
-            utc: {}
-            timer:
-              hpet:
-                present: false
-              pit:
-                tickPolicy: delay
-              rtc:
-                tickPolicy: catchup
-              hyperv: {}
-          cpu:
-            sockets: {{ item.cpus }}
-            cores: 2
-            threads: 1
-{% if item.iothreads or item.emulatorthread %}
-            dedicatedCpuPlacement: True
-{% endif %}
-{% if item.emulatorthread %}
-            isolateEmulatorThread: True
-{% endif %}
-          resources:
-            requests:
-              memory: {{ item.memsize }}
-          features:
-            acpi: {}
-            apic: {}
-            smm: {}
-            hyperv:
-              relaxed: {}
-              vapic: {}
-              vpindex: {}
-              spinlocks:
-                spinlocks: 8191
-              synic: {}
-              synictimer:
-                direct: {}
-              tlbflush: {}
-              frequencies: {}
-              reenlightenment: {}
-              ipi: {}
-              runtime: {}
-              reset: {}
-          firmware:
-            bootloader:
-              efi:
-                secureBoot: true
           devices:
-{% if item.multiqueue %}
-            networkInterfaceMultiqueue: True
-{% endif %}
             disks:
             - disk:
-{% if item.workload == "highperformance" %}
-                bus: virtio
-{% else %}
-                bus: sata
-{% endif %}
               name: rootdisk
-            interfaces:
-            - masquerade: {}
-{% if item.multiqueue %}
-              model: virtio
-{% else %}
-              model: e1000e
-{% endif %}
-              name: default
-{% if item.tablet %}
             inputs:
               - type: tablet
                 bus: usb
                 name: tablet
-{% endif %}
-            tpm: {}
         terminationGracePeriodSeconds: 3600
         volumes:
         - dataVolume:
             name: ${NAME}
           name: rootdisk
-        networks:
-        - name: default
-          pod: {}
 parameters:
 - name: NAME
   description: VM name
@@ -200,3 +130,7 @@ parameters:
 - name: DATA_SOURCE_NAMESPACE
   description: Namespace of the DataSource
   value: kubevirt-os-images
+- name: FLAVOR_NAME
+  description: VirtualMachineFlavor name to associate with the VM
+- name: PREFERENCE_NAME
+  description: VirtualMachinePreference name to associate with the VM

@@ -1,0 +1,13 @@
+apiVersion: flavor.kubevirt.io/v1alpha1
+kind: VirtualMachinePreference
+metadata:
+  name: "9"
+spec:
+  devices:
+    preferredDiskDedicatedIoThread: true
+    preferredRng: {}
+  features:
+    preferredSmm: {}
+  firmware:
+    preferredUseEfi: true
+    preferredUseSecureBoot: true
