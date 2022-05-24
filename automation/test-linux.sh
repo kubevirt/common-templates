@@ -13,17 +13,6 @@ secret_ref=""
 if [[ $TARGET =~ rhel.* ]]; then
   image_url="docker://quay.io/openshift-cnv/ci-common-templates-images:${TARGET}"
   secret_ref="secretRef: common-templates-container-disk-puller"
-elif [[ $TARGET =~ refresh-image.* ]]; then
-  if [[ $TARGET =~ refresh-image-fedora.* ]]; then
-    template_name=fedora
-  elif [[ $TARGET =~ refresh-image-centos.* ]]; then
-    template_name=$(echo $TARGET | sed -e 's/.*\(centos[6-9]\)-test/\1/')
-  fi
-  # Local Insecure registry created by kubevirtci
-  image_url="docker://registry:5000/disk"
-  # Inform CDI the local registry is insecure
-  oc patch configmap cdi-insecure-registries -n cdi --type merge -p '{"data":{"mykey": "registry:5000"}}'
-  oc patch storageProfile local --type merge -p '{"spec": {"claimPropertySets":[{"accessModes": ["ReadWriteOnce"], "volumeMode": "Filesystem"}]}}'
 else
   image_url="docker://quay.io/kubevirt/common-templates:${TARGET}"
 fi
@@ -51,7 +40,7 @@ EOF
 timeout=600
 sample=10
 
-oc wait --for=condition=Ready --timeout=${timeout}s dv/${dv_name} -n $namespace
+oc wait --for=condition=Ready --timeout=${timeout}s dv/"${dv_name}" -n $namespace
 
 oc apply -n $namespace -f - <<EOF
 apiVersion: cdi.kubevirt.io/v1beta1
@@ -95,12 +84,12 @@ delete_vm() {
 
   set +e
   #stop vm
-  ./virtctl stop $vm_name -n $namespace
+  ./virtctl stop "$vm_name" -n $namespace
   #delete vm
-  oc delete vm $vm_name -n $namespace
+  oc delete vm "$vm_name" -n $namespace
   set -e
   #wait until vm is deleted
-  while oc get -n $namespace vmi $vm_name 2> >(grep "not found"); do sleep $sample; done
+  while oc get -n $namespace vmi "$vm_name" 2> >(grep "not found"); do sleep $sample; done
 }
 
 run_vm() {
@@ -111,33 +100,29 @@ run_vm() {
 
   set +e
 
-  if [ "${CLUSTERENV}" == "$ocenv" ]; then
-    local template_name=$(oc get -n ${namespace} -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt)
-    template_option=${template_name}
-  elif [ "${CLUSTERENV}" == "$k8senv" ]; then
-    template_option="-f ${template_path} --local"
-  fi
+  local template_name=$(oc get -n ${namespace} -f "${template_path}" -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt)
+  template_option=${template_name}
 
   #If first try fails, it tries 2 more time to run it, before it fails whole test
   for i in $(seq 1 3); do
     error=false
-    oc process ${template_option} -n $namespace -o json NAME=$vm_name DATA_SOURCE_NAME=${dv_name} DATA_SOURCE_NAMESPACE=${namespace} |
+    oc process "${template_option}" -n $namespace -o json NAME="$vm_name" DATA_SOURCE_NAME="${dv_name}" DATA_SOURCE_NAMESPACE=${namespace} |
       jq '.items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' |
       oc apply -n $namespace -f -
 
     ./virtctl version
-    oc get vm $vm_name -n $namespace -oyaml
+    oc get vm "$vm_name" -n "$namespace" -oyaml
     # start vm
-    ./virtctl start $vm_name -n $namespace
+    ./virtctl start "$vm_name" -n "$namespace"
 
-    oc wait --for=condition=Ready --timeout=${timeout}s vm/$vm_name -n $namespace
+    oc wait --for=condition=Ready --timeout=${timeout}s vm/"$vm_name" -n $namespace
 
-    ./automation/connect_to_rhel_console.exp $vm_name
+    ./automation/connect_to_rhel_console.exp "$vm_name"
     if [ $? -ne 0 ]; then
       error=true
     fi
 
-    delete_vm $vm_name $template_option
+    delete_vm "$vm_name" "$template_option"
     #no error were observed, the vm is running
     if ! $error; then
       running=true
@@ -152,9 +137,9 @@ run_vm() {
   fi
 }
 
-for size in ${sizes[@]}; do
-  for workload in ${workloads[@]}; do
+for size in "${sizes[@]}"; do
+  for workload in "${workloads[@]}"; do
     vm_name=$template_name-$workload-$size
-    run_vm $vm_name
+    run_vm "$vm_name"
   done
 done
