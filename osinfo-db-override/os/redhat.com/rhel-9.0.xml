@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<libosinfo version="0.0.1">
+  <os id="http://redhat.com/rhel/9.0">
+    <image arch="x86_64" format="qcow2" cloud-init="true">
+      <url>https://access.redhat.com/downloads/content/479/ver=/rhel---9/9.0/x86_64/product-software</url>
+    </image>
+  </os>
+</libosinfo>
