@@ -12,6 +12,11 @@
     set_fact:
       rhel9_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel9\\.') |list |sort }}"
 
+  - name: Load RHEL 9 image urls
+    set_fact:
+      rhel9_image_urls: "{{ rhel9_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+    loop: "{{ rhel9_labels }}"
+
   - name: Generate RHEL 9 templates
     template:
       src: rhel9.tpl.yaml
@@ -36,10 +41,16 @@
       oslabels: "{{ rhel9_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: cloud-user
+      image_urls: "{{ rhel9_image_urls }}"
 
   - name: Load RHEL 8 versions
     set_fact:
       rhel8_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel8\\.') |list |sort }}"
+
+  - name: Load RHEL 8 image urls
+    set_fact:
+      rhel8_image_urls: "{{ rhel8_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+    loop: "{{ rhel8_labels }}"
 
   - name: Generate RHEL 8 templates
     template:
@@ -65,10 +76,16 @@
       oslabels: "{{ rhel8_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: cloud-user
+      image_urls: "{{ rhel8_image_urls }}"
 
   - name: Load RHEL 7 versions
     set_fact:
       rhel7_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel7\\.') |list |sort }}"
+
+  - name: Load RHEL 7 image urls
+    set_fact:
+      rhel7_image_urls: "{{ rhel7_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+    loop: "{{ rhel7_labels }}"
 
   - name: Generate RHEL 7 templates
     template:
@@ -94,10 +111,16 @@
       oslabels: "{{ rhel7_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: cloud-user
+      image_urls: "{{ rhel7_image_urls }}"
 
   - name: Load RHEL 6 versions
     set_fact:
       rhel6_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel6\\.') |list |sort }}"
+
+  - name: Load RHEL 6 image urls
+    set_fact:
+      rhel6_image_urls: "{{ rhel6_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+    loop: "{{ rhel6_labels }}"
 
   - name: Generate RHEL 6 templates
     template:
@@ -119,6 +142,7 @@
       oslabels: "{{ rhel6_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: cloud-user
+      image_urls: "{{ rhel6_image_urls }}"
 
   - name: Load CentOS Stream 8 image urls
     set_fact:
