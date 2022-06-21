@@ -17,6 +17,12 @@ metadata:
     defaults.template.kubevirt.io/disk: rootdisk
     template.kubevirt.io/containerdisks: |
       registry.redhat.io/rhel8/rhel-guest-image
+{% if image_urls | length > 0 %}
+    template.kubevirt.io/images: |
+{% for url in image_urls %}
+      {{ url }}
+{% endfor %}
+{% endif %}
     template.kubevirt.io/editable: |
       /objects[0].spec.template.spec.domain.cpu.sockets
       /objects[0].spec.template.spec.domain.cpu.cores
