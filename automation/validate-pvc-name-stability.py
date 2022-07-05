@@ -54,11 +54,19 @@ def getParamFrom(template, paramName):
 
 
 def getDataSourceOrPvcNameFrom(template):
-    return getParamFrom(template, "SRC_PVC_NAME")
+    ds_name = getParamFrom(template, "DATA_SOURCE_NAME")
+    if ds_name is None:
+        return getParamFrom(template, "SRC_PVC_NAME")
+
+    return ds_name
 
 
 def getDataSourceOrPvcNamespaceFrom(template):
-    return getParamFrom(template, "SRC_PVC_NAMESPACE")
+    ds_namespace = getParamFrom(template, "DATA_SOURCE_NAMESPACE")
+    if ds_namespace is None:
+        return getParamFrom(template, "SRC_PVC_NAMESPACE")
+
+    return ds_namespace
 
 
 def fetchLiveTemplates():

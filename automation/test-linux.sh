@@ -143,7 +143,7 @@ run_vm() {
   #If first try fails, it tries 2 more time to run it, before it fails whole test
   for i in $(seq 1 3); do
     error=false
-    oc process ${template_option} -n $namespace -o json NAME=$vm_name SRC_PVC_NAME=${dv_name} SRC_PVC_NAMESPACE=${namespace} |
+    oc process ${template_option} -n $namespace -o json NAME=$vm_name DATA_SOURCE_NAME=${dv_name} DATA_SOURCE_NAMESPACE=${namespace} |
       jq '.items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' |
       oc apply -n $namespace -f -
 
