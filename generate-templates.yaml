@@ -396,3 +396,15 @@
     - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
     vars:
       osinfoname: win11
+
+  - name: Generate Windows server 2022 templates
+    template:
+      src: windows2k22.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/windows2k22-{{ item.workload }}-{{ item.flavor }}.yaml"
+    with_items:
+      - {flavor: medium, workload: server,          memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, multiqueue: False, tablet: True, default: True}
+      - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
+      - {flavor: large,  workload: server,          memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, multiqueue: False, tablet: True, default: False}
+      - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
+    vars:
+      osinfoname: win2k22
