@@ -144,8 +144,9 @@
       cloudusername: cloud-user
       image_urls: "{{ rhel6_image_urls }}"
 
-  - name: Load CentOS Stream 8 image urls
+  - name: Load CentOS Stream 8 containerdisk and image urls
     set_fact:
+      centos8stream_containerdisk_urls: "{{ lookup('osinfo', 'centos-stream8') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
       centos8stream_image_urls: "{{ lookup('osinfo', 'centos-stream8') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
 
   - name: Generate CentOS Stream 8 templates
@@ -169,10 +170,12 @@
        - centos-stream8
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: centos
+      containerdisk_urls: "{{ centos8stream_containerdisk_urls }}"
       image_urls: "{{ centos8stream_image_urls }}"
 
-  - name: Load CentOS Stream 9 image urls
+  - name: Load CentOS Stream 9 containerdisk and image urls
     set_fact:
+      centos9stream_containerdisk_urls: "{{ lookup('osinfo', 'centos-stream9') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
       centos9stream_image_urls: "{{ lookup('osinfo', 'centos-stream9') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
 
   - name: Generate CentOS Stream 9 templates
@@ -196,10 +199,12 @@
        - centos-stream9
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: centos
+      containerdisk_urls: "{{ centos9stream_containerdisk_urls }}"
       image_urls: "{{ centos9stream_image_urls }}"
 
-  - name: Load CentOS 7 image urls
+  - name: Load CentOS 7 containerdisk and image urls
     set_fact:
+      centos7_containerdisk_urls: "{{ lookup('osinfo', 'centos7.0') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
       centos7_image_urls: "{{ lookup('osinfo', 'centos7.0') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
 
   - name: Generate CentOS 7 templates
@@ -223,6 +228,7 @@
        - centos7.0
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: centos
+      containerdisk_urls: "{{ centos7_containerdisk_urls }}"
       image_urls: "{{ centos7_image_urls }}"
 
   - name: Load CentOS 6 versions
@@ -250,8 +256,9 @@
     set_fact:
       fedora_labels: "{{ lookup('osinfo', 'distro=fedora') |select('osinfo_active') |map(attribute='short_id') |select('match', '^fedora3[5-9]|^fedora[4-9][0-9]') |list |sort }}"
 
-  - name: Load Fedora image urls
+  - name: Load Fedora containerdisk and image urls
     set_fact:
+      fedora_containerdisk_urls: "{{ fedora_containerdisk_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
       fedora_image_urls: "{{ fedora_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
     loop: "{{ fedora_labels }}"
 
@@ -279,6 +286,7 @@
       oslabels: "{{ fedora_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: fedora
+      containerdisk_urls: "{{ fedora_containerdisk_urls }}"
       image_urls: "{{ fedora_image_urls }}"
 
   - name: Load openSUSE versions
@@ -312,8 +320,9 @@
     set_fact:
       ubuntu_labels: "{{ lookup('osinfo', 'distro=ubuntu') |select('osinfo_active') |map(attribute='short_id') |list |sort }}"
 
-  - name: Load Ubuntu image urls
+  - name: Load Ubuntu containerdisk and image urls
     set_fact:
+      ubuntu_containerdisk_urls: "{{ ubuntu_containerdisk_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
       ubuntu_image_urls: "{{ ubuntu_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
     loop: "{{ ubuntu_labels }}"
 
@@ -335,6 +344,7 @@
       oslabels: "{{ ubuntu_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: ubuntu
+      containerdisk_urls: "{{ ubuntu_containerdisk_urls }}"
       image_urls: "{{ ubuntu_image_urls }}"
 
   - name: Generate Windows server 2012 R2 templates
