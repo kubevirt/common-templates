@@ -34,6 +34,9 @@ metadata:
   name: winrmcli
   namespace: kubevirt
 spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
   containers:
   - image: quay.io/kubevirt/winrmcli
     command: ["/bin/sh","-c"]
