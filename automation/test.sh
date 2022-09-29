@@ -17,6 +17,61 @@
 # Copyright 2018 Red Hat, Inc.
 #
 
+# This function will be used in release branches
+function latest_patch_version() {
+  local repo="$1"
+  local minor_version="$2"
+
+  # The loop is necessary, because GitHub API call cannot return more than 100 items
+  local latest_version=""
+  local page=1
+  while true ; do
+    # Declared separately to not mask return value
+    local versions_in_page
+    versions_in_page=$(
+      curl --fail -s "https://api.github.com/repos/kubevirt/${repo}/releases?per_page=100&page=${page}" |
+      jq '.[] | select(.prerelease==false) | .tag_name' |
+      tr -d '"'
+    )
+    if [ $? -ne 0 ]; then
+      return 1
+    fi
+
+    if [ -z "${versions_in_page}" ]; then
+      break
+    fi
+
+    latest_version=$(
+      echo "${versions_in_page} ${latest_version}" |
+      tr " " "\n" |
+      grep "^${minor_version}\\." |
+      sort --version-sort |
+      tail -n1
+    )
+
+    ((++page))
+  done
+
+  echo "${latest_version}"
+}
+
+function latest_version() {
+  local repo="$1"
+
+  # The API call sorts releases by creation timestamp, so it is enough to request only a few latest ones.
+  curl --fail -s "https://api.github.com/repos/kubevirt/${repo}/releases" | \
+    jq '.[] | select(.prerelease==false) | .tag_name' | \
+    tr -d '"' | \
+    sort --version-sort | \
+    tail -n1
+}
+
+# Latest released Kubevirt version
+export KUBEVIRT_VERSION=$(latest_version "kubevirt")
+
+# Latest released CDI version
+export CDI_VERSION=$(latest_version "containerized-data-importer")
+
 # Start CPU manager only for templates which require it.
 if [[ $TARGET =~ rhel7.* ]] || [[ $TARGET =~ rhel8.* ]] || [[ $TARGET =~ fedora.* ]] || [[ $TARGET =~ windows2.* ]]; then
   oc label machineconfigpool worker custom-kubelet=enabled
@@ -51,7 +106,6 @@ _curl() {
 		curl $@
 	fi
 }
-export KUBEVIRT_VERSION=$(curl -L https://storage.googleapis.com/kubevirt-prow/devel/release/kubevirt/kubevirt/stable.txt)
 
 ocenv="OC"
 
@@ -109,11 +163,10 @@ EOF
     fi
 fi
 echo "Deploying CDI"
-export CDI_VERSION=$(curl -s https://api.github.com/repos/kubevirt/containerized-data-importer/releases | \
-            jq '.[] | select(.prerelease==false) | .tag_name' | sort -V | tail -n1 | tr -d '"')
-
 oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
 oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
+
+oc patch cdi cdi -n cdi --patch '{"spec": {"config": {"dataVolumeTTLSeconds": -1}}}' --type merge
 
 oc wait --for=condition=Available --timeout=${timeout}s CDI/cdi -n cdi
 
