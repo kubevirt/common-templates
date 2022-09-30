@@ -82,6 +82,8 @@ elif [[ $TARGET =~ windows2016.* ]]; then
   template_name="windows2k16"
 elif [[ $TARGET =~ windows2019.* ]]; then
   template_name="windows2k19"
+elif [[ $TARGET =~ windows2022.* ]]; then
+  template_name="windows2k22"
 fi
 
 delete_vm(){
