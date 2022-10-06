@@ -129,6 +129,7 @@ objects:
             interfaces:
             - masquerade: {}
               name: default
+              model: virtio
         terminationGracePeriodSeconds: 180
         networks:
         - name: default
