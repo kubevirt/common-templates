@@ -67,7 +67,7 @@ function latest_version() {
 }
 
 # Latest released Kubevirt version
-export KUBEVIRT_VERSION=$(latest_version "kubevirt")
+export KUBEVIRT_VERSION="v0.58.0-rc.0" #$(latest_version "kubevirt") //hardocde the version to make sure, tests are passing
 
 # Latest released CDI version
 export CDI_VERSION=$(latest_version "containerized-data-importer")
