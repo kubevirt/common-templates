@@ -79,7 +79,6 @@ The table below lists the guest operating systems that are covered by the templa
 | Microsoft Windows 10 | [windows10](templates/windows10.tpl.yaml) |
 | Microsoft Windows 11 | [windows11](templates/windows11.tpl.yaml) |
 | Fedora | [fedora](templates/fedora.tpl.yaml) |
-| Red Hat Enterprise Linux 6 | [rhel6](templates/rhel6.tpl.yaml) |
 | Red Hat Enterprise Linux 7 | [rhel7](templates/rhel7.tpl.yaml) |
 | Red Hat Enterprise Linux 8 | [rhel8](templates/rhel8.tpl.yaml) |
 | Red Hat Enterprise Linux 9 Beta | [rhel9](templates/rhel9.tpl.yaml) |

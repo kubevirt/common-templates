@@ -113,37 +113,6 @@
       cloudusername: cloud-user
       image_urls: "{{ rhel7_image_urls }}"
 
-  - name: Load RHEL 6 versions
-    set_fact:
-      rhel6_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel6\\.') |list |sort }}"
-
-  - name: Load RHEL 6 image urls
-    set_fact:
-      rhel6_image_urls: "{{ rhel6_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
-    loop: "{{ rhel6_labels }}"
-
-  - name: Generate RHEL 6 templates
-    template:
-      src: rhel6.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: tiny,   workload: server,  memsize: "1Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: tiny,   workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: small,  workload: server,  memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
-    - {flavor: small,  workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: medium, workload: server,  memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: large,  workload: server,  memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: large,  workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    vars:
-      os: rhel6
-      icon: rhel
-      majorrelease: rhel6
-      oslabels: "{{ rhel6_labels }}"
-      osinfoname: "{{ oslabels[0] }}"
-      cloudusername: cloud-user
-      image_urls: "{{ rhel6_image_urls }}"
-
   - name: Load CentOS Stream 8 containerdisk and image urls
     set_fact:
       centos8stream_containerdisk_urls: "{{ lookup('osinfo', 'centos-stream8') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
