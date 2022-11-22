@@ -3,7 +3,7 @@ kind: Template
 metadata:
   name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
   annotations:
-    openshift.io/display-name: "Red Hat Enterprise Linux 8.0+ VM"
+    openshift.io/display-name: "Red Hat Enterprise Linux 8 VM"
     description: >-
       Template for Red Hat Enterprise Linux 8 VM or newer.
       A PVC with the RHEL disk image must be available.

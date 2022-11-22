@@ -3,7 +3,7 @@ kind: Template
 metadata:
   name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
   annotations:
-    openshift.io/display-name: "CentOS 7.0+ VM"
+    openshift.io/display-name: "CentOS 7 VM"
     description: >-
       Template for CentOS 7 VM or newer.
       A PVC with the CentOS disk image must be available.
