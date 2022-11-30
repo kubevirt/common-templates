@@ -29,8 +29,23 @@ readarray -t oss < <( \
   yq -o props '.items[].metadata.labels | . as $item ireduce ({}; . * $item) | with_entries(select(.key == "os.template.kubevirt.io/*"))' \
 )
 
+# Create an associative array containing all the possible labels
+dist_templates=(dist/templates/*.yaml)
+declare -A dist_templates_labels
+for template in "${dist_templates[@]}"; do
+  while read -r label; do
+    dist_templates_labels[${label}]=""
+  done < <( \
+      yq -o props '.metadata.labels | with_entries(select(.key == "os.template.kubevirt.io/*"))' "$template" \
+  )
+done
+
 # Ensure exactly one default variant per OS
 for os in "${oss[@]}"; do
+  if [[ ! -v dist_templates_labels[$os] ]]; then
+    continue
+  fi
+
   defaults=$(oc get template -l "$os,template.kubevirt.io/default-os-variant = true,$ver_label" -o name | wc -l)
 
   if [[ $defaults -eq 1 ]]; then

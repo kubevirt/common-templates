@@ -57,10 +57,6 @@ EOF
 sizes=("tiny" "small" "medium" "large")
 workloads=("desktop" "server" "highperformance")
 
-if [[ $TARGET =~ rhel6.* ]]; then
-  workloads=("desktop" "server")
-fi
-
 if [[ $TARGET =~ centos6.* ]]; then
   workloads=("server")
 fi
