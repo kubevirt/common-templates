@@ -5,7 +5,7 @@ metadata:
   name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
   annotations:
     template.kubevirt.io/deprecated: "true"
-    openshift.io/display-name: "CentOS 6.0+ VM"
+    openshift.io/display-name: "CentOS 6 VM"
     description: >-
       Template for CentOS 6 VM or newer.
       A PVC with the CentOS disk image must be available.
