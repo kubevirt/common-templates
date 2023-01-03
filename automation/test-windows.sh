@@ -23,7 +23,7 @@ spec:
       - ReadWriteOnce
     resources:
       requests:
-        storage: 60Gi
+        storage: 20Gi
 EOF
 
 oc apply -f - <<EOF
