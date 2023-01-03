@@ -48,11 +48,11 @@ restartPolicy: Always
 EOF
 
 timeout=2000
-vm_timeout=3600
+hour_timeout=3600
 sample=10
 current_time=0
 
-oc wait --for=condition=Ready --timeout=${timeout}s dv/${dv_name} -n $namespace
+oc wait --for=condition=Ready --timeout=${hour_timeout}s dv/${dv_name} -n $namespace
 
 oc apply -n ${namespace} -f - <<EOF
 apiVersion: cdi.kubevirt.io/v1beta1
@@ -116,7 +116,7 @@ run_vm(){
     # start vm
     ./virtctl start $vm_name -n $namespace
 
-    oc wait --for=condition=Ready --timeout=${vm_timeout}s vm/$vm_name -n $namespace
+    oc wait --for=condition=Ready --timeout=${hour_timeout}s vm/$vm_name -n $namespace
 
     # get ip address of vm
     ipAddressVMI=$(oc get vmi $vm_name -o json -n $namespace| jq -r '.status.interfaces[0].ipAddress')
