@@ -72,6 +72,13 @@ export KUBEVIRT_VERSION=$(latest_version "kubevirt")
 # Latest released CDI version
 export CDI_VERSION=$(latest_version "containerized-data-importer")
 
+# switch to faster storage class for widows tests (slower storage class is causing timeouts due 
+# to not able to copy whole windows disk into cluster)
+if [[ "$(oc get storageclass | grep -q 'ssd-csi (default)')" && $TARGET =~ windows.* ]]; then
+  oc annotate storageclass standard-csi storageclass.kubernetes.io/is-default-class-
+  oc annotate storageclass ssd-csi storageclass.kubernetes.io/is-default-class=true
+fi
+
 # Start CPU manager only for templates which require it.
 if [[ $TARGET =~ rhel7.* ]] || [[ $TARGET =~ rhel8.* ]] || [[ $TARGET =~ fedora.* ]] || [[ $TARGET =~ windows2.* ]]; then
   oc label machineconfigpool worker custom-kubelet=enabled
