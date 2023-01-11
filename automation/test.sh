@@ -74,9 +74,9 @@ export CDI_VERSION=$(latest_version "containerized-data-importer")
 
 # switch to faster storage class for widows tests (slower storage class is causing timeouts due 
 # to not able to copy whole windows disk into cluster)
-if [[ "$(oc get storageclass | grep -q 'ssd-csi (default)')" && $TARGET =~ windows.* ]]; then
-  oc annotate storageclass standard-csi storageclass.kubernetes.io/is-default-class-
-  oc annotate storageclass ssd-csi storageclass.kubernetes.io/is-default-class=true
+if [[ ! "$(oc get storageclass | grep -q 'ssd-csi (default)')" ]] && [[ $TARGET =~ windows.* ]]; then
+  oc annotate storageclass ssd-csi storageclass.kubernetes.io/is-default-class=true --overwrite
+  oc annotate storageclass standard-csi storageclass.kubernetes.io/is-default-class- --overwrite
 fi
 
 # Start CPU manager only for templates which require it.
