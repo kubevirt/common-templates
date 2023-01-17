@@ -81,7 +81,7 @@ The table below lists the guest operating systems that are covered by the templa
 | Fedora | [fedora](templates/fedora.tpl.yaml) |
 | Red Hat Enterprise Linux 7 | [rhel7](templates/rhel7.tpl.yaml) |
 | Red Hat Enterprise Linux 8 | [rhel8](templates/rhel8.tpl.yaml) |
-| Red Hat Enterprise Linux 9 Beta | [rhel9](templates/rhel9.tpl.yaml) |
+| Red Hat Enterprise Linux 9 | [rhel9](templates/rhel9.tpl.yaml) |
 | Ubuntu | [ubuntu](templates/ubuntu.tpl.yaml) |
 | openSUSE Leap | [opensuse](templates/opensuse.tpl.yaml) |
 | CentOS 7 | [centos7](templates/centos7.tpl.yaml) |
