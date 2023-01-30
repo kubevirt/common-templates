@@ -93,6 +93,8 @@ objects:
           kubevirt.io/size: {{ item.flavor }}
       spec:
         domain:
+          machine:
+            type: pc-q35-rhel9.2.0
 {% if item.iothreads %}
           ioThreadsPolicy: shared
 {% endif %}
