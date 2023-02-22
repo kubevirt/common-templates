@@ -206,6 +206,16 @@ then
     oc apply -n $namespace  -f dist/templates
 fi
 
+for node in $(oc get nodes -o name -l node-role.kubernetes.io/worker); do
+    tscLabel="$(oc describe $node | grep scheduling.node.kubevirt.io/tsc-frequency- | xargs | cut -d"=" -f1)"
+    # disable node labeller
+    oc annotate ${node} node-labeller.kubevirt.io/skip-node=true --overwrite
+    # remove tsc labels
+    oc label ${node} cpu-timer.node.kubevirt.io/tsc-frequency- --overwrite
+    oc label ${node} cpu-timer.node.kubevirt.io/tsc-scalable- --overwrite
+    oc label ${node} ${tscLabel}- --overwrite
+done
+
 if [[ $TARGET =~ windows.* ]]; then
   ./automation/test-windows.sh $TARGET
 else
