@@ -116,15 +116,15 @@ objects:
 {% if item.tablet %}
             inputs:
               - type: tablet
-                bus: virtio
+                bus: scsi
                 name: tablet
 {% endif %}
             disks:
             - disk:
-                bus: {{ diskbus | default("virtio") }}
+                bus: {{ diskbus | default("scsi") }}
               name: rootdisk
             - disk:
-                bus: {{ diskbus | default("virtio") }}
+                bus: {{ diskbus | default("scsi") }}
               name: cloudinitdisk
             interfaces:
             - masquerade: {}

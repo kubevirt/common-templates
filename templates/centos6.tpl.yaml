@@ -1,4 +1,4 @@
-{% set diskbus = diskbus |default("virtio") %}
+{% set diskbus = diskbus |default("scsi") %}
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
@@ -107,16 +107,16 @@ objects:
 {% if item.tablet %}
             inputs:
               - type: tablet
-                bus: virtio
+                bus: scsi
                 name: tablet
 {% endif %}
             disks:
             - bootOrder: 1
               disk:
-                bus: {{ diskbus | default("virtio") }}
+                bus: {{ diskbus | default("scsi") }}
               name: rootdisk
             - disk:
-                bus: {{ diskbus | default("virtio") }}
+                bus: {{ diskbus | default("scsi") }}
               name: cloudinitdisk
             interfaces:
             - masquerade: {}
