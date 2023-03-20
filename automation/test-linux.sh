@@ -23,6 +23,8 @@ oc apply -n $namespace -f - <<EOF
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
 metadata:
+  annotations:
+    cdi.kubevirt.io/storage.bind.immediate.requested: "true"
   name: ${dv_name}
 spec:
   source:
