@@ -67,8 +67,8 @@ jobs:
           cd ssp-operator
           git remote add upstream https://github.com/kubevirt/ssp-operator
           git fetch upstream
-          git checkout master
-          git rebase upstream/master
+          git checkout main
+          git rebase upstream/main
           git checkout -b update-common-templates-${VERSION}
 
           # Update the new common-templates file
@@ -83,7 +83,7 @@ jobs:
 
           # Create a new PR in the operator repo
           gh pr create --repo kubevirt/ssp-operator \
-            --base master \
+            --base main \
             --head ${GITHUB_FORK_USER}:update-common-templates-${VERSION} \
             --title "Update common-templates to ${VERSION}" \
             --body "$(cat << EOF
