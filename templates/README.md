@@ -76,7 +76,7 @@ metadata:
     # The jsonpath root is the objects: element of the template
     template.kubevirt.io/editable: |
       /objects[0].spec.template.spec.domain.cpu.cores
-      /objects[0].spec.template.spec.domain.resources.requests.memory
+      /objects[0].spec.template.spec.domain.memory.guest
       /objects[0].spec.template.spec.domain.devices.disks
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
@@ -211,7 +211,7 @@ metadata:
     # The jsonpath root is the spec: element of the VM object
     template.kubevirt.io/keep: |
       /template.spec.domain.cpu.cores
-      /template.spec.domain.resources.requests.memory
+      /template.spec.domain.memory.guest
       /template.spec.domain.devices.disks
       /template.spec.volumes
       /template.spec.networks

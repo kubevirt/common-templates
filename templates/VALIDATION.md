@@ -59,12 +59,12 @@ the `jsonpath::` prefix.
 
 good:
 ```
-jsonpath::.spec.domain.resources.requests.memory
+jsonpath::.spec.domain.memory.guest
 ```
 
 bad:
 ```
-.spec.domain.resources.requests.memory
+.spec.domain.memory.guest
 ```
 
 ### Validation rules
