@@ -3,7 +3,7 @@
 set -ex
 
 namespace="kubevirt"
-template_name="windows2k12r2"
+template_name="windows2k22"
 username="Administrator"
 
 dv_name="${TARGET}-datavolume-original"
