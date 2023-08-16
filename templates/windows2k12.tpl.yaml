@@ -3,6 +3,7 @@ kind: Template
 metadata:
   name: windows2k12r2-{{ item.workload }}-{{ item.flavor }}
   annotations:
+    template.kubevirt.io/deprecated: "true"
     openshift.io/display-name: "Microsoft Windows Server 2012 R2 VM"
     description: >-
       Template for Microsoft Windows Server 2012 R2 VM.
