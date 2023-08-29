@@ -72,15 +72,13 @@ export KUBEVIRT_VERSION=$(latest_version "kubevirt")
 # Latest released CDI version
 export CDI_VERSION=$(latest_version "containerized-data-importer")
 
-# switch to faster storage class for widows tests (slower storage class is causing timeouts due 
-# to not able to copy whole windows disk into cluster)
-if [[ ! "$(oc get storageclass | grep -q 'ssd-csi (default)')" ]] && [[ $TARGET =~ windows.* ]]; then
-  oc annotate storageclass ssd-csi storageclass.kubernetes.io/is-default-class=true --overwrite
-  oc annotate storageclass standard-csi storageclass.kubernetes.io/is-default-class- --overwrite
-fi
+
+oc annotate storageclass ssd-csi storageclass.kubernetes.io/is-default-class=true --overwrite
+oc annotate storageclass standard-csi storageclass.kubernetes.io/is-default-class- --overwrite
+
 
 # Start CPU manager only for templates which require it.
-if [[ $TARGET =~ rhel7.* ]] || [[ $TARGET =~ rhel8.* ]] || [[ $TARGET =~ fedora.* ]] || [[ $TARGET =~ windows2.* ]]; then
+if [[ $TARGET =~ rhel.* ]] || [[ $TARGET =~ fedora.* ]] || [[ $TARGET =~ windows2.* ]]; then
   oc label machineconfigpool worker custom-kubelet=enabled
   oc create -f - <<EOF
 ---
@@ -188,7 +186,7 @@ echo "Deploying CDI"
 oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
 oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
 
-oc patch cdi cdi -n cdi --patch '{"spec": {"config": {"dataVolumeTTLSeconds": -1}}}' --type merge
+oc patch cdi cdi -n cdi --patch '{"spec":{"config":{"podResourceRequirements": {"limits": {"cpu": "2000m", "memory": "2000M"}, "requests": {"cpu": "600m", "memory": "300M"}}}}}' --type merge 
 
 oc wait --for=condition=Available --timeout=${timeout}s CDI/cdi -n cdi
 
