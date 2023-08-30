@@ -18,7 +18,7 @@ metadata:
     defaults.template.kubevirt.io/network: default
     template.kubevirt.io/editable: |
       /objects[0].spec.template.spec.domain.cpu.cores
-      /objects[0].spec.template.spec.domain.resources.requests.memory
+      /objects[0].spec.template.spec.domain.memory.guest
       /objects[0].spec.template.spec.domain.devices.disks
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
@@ -47,7 +47,7 @@ objects:
         [
           {
             "name": "minimal-required-memory",
-            "path": "jsonpath::.spec.domain.resources.requests.memory",
+            "path": "jsonpath::.spec.domain.memory.guest",
             "rule": "integer",
             "message": "This VM requires more memory.",
             "min": {{ lookup('osinfo', osinfoname)["minimum_resources.0.ram"] }}
@@ -122,9 +122,8 @@ objects:
 {% if item.emulatorthread %}
             isolateEmulatorThread: True
 {% endif %}
-          resources:
-            requests:
-              memory: {{ item.memsize }}
+          memory:
+            guest: {{ item.memsize }}
           features:
             acpi: {}
             apic: {}

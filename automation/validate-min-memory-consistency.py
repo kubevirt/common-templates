@@ -23,7 +23,7 @@ def newestOsLabel(template):
 
 def minMemoryReqInTemplate(template):
     object = template["objects"][0]
-    min_str = object["spec"]["template"]["spec"]["domain"]["resources"]["requests"]["memory"]
+    min_str = object["spec"]["template"]["spec"]["domain"]["memory"]["guest"]
     if min_str.startswith("${"):
         for param in template["parameters"]:
             if param["name"] == min_str[2:-1]:
