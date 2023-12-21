@@ -181,7 +181,7 @@ parameters:
 - name: NAME
   description: VM name
   generate: expression
-  from: "windows-[a-z0-9]{6}"
+  from: "windows2012-[a-z0-9]{6}"
 - name: DATA_SOURCE_NAME
   description: Name of the DataSource to clone
   value: win2k12r2
