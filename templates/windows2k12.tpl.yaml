@@ -128,6 +128,7 @@ objects:
           features:
             acpi: {}
             apic: {}
+            smm: {}
             hyperv:
               relaxed: {}
               vapic: {}
@@ -143,6 +144,10 @@ objects:
               ipi: {}
               runtime: {}
               reset: {}
+          firmware:
+            bootloader:
+              efi:
+                secureBoot: true
           devices:
 {% if item.multiqueue %}
             networkInterfaceMultiqueue: True
