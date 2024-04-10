@@ -86,6 +86,7 @@ objects:
           kubevirt.io/domain: ${NAME}
           kubevirt.io/size: {{ item.flavor }}
       spec:
+        architecture: amd64
         domain:
 {% if item.iothreads %}
           ioThreadsPolicy: shared
