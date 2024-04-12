@@ -95,6 +95,7 @@ objects:
           kubevirt.io/domain: ${NAME}
           kubevirt.io/size: {{ item.flavor }}
       spec:
+        architecture: amd64
         domain:
           features:
             smm:
