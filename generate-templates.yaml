@@ -236,9 +236,6 @@
       src: fedora.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: tiny,   workload: desktop,         memsize: "1Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: tiny,   workload: server,          memsize: "1Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: tiny,   workload: highperformance, memsize: "1Gi", cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
     - {flavor: small,  workload: desktop,         memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
     - {flavor: small,  workload: server,          memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
     - {flavor: small,  workload: highperformance, memsize: "2Gi", cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
@@ -253,7 +250,7 @@
       icon: fedora
       majorrelease: fedora
       oslabels: "{{ fedora_labels }}"
-      osinfoname: "{{ oslabels[0] }}"
+      osinfoname: "{{ oslabels | last }}"
       cloudusername: fedora
       containerdisk_urls: "{{ fedora_containerdisk_urls }}"
       image_urls: "{{ fedora_image_urls }}"
