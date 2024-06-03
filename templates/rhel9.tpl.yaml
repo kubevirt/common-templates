@@ -81,7 +81,7 @@ objects:
           kind: DataSource
           name: ${DATA_SOURCE_NAME}
           namespace: ${DATA_SOURCE_NAMESPACE}
-    running: false
+    runStrategy: Halted
     template:
       metadata:
         annotations:
