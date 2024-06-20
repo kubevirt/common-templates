@@ -106,7 +106,9 @@ objects:
             guest: {{ item.memsize }}
           devices:
             rng: {}
+{% if item.cpus > 1 %}
             networkInterfaceMultiqueue: true
+{% endif %}
 {% if item.tablet %}
             inputs:
               - type: tablet
