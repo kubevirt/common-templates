@@ -101,7 +101,9 @@ objects:
           memory:
             guest: {{ item.memsize }}
           devices:
+{% if item.cpus > 1 %}
             networkInterfaceMultiqueue: true
+{% endif %}
             useVirtioTransitional: true
             rng: {}
 {% if item.tablet %}

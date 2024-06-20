@@ -150,7 +150,7 @@ objects:
               efi:
                 secureBoot: true
           devices:
-{% if item.multiqueue %}
+{% if item.multiqueue and item.cpus > 1 %}
             networkInterfaceMultiqueue: True
 {% endif %}
             disks:
