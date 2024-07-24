@@ -10,3 +10,5 @@ openshift.local.clusterup/
 common-templates*.yaml
 releases.json
 ssp-operator-deploy-key
+virtctl
+kubevirt-template-validator/
