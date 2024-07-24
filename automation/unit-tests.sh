@@ -5,6 +5,8 @@ set -ex
 templates=$(ls dist/templates/*)
 namespace="kubevirt"
 
+oc delete namespace ${namespace} || true
+
 echo "Testing fresh installation..."
 oc apply -f - <<EOF
 apiVersion: v1
