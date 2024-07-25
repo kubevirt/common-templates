@@ -1,6 +1,9 @@
 #!/bin/bash
 set -ex
 
+# dependency check
+pip show -q openshift
+
 #syntax check
 templates=$(ls dist/templates/*)
 namespace="kubevirt"
