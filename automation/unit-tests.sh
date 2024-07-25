@@ -1,6 +1,5 @@
 #!/bin/bash
 set -ex
-make generate
 
 #syntax check
 templates=$(ls dist/templates/*)

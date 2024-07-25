@@ -32,7 +32,7 @@ e2e-tests:
 go-tests:
 	go test -v ./tests/
 
-unit-tests:
+unit-tests: generate
 	./automation/unit-tests.sh
 
 validate-no-offensive-lang:
