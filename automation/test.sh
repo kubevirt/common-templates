@@ -66,6 +66,12 @@ function latest_version() {
     tail -n1
 }
 
+# Check if the TARGET environment variable is set
+if [ -z "$TARGET" ]; then
+  echo "Error: a target is needed: please set the TARGET environment variable"
+  exit 1
+fi
+
 # Latest released Kubevirt version
 export KUBEVIRT_VERSION=$(latest_version "kubevirt")
 
