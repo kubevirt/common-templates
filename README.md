@@ -72,7 +72,6 @@ The table below lists the guest operating systems that are covered by the templa
 
 | Guest OS | Meta-template |
 |---|---|
-| Microsoft Windows Server 2012 R2 | [windows2k12](templates/windows2k12.tpl.yaml) |
 | Microsoft Windows Server 2016 | [windows2k16](templates/windows2k16.tpl.yaml) |
 | Microsoft Windows Server 2019 | [windows2k19](templates/windows2k19.tpl.yaml) |
 | Microsoft Windows Server 2022 | [windows2k22](templates/windows2k22.tpl.yaml) |
