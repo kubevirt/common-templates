@@ -44,6 +44,7 @@ generate: generate-templates.yaml $(METASOURCES)
 	ansible-playbook generate-templates.yaml
 
 update-osinfo-db:
+	git submodule init
 	git submodule update --remote osinfo-db
 
 .PHONY: all generate release e2e-tests unit-tests go-tests
