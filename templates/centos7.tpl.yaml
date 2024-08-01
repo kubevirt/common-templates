@@ -3,6 +3,7 @@ kind: Template
 metadata:
   name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
   annotations:
+    template.kubevirt.io/deprecated: "true"
     openshift.io/display-name: "CentOS 7 VM"
     description: >-
       Template for CentOS 7 VM or newer.
