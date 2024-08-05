@@ -26,7 +26,7 @@ dist/common-templates.yaml: generate
 release: dist/common-templates.yaml
 	cp dist/common-templates.yaml dist/common-templates-$(VERSION).yaml
 
-e2e-tests:
+e2e-tests: update-osinfo-db generate
 	./automation/test.sh
 
 go-tests:

@@ -127,10 +127,6 @@ then
     export CLUSTERENV=$ocenv
 fi
 
-git submodule update --init
-
-make generate
-
 #set terminationGracePeriodSeconds to 0
 for filename in dist/templates/*; do
     sed -i -e 's/^\(\s*terminationGracePeriodSeconds\s*:\s*\).*/\10/' $filename
