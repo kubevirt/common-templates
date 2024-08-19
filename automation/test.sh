@@ -145,7 +145,7 @@ oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VE
 
 sample=10
 current_time=0
-timeout=300
+timeout=600
 
 # Waiting for kubevirt cr to report available
 oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $namespace
@@ -179,9 +179,9 @@ echo "Deploying CDI"
 oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
 oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
 
-oc patch cdi cdi -n cdi --patch '{"spec": {"config": {"dataVolumeTTLSeconds": -1}}}' --type merge
-
 oc wait --for=condition=Available --timeout=${timeout}s CDI/cdi -n cdi
+
+oc patch cdi cdi -n cdi --patch '{"spec": {"config": {"dataVolumeTTLSeconds": -1}}}' --type merge
 
 oc apply -f - <<EOF
 ---
