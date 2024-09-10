@@ -59,6 +59,10 @@ EOF
 sizes=("tiny" "small" "medium" "large")
 workloads=("desktop" "server" "highperformance")
 
+if [[ $TARGET =~ fedora.* ]]; then
+  workloads=("small" "medium" "large")
+fi
+
 if [[ $TARGET =~ centos6.* ]]; then
   workloads=("server")
 fi
