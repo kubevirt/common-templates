@@ -136,8 +136,9 @@ for filename in dist/templates/*; do
     sed -i -e 's/^\(\s*terminationGracePeriodSeconds\s*:\s*\).*/\10/' $filename
 done
 
+ARCH=$(uname -m | sed 's/x86_64/amd64/')
 curl -Lo virtctl \
-    https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VERSION/virtctl-$KUBEVIRT_VERSION-linux-amd64
+    https://github.com/kubevirt/kubevirt/releases/download/$KUBEVIRT_VERSION/virtctl-$KUBEVIRT_VERSION-linux-$ARCH
 chmod +x virtctl
 
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
