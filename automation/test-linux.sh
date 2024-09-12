@@ -31,7 +31,7 @@ spec:
     registry:
       url: "${image_url}"
       ${secret_ref}
-  pvc:
+  storage:
     accessModes:
       - ReadWriteOnce
     resources:
