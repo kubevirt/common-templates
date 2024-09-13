@@ -200,14 +200,13 @@ EOF
 
 if [ "${CLUSTERENV}" == "$ocenv" ]
 then
-    export VALIDATOR_VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt-template-validator/releases | \
+    # Deploy ssp-operator
+    export SSP_VERSION=$(curl -s https://api.github.com/repos/kubevirt/ssp-operator/releases | \
             jq '.[] | select(.prerelease==false) | .tag_name' | sort -V | tail -n1 | tr -d '"')
-
-    git clone -b ${VALIDATOR_VERSION} --depth 1 https://github.com/kubevirt/kubevirt-template-validator kubevirt-template-validator
-    VALIDATOR_DIR="kubevirt-template-validator/cluster/ocp4"
-    sed -i 's/RELEASE_TAG/'$VALIDATOR_VERSION'/' ${VALIDATOR_DIR}/service.yaml
-    oc apply -n kubevirt -f ${VALIDATOR_DIR}
-    oc wait --for=condition=Available --timeout=${timeout}s deployment/virt-template-validator -n $namespace
+    oc apply -f https://github.com/kubevirt/ssp-operator/releases/download/${SSP_VERSION}/ssp-operator.yaml
+    oc apply -f https://github.com/kubevirt/ssp-operator/releases/download/${SSP_VERSION}/olm-crds.yaml
+    oc apply -f https://github.com/kubevirt/ssp-operator/releases/download/${SSP_VERSION}/olm-ssp-operator.clusterserviceversion.yaml
+    oc wait --for=condition=Available --timeout=${timeout}s deployment/ssp-operator -n $namespace
     # Apply templates
     echo "Deploying templates"
     oc apply -n $namespace  -f dist/templates
