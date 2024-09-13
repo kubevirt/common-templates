@@ -20,7 +20,7 @@ spec:
     registry:
       secretRef: common-templates-container-disk-puller
       url: "docker://quay.io/openshift-cnv/ci-common-templates-images:${TARGET}"
-  pvc:
+  storage:
     accessModes:
       - ReadWriteOnce
     resources:
