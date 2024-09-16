@@ -7,6 +7,11 @@ namespace="kubevirt"
 ocenv="OC"
 k8senv="K8s"
 
+if [ "$TARGET" == "centos6" ] && [ "$(uname -m)" == "s390x" ]; then
+  echo "CentOS 6 does not support s390x."
+  exit 1
+fi
+
 image_url=""
 #set secret_ref only for rhel OSes
 secret_ref=""
