@@ -148,6 +148,7 @@ objects:
             bootloader:
               efi:
                 secureBoot: true
+                persistent: true
           devices:
 {% if item.multiqueue and item.cpus > 1 %}
             networkInterfaceMultiqueue: True
@@ -174,7 +175,8 @@ objects:
                 bus: usb
                 name: tablet
 {% endif %}
-            tpm: {}
+            tpm:
+              persistent: true
         terminationGracePeriodSeconds: 3600
         volumes:
         - dataVolume:
