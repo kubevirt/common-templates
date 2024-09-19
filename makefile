@@ -47,4 +47,7 @@ update-osinfo-db:
 	git submodule init
 	git submodule update --remote osinfo-db
 
+clean:
+	rm -rf dist/templates
+
 .PHONY: all generate release e2e-tests unit-tests go-tests
