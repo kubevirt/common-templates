@@ -10,10 +10,10 @@
     <distro>win</distro>
     <resources arch="x86_64">
       <minimum>
-        <cpu>1000000000</cpu>
-        <n-cpus>2</n-cpus>
-        <ram>4294967296</ram>
-        <storage>68719476736</storage>
+        <cpu>1400000000</cpu>
+        <n-cpus>1</n-cpus>
+        <ram>536870912</ram>
+        <storage>34359738368</storage>
       </minimum>
     </resources>
   </os>
