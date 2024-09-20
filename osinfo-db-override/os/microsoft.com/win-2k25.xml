@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<libosinfo version="0.0.1">
+  <!-- Licensed under the GNU General Public License version 2 or later.
+     See http://www.gnu.org/licenses/ for a copy of the license text -->
+  <os id="http://microsoft.com/win/2k25">
+    <short-id>win2k25</short-id>
+    <name>Microsoft Windows Server 2025</name>
+    <vendor>Microsoft Corporation</vendor>
+    <family>winnt</family>
+    <distro>win</distro>
+    <resources arch="x86_64">
+      <minimum>
+        <cpu>1000000000</cpu>
+        <n-cpus>2</n-cpus>
+        <ram>4294967296</ram>
+        <storage>68719476736</storage>
+      </minimum>
+    </resources>
+  </os>
+</libosinfo>
