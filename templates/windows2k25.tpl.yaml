@@ -73,12 +73,6 @@ objects:
             "rule": "enum",
             "message": "cd bus has to be sata",
             "values": ["sata"]
-          }, {
-            "name": "minimal-required-cores",
-            "path": "jsonpath::.spec.domain.cpu.cores",
-            "rule": "integer",
-            "message": "This VM requires more cores.",
-            "min": 2
           }
         ]
   spec:
@@ -121,7 +115,7 @@ objects:
               hyperv: {}
           cpu:
             sockets: {{ item.cpus }}
-            cores: 2
+            cores: 1
             threads: 1
 {% if item.iothreads or item.emulatorthread %}
             dedicatedCpuPlacement: True
