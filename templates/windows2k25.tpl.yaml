@@ -1,0 +1,204 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: windows2k25-{{ item.workload }}-{{ item.flavor }}
+  annotations:
+    openshift.io/display-name: "Microsoft Windows Server 2025 VM"
+    description: >-
+      Template for Microsoft Windows 2025 VM.
+      A PVC with the Windows disk image must be available.
+    tags: "hidden,kubevirt,virtualmachine,windows"
+    iconClass: "icon-windows"
+    openshift.io/provider-display-name: "KubeVirt"
+    openshift.io/documentation-url: "https://github.com/kubevirt/common-templates"
+    openshift.io/support-url: "https://github.com/kubevirt/common-templates/issues"
+    template.openshift.io/bindable: "false"
+    template.kubevirt.io/version: v1alpha1
+    defaults.template.kubevirt.io/disk: rootdisk
+    defaults.template.kubevirt.io/network: default
+    template.kubevirt.io/editable: |
+      /objects[0].spec.template.spec.domain.cpu.cores
+      /objects[0].spec.template.spec.domain.memory.guest
+      /objects[0].spec.template.spec.domain.devices.disks
+      /objects[0].spec.template.spec.volumes
+      /objects[0].spec.template.spec.networks
+    name.os.template.kubevirt.io/win2k25: {{ lookup('osinfo', osinfoname).name }}
+  labels:
+    os.template.kubevirt.io/win2k25: "true"
+    workload.template.kubevirt.io/{{ item.workload }}: "true"
+    flavor.template.kubevirt.io/{{ item.flavor }}: "true"
+    template.kubevirt.io/type: "base"
+    template.kubevirt.io/version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
+{% if item.default %}
+    template.kubevirt.io/default-os-variant: "true"
+{% endif %}
+objects:
+- apiVersion: kubevirt.io/v1
+  kind: VirtualMachine
+  metadata:
+    name: ${NAME}
+    labels:
+      vm.kubevirt.io/template: windows2k25-{{ item.workload }}-{{ item.flavor }}
+      vm.kubevirt.io/template.version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
+      vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
+      app: ${NAME}
+    annotations:
+      vm.kubevirt.io/validations: |
+        [
+          {
+            "name": "minimal-required-memory",
+            "path": "jsonpath::.spec.domain.memory.guest",
+            "rule": "integer",
+            "message": "This VM requires more memory.",
+            "min": {{ lookup('osinfo', osinfoname)["minimum_resources.architecture=x86_64.ram"] }}
+          }, {
+            "name": "windows-virtio-bus",
+            "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+            "valid": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+            "rule": "enum",
+            "message": "virtio disk bus type has better performance, install virtio drivers in VM and change bus type",
+            "values": ["virtio"],
+            "justWarning": true
+          }, {
+            "name": "windows-disk-bus",
+            "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+            "valid": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+            "rule": "enum",
+            "message": "disk bus has to be either virtio or sata or scsi",
+            "values": ["virtio", "sata", "scsi"]
+          }, {
+            "name": "windows-cd-bus",
+            "path": "jsonpath::.spec.domain.devices.disks[*].cdrom.bus",
+            "valid": "jsonpath::.spec.domain.devices.disks[*].cdrom.bus",
+            "rule": "enum",
+            "message": "cd bus has to be sata",
+            "values": ["sata"]
+          }, {
+            "name": "minimal-required-cores",
+            "path": "jsonpath::.spec.domain.cpu.cores",
+            "rule": "integer",
+            "message": "This VM requires more cores.",
+            "min": 2
+          }
+        ]
+  spec:
+    dataVolumeTemplates:
+      - apiVersion: cdi.kubevirt.io/v1beta1
+        kind: DataVolume
+        metadata:
+          name: ${NAME}
+        spec:
+          storage:
+            resources:
+              requests:
+                storage: 64Gi
+          sourceRef:
+            kind: DataSource
+            name: ${DATA_SOURCE_NAME}
+            namespace: ${DATA_SOURCE_NAMESPACE}
+    runStrategy: Halted
+    template:
+      metadata:
+        annotations:
+          vm.kubevirt.io/os: "windows2k25"
+          vm.kubevirt.io/workload: "{{ item.workload }}"
+          vm.kubevirt.io/flavor: "{{ item.flavor }}"
+        labels:
+          kubevirt.io/domain: ${NAME}
+          kubevirt.io/size: {{ item.flavor }}
+      spec:
+        architecture: amd64
+        domain:
+          clock:
+            utc: {}
+            timer:
+              hpet:
+                present: false
+              pit:
+                tickPolicy: delay
+              rtc:
+                tickPolicy: catchup
+              hyperv: {}
+          cpu:
+            sockets: {{ item.cpus }}
+            cores: 2
+            threads: 1
+{% if item.iothreads or item.emulatorthread %}
+            dedicatedCpuPlacement: True
+{% endif %}
+{% if item.emulatorthread %}
+            isolateEmulatorThread: True
+{% endif %}
+          memory:
+            guest: {{ item.memsize }}
+          features:
+            acpi: {}
+            apic: {}
+            smm: {}
+            hyperv:
+              relaxed: {}
+              vapic: {}
+              vpindex: {}
+              spinlocks:
+                spinlocks: 8191
+              synic: {}
+              synictimer:
+                direct: {}
+              tlbflush: {}
+              frequencies: {}
+              reenlightenment: {}
+              ipi: {}
+              runtime: {}
+              reset: {}
+          firmware:
+            bootloader:
+              efi:
+                secureBoot: true
+                persistent: true
+          devices:
+{% if item.multiqueue and item.cpus > 1 %}
+            networkInterfaceMultiqueue: True
+{% endif %}
+            disks:
+            - disk:
+{% if item.workload == "highperformance" %}
+                bus: virtio
+{% else %}
+                bus: sata
+{% endif %}
+              name: rootdisk
+            interfaces:
+            - masquerade: {}
+{% if item.multiqueue %}
+              model: virtio
+{% else %}
+              model: e1000e
+{% endif %}
+              name: default
+{% if item.tablet %}
+            inputs:
+              - type: tablet
+                bus: usb
+                name: tablet
+{% endif %}
+            tpm:
+              persistent: true
+        terminationGracePeriodSeconds: 3600
+        volumes:
+        - dataVolume:
+            name: ${NAME}
+          name: rootdisk
+        networks:
+        - name: default
+          pod: {}
+parameters:
+- name: NAME
+  description: VM name
+  generate: expression
+  from: "windows2025-[a-z0-9]{6}"
+- name: DATA_SOURCE_NAME
+  description: Name of the DataSource to clone
+  value: win2k25
+- name: DATA_SOURCE_NAMESPACE
+  description: Namespace of the DataSource
+  value: kubevirt-os-images
