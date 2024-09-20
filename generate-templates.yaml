@@ -1,7 +1,7 @@
 ---
 - connection: local
   hosts: 127.0.0.1
-  gather_facts: no
+  gather_facts: yes
   tasks:
   - name: Prepare dist directory
     file:
@@ -203,6 +203,7 @@
   - name: Load CentOS 6 versions
     set_fact:
       centos6_labels: "{{ lookup('osinfo', 'distro=centos') |map(attribute='short_id') |select('match', '^centos6\\.') |list |sort }}"
+    when: ansible_architecture != "s390x"
 
   - name: Generate CentOS 6 templates
     template:
@@ -220,6 +221,7 @@
       oslabels: "{{ centos6_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: centos
+    when: ansible_architecture != "s390x"
 
   - name: Load Fedora versions
     set_fact:
