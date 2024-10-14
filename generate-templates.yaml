@@ -113,35 +113,6 @@
       cloudusername: cloud-user
       image_urls: "{{ rhel7_image_urls }}"
 
-  - name: Load CentOS Stream 8 containerdisk and image urls
-    set_fact:
-      centos8stream_containerdisk_urls: "{{ lookup('osinfo', 'centos-stream8') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
-      centos8stream_image_urls: "{{ lookup('osinfo', 'centos-stream8') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
-
-  - name: Generate CentOS Stream 8 templates
-    template:
-      src: centos-stream8.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: tiny,   workload: server,  memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: tiny,   workload: desktop, memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: small,  workload: server,  memsize: "2Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
-    - {flavor: small,  workload: desktop, memsize: "2Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: medium, workload: server,  memsize: "4Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: large,  workload: server,  memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: large,  workload: desktop, memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    vars:
-      os: centos-stream8
-      icon: centos
-      majorrelease: centos-stream8
-      oslabels:
-       - centos-stream8
-      osinfoname: "{{ oslabels[0] }}"
-      cloudusername: centos
-      containerdisk_urls: "{{ centos8stream_containerdisk_urls }}"
-      image_urls: "{{ centos8stream_image_urls }}"
-
   - name: Load CentOS Stream 9 containerdisk and image urls
     set_fact:
       centos9stream_containerdisk_urls: "{{ lookup('osinfo', 'centos-stream9') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
@@ -170,35 +141,6 @@
       cloudusername: centos
       containerdisk_urls: "{{ centos9stream_containerdisk_urls }}"
       image_urls: "{{ centos9stream_image_urls }}"
-
-  - name: Load CentOS 7 containerdisk and image urls
-    set_fact:
-      centos7_containerdisk_urls: "{{ lookup('osinfo', 'centos7.0') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
-      centos7_image_urls: "{{ lookup('osinfo', 'centos7.0') |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
-
-  - name: Generate CentOS 7 templates
-    template:
-      src: centos7.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: tiny,   workload: server,  memsize: "1Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: tiny,   workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: small,  workload: server,  memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
-    - {flavor: small,  workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: medium, workload: server,  memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: large,  workload: server,  memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: large,  workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    vars:
-      os: centos7
-      icon: centos
-      majorrelease: centos7
-      oslabels:
-       - centos7.0
-      osinfoname: "{{ oslabels[0] }}"
-      cloudusername: centos
-      containerdisk_urls: "{{ centos7_containerdisk_urls }}"
-      image_urls: "{{ centos7_image_urls }}"
 
   - name: Load CentOS 6 versions
     set_fact:

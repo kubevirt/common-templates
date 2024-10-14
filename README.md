@@ -83,8 +83,6 @@ The table below lists the guest operating systems that are covered by the templa
 | Red Hat Enterprise Linux 9 | [rhel9](templates/rhel9.tpl.yaml) |
 | Ubuntu | [ubuntu](templates/ubuntu.tpl.yaml) |
 | openSUSE Leap | [opensuse](templates/opensuse.tpl.yaml) |
-| CentOS 7 | [centos7](templates/centos7.tpl.yaml) |
-| CentOS Stream 8 | [centos-stream8](templates/centos-stream8.tpl.yaml) |
 | CentOS Stream 9 | [centos-stream9](templates/centos-stream9.tpl.yaml) |
 
 ## License
