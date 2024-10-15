@@ -12,6 +12,11 @@ if [ "$TARGET" == "centos6" ] && [ "$(uname -m)" == "s390x" ]; then
   exit 1
 fi
 
+if [ "$TARGET" == "centos7" ] && [ "$(uname -m)" == "s390x" ]; then
+  echo "CentOS 7 does not support s390x."
+  exit 1
+fi
+
 image_url=""
 #set secret_ref only for rhel OSes
 secret_ref=""
