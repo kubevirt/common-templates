@@ -95,7 +95,7 @@ objects:
           kubevirt.io/domain: ${NAME}
           kubevirt.io/size: {{ item.flavor }}
       spec:
-        architecture: amd64
+        architecture: "{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }}"
         domain:
           features:
             smm:
