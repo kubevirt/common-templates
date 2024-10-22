@@ -72,6 +72,57 @@ if [ -z "$TARGET" ]; then
   exit 1
 fi
 
+ocenv="OC"
+
+if [ -z "$CLUSTERENV" ]
+then
+    export CLUSTERENV=$ocenv
+fi
+
+key="/tmp/secrets/accessKeyId"
+token="/tmp/secrets/secretKey"
+caBundle="/tmp/secrets/ca-bundle"
+
+if [ "${CLUSTERENV}" == "$ocenv" ]
+then
+  if test -f "$key" && test -f "$token"; then
+    id=$(cat ${key} | tr -d '\n')
+    token=$(cat ${token} | tr -d '\n')
+    idBase64=$(echo -n "${id}" | base64)
+    token64=$(echo -n "${token}" | base64)
+
+    oc apply -n $namespace -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: common-templates-container-disk-puller
+  labels:
+    app: containerized-data-importer
+type: Opaque
+data:
+  accessKeyId: "${idBase64}"
+  secretKey: "${token64}"
+EOF
+    if test -f "${caBundle}"; then
+      oc create configmap custom-ca \
+        --from-file=ca-bundle.crt="${caBundle}" \
+        -n openshift-config
+
+      oc patch proxy/cluster \
+        --type=merge \
+        --patch='{"spec":{"trustedCA":{"name":"custom-ca"}}}'
+
+      oc get secret/pull-secret -n openshift-config --template='{{index .data ".dockerconfigjson" | base64decode}}' > config.json
+
+      oc registry login --registry="ibmc.artifactory.cnv-qe.rhood.us" \
+        --auth-basic="${id}:${token}" \
+        --to=config.json
+
+      oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=config.json
+    fi
+  fi
+fi
+
 # Latest released Kubevirt version
 export KUBEVIRT_VERSION=$(latest_version "kubevirt")
 
@@ -120,13 +171,6 @@ _curl() {
 	fi
 }
 
-ocenv="OC"
-
-if [ -z "$CLUSTERENV" ]
-then
-    export CLUSTERENV=$ocenv
-fi
-
 git submodule update --init
 
 make generate
@@ -144,8 +188,6 @@ chmod +x virtctl
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-operator.yaml
 oc apply -f https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/kubevirt-cr.yaml
 
-sample=10
-current_time=0
 timeout=600
 
 # Waiting for kubevirt cr to report available
@@ -153,29 +195,6 @@ oc wait --for=condition=Available --timeout=${timeout}s kubevirt/kubevirt -n $na
 
 oc patch kubevirt kubevirt -n $namespace --type merge -p '{"spec":{"configuration":{"developerConfiguration":{"featureGates": ["DataVolumes", "CPUManager", "NUMA", "DownwardMetrics", "VMPersistentState"]}}}}'
 
-key="/tmp/secrets/accessKeyId"
-token="/tmp/secrets/secretKey"
-
-if [ "${CLUSTERENV}" == "$ocenv" ]
-then
-    if test -f "$key" && test -f "$token"; then
-      id=$(cat $key | tr -d '\n' | base64)
-      token=$(cat $token | tr -d '\n' | base64 | tr -d ' \n')
-
-      oc apply -n $namespace -f - <<EOF
-apiVersion: v1
-kind: Secret
-metadata:
-  name: common-templates-container-disk-puller
-  labels:
-    app: containerized-data-importer
-type: Opaque
-data:
-  accessKeyId: "${id}"
-  secretKey: "${token}"
-EOF
-    fi
-fi
 echo "Deploying CDI"
 oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-operator.yaml
 oc apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$CDI_VERSION/cdi-cr.yaml
