@@ -229,8 +229,8 @@
 
   - name: Load Fedora containerdisk and image urls
     set_fact:
-      fedora_containerdisk_urls: "{{ fedora_containerdisk_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
-      fedora_image_urls: "{{ fedora_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+      fedora_containerdisk_urls: "{{ fedora_containerdisk_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', ansible_architecture) |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
+      fedora_image_urls: "{{ fedora_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', ansible_architecture) |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
     loop: "{{ fedora_labels }}"
 
   - name: Generate Fedora templates
