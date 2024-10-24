@@ -6,71 +6,6 @@ namespace="kubevirt"
 template_name="windows2k22"
 username="Administrator"
 
-dv_name="${TARGET}-datavolume-original"
-
-oc apply -n ${namespace} -f - <<EOF
-apiVersion: cdi.kubevirt.io/v1beta1
-kind: DataVolume
-metadata:
-  annotations:
-    cdi.kubevirt.io/storage.bind.immediate.requested: "true"
-  name: ${dv_name}
-spec:
-  source:
-    registry:
-      secretRef: common-templates-container-disk-puller
-      url: "docker://quay.io/openshift-cnv/ci-common-templates-images:${TARGET}"
-  storage:
-    accessModes:
-      - ReadWriteOnce
-    resources:
-      requests:
-        storage: 60Gi
-EOF
-
-oc apply -f - <<EOF
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: winrmcli
-  namespace: kubevirt
-spec:
-  securityContext:
-    runAsNonRoot: true
-    runAsUser: 1000
-  containers:
-  - image: quay.io/kubevirt/winrmcli
-    command: ["/bin/sh","-c"]
-    args: [ "sleep 3000"]
-    imagePullPolicy: Always
-    name: winrmcli
-restartPolicy: Always
----
-EOF
-
-timeout=2000
-hour_timeout=3600
-sample=10
-current_time=0
-
-oc wait --for=condition=Ready --timeout=${hour_timeout}s dv/${dv_name} -n $namespace
-
-oc apply -n ${namespace} -f - <<EOF
-apiVersion: cdi.kubevirt.io/v1beta1
-kind: DataSource
-metadata:
-  name: ${dv_name}
-spec:
-  source:
-    pvc:
-      name: ${dv_name}
-      namespace: ${namespace}
-EOF
-
-# Make sure winrmcli pod is ready
-oc wait --for=condition=Ready --timeout=${timeout}s pod/winrmcli -n $namespace
-
 sizes=("medium" "large")
 workloads=("server" "highperformance")
 
@@ -79,7 +14,6 @@ if [[ $TARGET =~ windows10.* ]]; then
   workloads=("desktop")
 elif [[ $TARGET =~ windows11.* ]]; then
   template_name="windows11"
-  username="Administrator11"
   workloads=("desktop")
 elif [[ $TARGET =~ windows2016.* ]]; then
   template_name="windows2k16"
@@ -87,7 +21,58 @@ elif [[ $TARGET =~ windows2019.* ]]; then
   template_name="windows2k19"
 elif [[ $TARGET =~ windows2022.* ]]; then
   template_name="windows2k22"
+elif [[ $TARGET =~ windows2025.* ]]; then
+  template_name="windows2k25"
 fi
+
+source_name="${TARGET}-original"
+version=$(oc version -o json | jq -r '.openshiftVersion | split("\\."; null)[:2]|join(".")')
+
+oc apply -n ${namespace} -f - <<EOF
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: ${source_name}
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+  - from:
+      kind: DockerImage
+      name: ibmc.artifactory.cnv-qe.rhood.us/docker/kubevirt-common-instancetypes/${template_name}-container-disk:${version}
+    name: "${version}"
+    referencePolicy:
+      type: Source
+---
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataImportCron
+metadata:
+  annotations:
+    "cdi.kubevirt.io/storage.bind.immediate.requested": "true"
+  name: ${source_name}
+spec:
+  template:
+    spec:
+      source:
+        registry:
+          imageStream: ${source_name}
+          pullMethod: node
+      storage:
+        resources:
+          requests:
+            storage: 25Gi
+  schedule: "46 10/12 * * *"
+  garbageCollect: Outdated
+  importsToKeep: 2
+  managedDataSource: ${source_name}
+EOF
+
+timeout=2000
+hour_timeout=3600
+sample=10
+current_time=0
+
+oc wait --for=condition=UpToDate --timeout="${hour_timeout}s" "dataImportCron/${source_name}" -n "${namespace}"
 
 delete_vm(){
   vm_name=$1
@@ -111,23 +96,22 @@ run_vm(){
   for i in `seq 1 3`; do
     error=false
 
-    oc process -n $namespace -o json $template_name NAME=$vm_name DATA_SOURCE_NAME=${dv_name} DATA_SOURCE_NAMESPACE=${namespace} | \
+    oc process -n $namespace -o json $template_name NAME=$vm_name DATA_SOURCE_NAME=${source_name} DATA_SOURCE_NAMESPACE=${namespace} | \
     jq '.items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
     oc apply -n $namespace -f -
     
     # start vm
-    ./virtctl start $vm_name -n $namespace
+    ./virtctl start "${vm_name}" -n "${namespace}"
 
-    oc wait --for=condition=Ready --timeout=${hour_timeout}s vm/$vm_name -n $namespace
-
-    # get ip address of vm
-    ipAddressVMI=$(oc get vmi $vm_name -o json -n $namespace| jq -r '.status.interfaces[0].ipAddress')
-
+    oc wait --for=condition=Ready --timeout="${hour_timeout}s" "vm/${vm_name}" -n "${namespace}"
+        
     current_time=0
-    # run ipconfig /all command on windows vm
-    while [[ $(oc exec -n $namespace -i winrmcli -- ./usr/bin/winrm-cli -hostname $ipAddressVMI -port 5985 -username $username -password "Heslo123" "ipconfig /all" | grep "IPv4 Address" | wc -l ) -eq 0 ]] ; do
+    # run command via ssh
+    while [[ $(sshpass -pAdministrator ssh -o ProxyCommand="./virtctl port-forward  \
+      --stdio=true -n ${namespace} vm/${vm_name} 33333:22" \
+      -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
+      "${username}@127.0.0.1" -p 33333 "echo Hello" | grep -c "Hello" ) != 1 ]] ; do
       # VM can be stopped during test and recreated. That will change IP, so to be sure, get IP at every iteration
-      ipAddressVMI=$(oc get vmi $vm_name -o json -n $namespace| jq -r '.status.interfaces[0].ipAddress')
       current_time=$((current_time + sample))
       if [[ $current_time -gt $timeout ]]; then
         error=true
