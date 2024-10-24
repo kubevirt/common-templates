@@ -135,7 +135,7 @@ objects:
   metadata:
     name: ${NAME}
   spec:
-    running: false
+    runStrategy: Halted
     template:
       spec:
         domain:
@@ -235,7 +235,7 @@ metadata:
 # simply replaces the whole spec: with the current version
 # the user saved
 spec:
-  running: false
+  runStrategy: Halted
   template:
     spec:
       domain:
