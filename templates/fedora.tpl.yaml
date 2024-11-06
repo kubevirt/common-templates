@@ -100,9 +100,11 @@ objects:
           features:
             smm:
               enabled: true
+{% if ansible_architecture != 's390x' %}
           firmware:
             bootloader:
               efi: {}
+{% endif %}
 {% if item.iothreads %}
           ioThreadsPolicy: shared
 {% endif %}
