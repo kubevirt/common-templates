@@ -154,9 +154,14 @@ spec:
     reservedSystemCPUs: "2"
 EOF
 
-  oc wait --for=condition=Updating --timeout=300s machineconfigpool worker
-  # it can take a while to enable CPU manager
-  oc wait --for=condition=Updated --timeout=900s machineconfigpool worker
+  # Verify if the machine configuration has been updated (this will increase test speed when running the second time)
+  machineconfigpool_updated=$(oc get machineconfigpool worker -o jsonpath='{range .status.conditions[*]}{.type}: {.status}{"\n"}{end}' | grep Updated | awk '{print $2}')
+
+  if [ $machineconfigpool_updated != "True" ]; then
+    oc wait --for=condition=Updating --timeout=300s machineconfigpool worker
+    # it can take a while to enable CPU manager
+    oc wait --for=condition=Updated --timeout=900s machineconfigpool worker
+  fi
 fi
 
 _curl() {
