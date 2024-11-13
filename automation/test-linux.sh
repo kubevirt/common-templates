@@ -74,6 +74,7 @@ fi
 
 if [[ $TARGET =~ ubuntu.* ]]; then
   workloads=("desktop" "server")
+  sizes=("small" "medium" "large")
 fi
 
 if [[ $TARGET =~ opensuse.* ]]; then
