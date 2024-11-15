@@ -44,7 +44,7 @@ spec:
         storage: 30Gi
 EOF
 
-timeout=600
+timeout=900
 sample=10
 
 oc wait --for=condition=Ready --timeout=${timeout}s dv/"${dv_name}" -n $namespace
