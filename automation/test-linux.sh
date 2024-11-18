@@ -62,7 +62,7 @@ spec:
 EOF
 
 sizes=("tiny" "small" "medium" "large")
-workloads=("desktop" "server" "highperformance")
+workloads=("desktop" "server")
 
 if [[ $TARGET =~ fedora.* ]]; then
   sizes=("small" "medium" "large")

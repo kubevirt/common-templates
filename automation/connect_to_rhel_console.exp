@@ -10,5 +10,6 @@ expect {
     "*login*" {exit 0}
     "*Welcome*" {exit 0}
     "*A start job*" {exit 0}
-    exit 1 
+    timeout {exit 1}
+    eof {exit 1}
 }
