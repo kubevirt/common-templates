@@ -3,6 +3,13 @@
   hosts: 127.0.0.1
   gather_facts: yes
   tasks:
+  - name: Ensure target_arch is defined
+    assert:
+      that: 
+        - target_arch is defined
+        - target_arch in ['x86_64', 's390x']
+      fail_msg: "Please define the target architecture as either 'x86_64' or 's390x'."
+
   - name: Prepare dist directory
     file:
       path: "{{ playbook_dir }}/dist/templates"
@@ -145,7 +152,7 @@
   - name: Load CentOS 6 versions
     set_fact:
       centos6_labels: "{{ lookup('osinfo', 'distro=centos') |map(attribute='short_id') |select('match', '^centos6\\.') |list |sort }}"
-    when: ansible_architecture != "s390x"
+    when: target_arch != "s390x"
 
   - name: Generate CentOS 6 templates
     template:
@@ -163,7 +170,7 @@
       oslabels: "{{ centos6_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: centos
-    when: ansible_architecture != "s390x"
+    when: target_arch != "s390x"
 
   - name: Load Fedora versions
     set_fact:
@@ -171,8 +178,8 @@
 
   - name: Load Fedora containerdisk and image urls
     set_fact:
-      fedora_containerdisk_urls: "{{ fedora_containerdisk_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', ansible_architecture) |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
-      fedora_image_urls: "{{ fedora_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', ansible_architecture) |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+      fedora_containerdisk_urls: "{{ fedora_containerdisk_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', target_arch) |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
+      fedora_image_urls: "{{ fedora_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', target_arch) |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
     loop: "{{ fedora_labels }}"
 
   - name: Generate Fedora templates
