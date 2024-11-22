@@ -12,15 +12,38 @@ if [ "$TARGET" == "centos6" ] && [ "$(uname -m)" == "s390x" ]; then
   exit 1
 fi
 
+containerdisks_url="docker://quay.io/containerdisks"
+legacy_common_templates_disk_url="docker://quay.io/kubevirt/common-templates"
+cnv_common_templates_url="docker://quay.io/openshift-cnv/ci-common-templates-images"
 image_url=""
 #set secret_ref only for rhel OSes
 secret_ref=""
-if [[ $TARGET =~ rhel.* ]]; then
-  image_url="docker://quay.io/openshift-cnv/ci-common-templates-images:${TARGET}"
-  secret_ref="secretRef: common-templates-container-disk-puller"
-else
-  image_url="docker://quay.io/kubevirt/common-templates:${TARGET}"
-fi
+
+case $TARGET in
+  centos-stream9)
+    image_url="${containerdisks_url}/centos-stream:9"
+    ;;
+  centos6)
+    image_url="${legacy_common_templates_disk_url}:centos6"
+    ;;
+  fedora)
+    image_url="${containerdisks_url}/fedora:latest"
+    ;;
+  opensuse)
+    image_url="${containerdisks_url}/opensuse-leap:15.6"
+    ;;
+  rhel*)
+    image_url="${cnv_common_templates_url}:${TARGET}"
+    secret_ref="secretRef: common-templates-container-disk-puller"
+    ;;
+  ubuntu)
+    image_url="${containerdisks_url}/ubuntu:24.04"
+    ;;
+  *)
+    echo "Target: $TARGET is not valid"
+    exit 1
+    ;;
+esac
 
 dv_name="${TARGET}-datavolume-original"
 
