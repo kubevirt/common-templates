@@ -7,11 +7,6 @@ namespace="kubevirt"
 ocenv="OC"
 k8senv="K8s"
 
-if [ "$TARGET" == "centos6" ] && [ "$(uname -m)" == "s390x" ]; then
-  echo "CentOS 6 does not support s390x."
-  exit 1
-fi
-
 containerdisks_url="docker://quay.io/containerdisks"
 legacy_common_templates_disk_url="docker://quay.io/kubevirt/common-templates"
 cnv_common_templates_url="docker://quay.io/openshift-cnv/ci-common-templates-images"

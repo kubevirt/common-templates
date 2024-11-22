@@ -5,6 +5,9 @@ ALL_META_TEMPLATES=$(wildcard templates/*.yaml)
 ALL_PRESETS=$(wildcard presets/*.yaml)
 METASOURCES=$(ALL_META_TEMPLATES) $(ALL_PRESETS)
 
+# target architecture
+TARGET_ARCH?=x86_64
+
 # Make sure the version is defined
 export VERSION=$(shell ./version.sh)
 export REVISION=$(shell ./revision.sh)
@@ -41,7 +44,7 @@ validate-no-offensive-lang:
 generate: generate-templates.yaml $(METASOURCES)
 	# Just build the XML files, no need to export to tarball
 	make -C osinfo-db/ OSINFO_DB_EXPORT=echo
-	ansible-playbook generate-templates.yaml
+	ansible-playbook generate-templates.yaml -e "target_arch=$(TARGET_ARCH)"
 
 update-osinfo-db:
 	git submodule init
