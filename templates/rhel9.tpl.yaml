@@ -92,7 +92,7 @@ objects:
           kubevirt.io/domain: ${NAME}
           kubevirt.io/size: {{ item.flavor }}
       spec:
-        architecture: amd64
+        architecture: "{{ 'amd64' if target_arch == 'x86_64' else target_arch }}"
         domain:
 {% if item.iothreads %}
           ioThreadsPolicy: shared
@@ -137,12 +137,14 @@ objects:
             - masquerade: {}
               name: default
               model: virtio
+{% if target_arch != 's390x' %}
           features:
             smm:
               enabled: true
           firmware:
             bootloader:
               efi: {}
+{% endif %}
         terminationGracePeriodSeconds: 180
         networks:
         - name: default
