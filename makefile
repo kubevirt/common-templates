@@ -26,8 +26,38 @@ dist/common-templates.yaml: generate
 	  done ; \
 	) >$@
 
-release: dist/common-templates.yaml
+dist/common-templates-amd64.yaml:
+	( \
+	  echo -n "# Version " ; \
+	  git describe --always --tags HEAD ; \
+	  for F in $(ALL_PRESETS) dist/templates/*.yaml; \
+	  do \
+		case "$$F" in \
+		  *s390x.yaml) ;; \
+		  *) \
+	        echo "---" ; \
+	        echo "# Source: $$F" ; \
+	        cat $$F ; \
+		esac ; \
+	  done ; \
+	) >$@
+
+dist/common-templates-s390x.yaml:
+	( \
+	  echo -n "# Version " ; \
+	  git describe --always --tags HEAD ; \
+	  for F in $(ALL_PRESETS) dist/templates/*-s390x.yaml; \
+	  do \
+	    echo "---" ; \
+	    echo "# Source: $$F" ; \
+	    cat $$F ; \
+	  done ; \
+	) >$@
+
+release: dist/common-templates.yaml dist/common-templates-amd64.yaml dist/common-templates-s390x.yaml
 	cp dist/common-templates.yaml dist/common-templates-$(VERSION).yaml
+	cp dist/common-templates-amd64.yaml dist/common-templates-amd64-$(VERSION).yaml
+	cp dist/common-templates-s390x.yaml dist/common-templates-s390x-$(VERSION).yaml
 
 e2e-tests:
 	TARGET_ARCH=$(TARGET_ARCH) ./automation/test.sh
