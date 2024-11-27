@@ -163,9 +163,10 @@ run_vm() {
   fi
 }
 
+target_arch_suffix=$( [ "$TARGET_ARCH" = "x86_64" ] && echo "" || echo "-$TARGET_ARCH" )
 for size in "${sizes[@]}"; do
   for workload in "${workloads[@]}"; do
-    vm_name=$template_name-$workload-$size
+    vm_name=$template_name-$workload-$size$target_arch_suffix
     run_vm "$vm_name"
   done
 done

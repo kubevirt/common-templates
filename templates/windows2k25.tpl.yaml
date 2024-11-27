@@ -32,6 +32,7 @@ metadata:
 {% if item.default %}
     template.kubevirt.io/default-os-variant: "true"
 {% endif %}
+    template.kubevirt.io/architecture: "amd64"
 objects:
 - apiVersion: kubevirt.io/v1
   kind: VirtualMachine

@@ -2,6 +2,8 @@
 - connection: local
   hosts: 127.0.0.1
   gather_facts: yes
+  vars:
+    suffix: "{{ '' if target_arch == 'x86_64' else '-' + target_arch }}"
   tasks:
   - name: Ensure target_arch is defined
     assert:
@@ -27,7 +29,7 @@
   - name: Generate RHEL 9 templates
     template:
       src: rhel9.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}{{ suffix }}.yaml"
     with_items:
     - {flavor: tiny,   workload: server,          memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
     - {flavor: tiny,   workload: desktop,         memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
@@ -62,7 +64,7 @@
   - name: Generate RHEL 8 templates
     template:
       src: rhel8.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}{{ suffix }}.yaml"
     with_items:
     - {flavor: tiny,   workload: server,          memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
     - {flavor: tiny,   workload: desktop,         memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
@@ -131,7 +133,7 @@
   - name: Generate CentOS Stream 9 templates
     template:
       src: centos-stream9.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}{{ suffix }}.yaml"
     with_items:
     - {flavor: tiny,   workload: server,  memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
     - {flavor: tiny,   workload: desktop, memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
@@ -188,7 +190,7 @@
   - name: Generate Fedora templates
     template:
       src: fedora.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}{{ suffix }}.yaml"
     with_items:
     - {flavor: small,  workload: desktop,         memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
     - {flavor: small,  workload: server,          memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
@@ -252,7 +254,7 @@
   - name: Generate Ubuntu templates
     template:
       src: ubuntu.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}{{ suffix }}.yaml"
     with_items:
     - {flavor: small,  workload: desktop, memsize: "3Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True, default: False}
     - {flavor: small,  workload: server,  memsize: "3Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True, default: True}

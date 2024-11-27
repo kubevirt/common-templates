@@ -30,7 +30,7 @@ release: dist/common-templates.yaml
 	cp dist/common-templates.yaml dist/common-templates-$(VERSION).yaml
 
 e2e-tests:
-	./automation/test.sh
+	TARGET_ARCH=$(TARGET_ARCH) ./automation/test.sh
 
 go-tests:
 	go test -v ./tests/
@@ -44,7 +44,8 @@ validate-no-offensive-lang:
 generate: generate-templates.yaml $(METASOURCES)
 	# Just build the XML files, no need to export to tarball
 	make -C osinfo-db/ OSINFO_DB_EXPORT=echo
-	ansible-playbook generate-templates.yaml -e "target_arch=$(TARGET_ARCH)"
+	ansible-playbook generate-templates.yaml -e "target_arch=x86_64"
+	ansible-playbook generate-templates.yaml -e "target_arch=s390x"
 
 update-osinfo-db:
 	git submodule init

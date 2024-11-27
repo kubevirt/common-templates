@@ -1,7 +1,7 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: {{ os }}-{{ item.workload }}-{{ item.flavor }}
+  name: {{ os }}-{{ item.workload }}-{{ item.flavor }}{{ suffix }}
   annotations:
     openshift.io/display-name: "Fedora VM"
     description: >-
@@ -48,13 +48,14 @@ metadata:
 {% if item.default %}
     template.kubevirt.io/default-os-variant: "true"
 {% endif %}
+    template.kubevirt.io/architecture: "{{ 'amd64' if target_arch == 'x86_64' else target_arch }}"
 objects:
 - apiVersion: kubevirt.io/v1
   kind: VirtualMachine
   metadata:
     name: ${NAME}
     labels:
-      vm.kubevirt.io/template: {{ os }}-{{ item.workload }}-{{ item.flavor }}
+      vm.kubevirt.io/template: {{ os }}-{{ item.workload }}-{{ item.flavor }}{{ suffix }}
       vm.kubevirt.io/template.version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
       vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
       app: ${NAME}
