@@ -39,15 +39,21 @@ for template in "${templates[@]}"; do
     yq -o props '.metadata.labels | with_entries(select(.key == "flavor.template.kubevirt.io/*"))' "$template" \
   )
 
+  readarray -t template_archs < <( \
+    yq -o props '.metadata.labels | with_entries(select(.key == "template.kubevirt.io/architecture"))' "$template" \
+  )
+
   for os in "${template_oss[@]}"; do
     for workload in "${template_workloads[@]}"; do
       for flavor in "${template_flavors[@]}"; do
-        count=$(oc get template -l "$os,$workload,$flavor,$ver_label" --no-headers | wc -l)
+        for architecture in "${template_archs[@]}"; do
+          count=$(oc get template -l "$os,$workload,$flavor,$ver_label,$architecture" --no-headers | wc -l)
 
-        if [[ $count -ne 1 ]]; then
-          echo "There are $count templates found with the following labels $os,$workload,$flavor,$ver_label"
-          exit 1
-        fi
+          if [[ $count -ne 1 ]]; then
+            echo "There are $count templates found with the following labels $os,$workload,$flavor,$ver_label,$architecture"
+            exit 1
+          fi
+        done
       done
     done
   done
