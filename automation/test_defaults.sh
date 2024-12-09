@@ -46,7 +46,7 @@ for os in "${oss[@]}"; do
     continue
   fi
 
-  defaults=$(oc get template -l "$os,template.kubevirt.io/default-os-variant = true,$ver_label" -o name | wc -l)
+  defaults=$(oc get template -l "$os,template.kubevirt.io/default-os-variant = true,$ver_label,template.kubevirt.io/architecture=amd64" -o name | wc -l)
 
   if [[ $defaults -eq 1 ]]; then
     continue
