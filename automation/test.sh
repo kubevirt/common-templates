@@ -127,7 +127,7 @@ fi
 export KUBEVIRT_VERSION=$(latest_version "kubevirt")
 
 # Latest released CDI version
-export CDI_VERSION=$(latest_version "containerized-data-importer")
+export CDI_VERSION="v1.60.4"
 
 # switch to faster storage class for widows tests (slower storage class is causing timeouts due 
 # to not able to copy whole windows disk into cluster)
