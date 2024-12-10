@@ -14,7 +14,7 @@ export REVISION=$(shell ./revision.sh)
 
 dist/templates/%.yaml: generate
 
-dist/common-templates.yaml:
+dist/common-templates.yaml: generate
 	echo -n "# Version " > dist/common-templates.yaml;
 	git describe --always --tags HEAD >> dist/common-templates.yaml;
 	echo -n "# Version " > dist/common-templates-amd64.yaml;
