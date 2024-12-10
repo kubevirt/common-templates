@@ -14,20 +14,32 @@ export REVISION=$(shell ./revision.sh)
 
 dist/templates/%.yaml: generate
 
-dist/common-templates.yaml: generate
-	( \
-	  echo -n "# Version " ; \
-	  git describe --always --tags HEAD ; \
-	  for F in $(ALL_PRESETS) dist/templates/*.yaml; \
-	  do \
-	    echo "---" ; \
-	    echo "# Source: $$F" ; \
-	    cat $$F ; \
-	  done ; \
-	) >$@
+dist/common-templates.yaml:
+	echo -n "# Version " > dist/common-templates.yaml;
+	git describe --always --tags HEAD >> dist/common-templates.yaml;
+	echo -n "# Version " > dist/common-templates-amd64.yaml;
+	git describe --always --tags HEAD >> dist/common-templates-amd64.yaml;
+	echo -n "# Version " > dist/common-templates-s390x.yaml;
+	git describe --always --tags HEAD >> dist/common-templates-s390x.yaml;
+	for file in $(ALL_PRESETS) dist/templates/*.yaml; do \
+			if [[ "$$file" == *"s390x.yaml" ]]; then \
+					echo "---" >> dist/common-templates-s390x.yaml; \
+					echo "# Source: $$file" >> dist/common-templates-s390x.yaml; \
+					cat "$$file" >> dist/common-templates-s390x.yaml; \
+			else \
+					echo "---" >> dist/common-templates-amd64.yaml; \
+					echo "# Source: $$file" >> dist/common-templates-amd64.yaml; \
+					cat "$$file" >> dist/common-templates-amd64.yaml; \
+			fi; \
+			echo "---" >> dist/common-templates.yaml; \
+			echo "# Source: $$file" >> dist/common-templates.yaml; \
+			cat "$$file" >> dist/common-templates.yaml; \
+	done
 
 release: dist/common-templates.yaml
 	cp dist/common-templates.yaml dist/common-templates-$(VERSION).yaml
+	cp dist/common-templates-amd64.yaml dist/common-templates-amd64-$(VERSION).yaml
+	cp dist/common-templates-s390x.yaml dist/common-templates-s390x-$(VERSION).yaml
 
 e2e-tests:
 	TARGET_ARCH=$(TARGET_ARCH) ./automation/test.sh
