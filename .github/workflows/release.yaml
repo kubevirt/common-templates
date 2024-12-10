@@ -28,8 +28,8 @@ jobs:
             common-templates-ci \
             /bin/bash -c "cd /common-templates && export REVISION=1 VERSION="${{ steps.get_release.outputs.tag_name }}" && make release"
 
-      - name: Upload Release Asset
-        id: upload-bundle-asset
+      - name: Upload x86_64 Release Bundle
+        id: upload-x86_64-bundle-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
@@ -39,6 +39,17 @@ jobs:
           asset_name: common-templates.yaml
           asset_content_type: text/plain
 
+      - name: Upload s390x Release Bundle
+        id: upload-s390x-bundle-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./dist/common-templates-s390x.yaml
+          asset_name: common-templates-s390x.yaml
+          asset_content_type: text/plain
+
       - name: Install golang
         uses: actions/setup-go@v2
 
@@ -46,8 +57,8 @@ jobs:
         run: |
           # Define vars
           export VERSION="${{ steps.get_release.outputs.tag_name }}"
-          export SRC_TEMPLATES_FILE=common-templates.yaml
-          export DST_TEMPLATES_FILE=common-templates-${VERSION}.yaml
+          export TEMPLATES_FILE=common-templates-${VERSION}.yaml
+          export S390X_TEMPLATES_FILE=common-templates-s390x-${VERSION}.yaml
 
           # If GITHUB_FORK_USER is changed, a new access token should be set as a repo secret (ACTIONS_TOKEN)
           export GITHUB_FORK_USER=ksimon1
@@ -72,7 +83,8 @@ jobs:
           git checkout -b update-common-templates-${VERSION}
 
           # Update the new common-templates file
-          cp ../dist/${SRC_TEMPLATES_FILE} data/common-templates-bundle/${DST_TEMPLATES_FILE}
+          cp ../dist/${TEMPLATES_FILE} data/common-templates-bundle/${TEMPLATES_FILE}
+          cp ../dist/${S390X_TEMPLATES_FILE} data/common-templates-bundle/${S390X_TEMPLATES_FILE}
           sed -i "s/\bVersion\s*=.*/Version = \"${VERSION}\"/g" internal/operands/common-templates/version.go
           go fmt ./...
 
