@@ -21,11 +21,17 @@ dist/common-templates.yaml: generate
 	git describe --always --tags HEAD >> dist/common-templates-amd64.yaml;
 	echo -n "# Version " > dist/common-templates-s390x.yaml;
 	git describe --always --tags HEAD >> dist/common-templates-s390x.yaml;
+	echo -n "# Version " > dist/common-templates-arm64.yaml;
+	git describe --always --tags HEAD >> dist/common-templates-arm64.yaml;
 	for file in $(ALL_PRESETS) dist/templates/*.yaml; do \
 			if [[ "$$file" == *"s390x.yaml" ]]; then \
 					echo "---" >> dist/common-templates-s390x.yaml; \
 					echo "# Source: $$file" >> dist/common-templates-s390x.yaml; \
 					cat "$$file" >> dist/common-templates-s390x.yaml; \
+			elif [[ "$$file" == *"arm64.yaml" ]]; then \
+					echo "---" >> dist/common-templates-arm64.yaml; \
+					echo "# Source: $$file" >> dist/common-templates-arm64.yaml; \
+					cat "$$file" >> dist/common-templates-arm64.yaml; \
 			else \
 					echo "---" >> dist/common-templates-amd64.yaml; \
 					echo "# Source: $$file" >> dist/common-templates-amd64.yaml; \
@@ -58,6 +64,7 @@ generate: generate-templates.yaml $(METASOURCES)
 	make -C osinfo-db/ OSINFO_DB_EXPORT=echo
 	ansible-playbook generate-templates.yaml -e "target_arch=x86_64"
 	ansible-playbook generate-templates.yaml -e "target_arch=s390x"
+	ansible-playbook generate-templates.yaml -e "target_arch=aarch64"
 
 update-osinfo-db:
 	git submodule init
