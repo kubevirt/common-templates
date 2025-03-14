@@ -26,7 +26,7 @@ elif [[ $TARGET =~ windows2025.* ]]; then
 fi
 
 source_name="${TARGET}-original"
-version=$(oc version -o json | jq -r '.openshiftVersion | split("\\."; null)[:2]|join(".")')
+version="4.99"
 
 oc apply -n ${namespace} -f - <<EOF
 apiVersion: image.openshift.io/v1
