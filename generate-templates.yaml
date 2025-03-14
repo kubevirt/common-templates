@@ -17,7 +17,7 @@
       path: "{{ playbook_dir }}/dist/templates"
       state: directory
 
-  - name: Load RHEL 9 versions
+  - name: Load RHEL 9 versions 
     set_fact:
       rhel9_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel9\\.') |list |sort }}"
 
