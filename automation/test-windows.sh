@@ -4,7 +4,6 @@ set -ex
 
 namespace="kubevirt"
 template_name="windows2k22"
-username="Administrator"
 
 sizes=("medium" "large")
 workloads=("server" "highperformance")
@@ -26,7 +25,7 @@ elif [[ $TARGET =~ windows2025.* ]]; then
 fi
 
 source_name="${TARGET}-original"
-version=$(oc version -o json | jq -r '.openshiftVersion | split("\\."; null)[:2]|join(".")')
+version="4.99"
 
 oc apply -n ${namespace} -f - <<EOF
 apiVersion: image.openshift.io/v1
@@ -67,10 +66,8 @@ spec:
   managedDataSource: ${source_name}
 EOF
 
-timeout=2000
 hour_timeout=3600
-sample=10
-current_time=0
+fifteen_minutes_timeout=900
 
 oc wait --for=condition=UpToDate --timeout="${hour_timeout}s" "dataImportCron/${source_name}" -n "${namespace}"
 
@@ -88,51 +85,18 @@ run_vm(){
   vm_name=$1
   template_path="dist/templates/$vm_name.yaml"
   local template_name=$( oc get -n ${namespace} -f ${template_path} -o=custom-columns=NAME:.metadata.name --no-headers -n kubevirt )
-  running=false
 
-  set +e
+  oc process -n $namespace -o json $template_name NAME=$vm_name DATA_SOURCE_NAME=${source_name} DATA_SOURCE_NAMESPACE=${namespace} | \
+  jq '.items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
+  oc apply -n $namespace -f -
+  
+  # start vm
+  ./virtctl start "${vm_name}" -n "${namespace}"
 
-  #If first try fails, it tries 2 more time to run it, before it fails whole test
-  for i in `seq 1 3`; do
-    error=false
+  oc wait --for=condition=Ready --timeout="${fifteen_minutes_timeout}s" "vm/${vm_name}" -n "${namespace}"
+  oc wait --for=condition=AgentConnected --timeout="${fifteen_minutes_timeout}s" "vm/${vm_name}" -n "${namespace}"
 
-    oc process -n $namespace -o json $template_name NAME=$vm_name DATA_SOURCE_NAME=${source_name} DATA_SOURCE_NAMESPACE=${namespace} | \
-    jq '.items[0].metadata.labels["vm.kubevirt.io/template.namespace"]="kubevirt"' | \
-    oc apply -n $namespace -f -
-    
-    # start vm
-    ./virtctl start "${vm_name}" -n "${namespace}"
-
-    oc wait --for=condition=Ready --timeout="${hour_timeout}s" "vm/${vm_name}" -n "${namespace}"
-        
-    current_time=0
-    # run command via ssh
-    while [[ $(sshpass -pAdministrator ssh -o ProxyCommand="./virtctl port-forward  \
-      --stdio=true -n ${namespace} vm/${vm_name} 33333:22" \
-      -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
-      "${username}@127.0.0.1" -p 33333 "echo Hello" | grep -c "Hello" ) != 1 ]] ; do
-      # VM can be stopped during test and recreated. That will change IP, so to be sure, get IP at every iteration
-      current_time=$((current_time + sample))
-      if [[ $current_time -gt $timeout ]]; then
-        error=true
-        break
-      fi
-      sleep $sample;
-    done
-
-    delete_vm $vm_name $template_name
-    #no error were observed, the vm is running
-    if ! $error ; then
-      running=true
-      break
-    fi
-  done
-
-  set -e
-
-  if ! $running ; then
-    exit 1 
-  fi
+  delete_vm $vm_name $template_name
 }
 
 for size in ${sizes[@]}; do
