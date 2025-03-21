@@ -38,6 +38,7 @@ jobs:
             ./dist/common-templates-${{ steps.get_release.outputs.tag_name }}.yaml
             ./dist/common-templates-amd64-${{ steps.get_release.outputs.tag_name }}.yaml
             ./dist/common-templates-s390x-${{ steps.get_release.outputs.tag_name }}.yaml
+            ./dist/common-templates-arm64-${{ steps.get_release.outputs.tag_name }}.yaml
 
       - name: Install golang
         uses: actions/setup-go@v2
@@ -49,6 +50,7 @@ jobs:
           export TEMPLATES_FILE=common-templates-${VERSION}.yaml
           export AMD64_TEMPLATES_FILE=common-templates-amd64-${VERSION}.yaml
           export S390X_TEMPLATES_FILE=common-templates-s390x-${VERSION}.yaml
+          export ARM64_TEMPLATES_FILE=common-templates-arm64-${VERSION}.yaml
 
           # If GITHUB_FORK_USER is changed, a new access token should be set as a repo secret (ACTIONS_TOKEN)
           export GITHUB_FORK_USER=ksimon1
@@ -76,6 +78,7 @@ jobs:
           cp ../dist/${TEMPLATES_FILE} data/common-templates-bundle/${TEMPLATES_FILE}
           cp ../dist/${AMD64_TEMPLATES_FILE} data/common-templates-bundle/${AMD64_TEMPLATES_FILE}
           cp ../dist/${S390X_TEMPLATES_FILE} data/common-templates-bundle/${S390X_TEMPLATES_FILE}
+          cp ../dist/${ARM64_TEMPLATES_FILE} data/common-templates-bundle/${ARM64_TEMPLATES_FILE}
           sed -i "s/\bVersion\s*=.*/Version = \"${VERSION}\"/g" internal/operands/common-templates/version.go
           go fmt ./...
 
