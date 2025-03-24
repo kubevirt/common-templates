@@ -49,7 +49,7 @@ metadata:
 {% if item.default %}
     template.kubevirt.io/default-os-variant: "true"
 {% endif %}
-    template.kubevirt.io/architecture: "{{ 'amd64' if target_arch == 'x86_64' else target_arch }}"
+    template.kubevirt.io/architecture: "{{ 'amd64' if target_arch == 'x86_64' else 'arm64' if target_arch == 'aarch64' else target_arch }}"
 objects:
 - apiVersion: kubevirt.io/v1
   kind: VirtualMachine
@@ -97,7 +97,7 @@ objects:
           kubevirt.io/domain: ${NAME}
           kubevirt.io/size: {{ item.flavor }}
       spec:
-        architecture: "{{ 'amd64' if target_arch == 'x86_64' else target_arch }}"
+        architecture: "{{ 'amd64' if target_arch == 'x86_64' else 'arm64' if target_arch == 'aarch64' else target_arch }}"
         domain:
 {% if item.iothreads %}
           ioThreadsPolicy: shared

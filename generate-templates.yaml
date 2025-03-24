@@ -3,14 +3,14 @@
   hosts: 127.0.0.1
   gather_facts: yes
   vars:
-    suffix: "{{ '' if target_arch == 'x86_64' else '-' + target_arch }}"
+    suffix: "{{ '' if target_arch == 'x86_64' else '-arm64' if target_arch == 'aarch64' else '-' + target_arch }}"
   tasks:
   - name: Ensure target_arch is defined
     assert:
       that: 
         - target_arch is defined
-        - target_arch in ['x86_64', 's390x']
-      fail_msg: "Please define the target architecture as either 'x86_64' or 's390x'."
+        - target_arch in ['x86_64', 's390x', 'aarch64']
+      fail_msg: "Please define the target architecture as either 'x86_64', 's390x' or 'aarch64'."
 
   - name: Prepare dist directory
     file:
@@ -86,17 +86,18 @@
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: cloud-user
       image_urls: "{{ rhel8_image_urls }}"
+    when: target_arch != "aarch64"
 
   - name: Load RHEL 7 versions
     set_fact:
       rhel7_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel7\\.') |list |sort }}"
-    when: target_arch != "s390x"
+    when: target_arch != "s390x" and target_arch != "aarch64"
 
   - name: Load RHEL 7 image urls
     set_fact:
       rhel7_image_urls: "{{ rhel7_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
     loop: "{{ rhel7_labels }}"
-    when: target_arch != "s390x"
+    when: target_arch != "s390x" and target_arch != "aarch64"
 
   - name: Generate RHEL 7 templates
     template:
@@ -123,7 +124,7 @@
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: cloud-user
       image_urls: "{{ rhel7_image_urls }}"
-    when: target_arch != "s390x"
+    when: target_arch != "s390x" and target_arch != "aarch64"
 
   - name: Load CentOS Stream 9 containerdisk and image urls
     set_fact:
@@ -157,7 +158,7 @@
   - name: Load CentOS 6 versions
     set_fact:
       centos6_labels: "{{ lookup('osinfo', 'distro=centos') |map(attribute='short_id') |select('match', '^centos6\\.') |list |sort }}"
-    when: target_arch != "s390x"
+    when: target_arch != "s390x" and target_arch != "aarch64"
 
   - name: Generate CentOS 6 templates
     template:
@@ -175,7 +176,7 @@
       oslabels: "{{ centos6_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: centos
-    when: target_arch != "s390x"
+    when: target_arch != "s390x" and target_arch != "aarch64"
 
   - name: Load Fedora versions
     set_fact:
@@ -214,13 +215,13 @@
   - name: Load openSUSE versions
     set_fact:
       opensuse_labels: "{{ lookup('osinfo', 'distro=opensuse') |select('osinfo_active') |map(attribute='short_id') |list |sort }}"
-    when: target_arch != "s390x"
+    when: target_arch != "s390x" and target_arch != "aarch64"
 
   - name: Load openSUSE image urls
     set_fact:
       opensuse_image_urls: "{{ opensuse_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
     loop: "{{ opensuse_labels }}"
-    when: target_arch != "s390x"
+    when: target_arch != "s390x" and target_arch != "aarch64"
 
   - name: Generate openSUSE templates
     template:
@@ -239,7 +240,7 @@
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: opensuse
       image_urls: "{{ opensuse_image_urls }}"
-    when: target_arch != "s390x"
+    when: target_arch != "s390x" and target_arch != "aarch64"
 
   - name: Load Ubuntu versions
     set_fact:
@@ -283,7 +284,7 @@
     - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
     vars:
       osinfoname: win2k16
-    when: target_arch != "s390x"
+    when: target_arch != "s390x" and target_arch != "aarch64"
 
   - name: Generate Windows server 2019 templates
     template:
@@ -296,7 +297,7 @@
     - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
     vars:
       osinfoname: win2k19
-    when: target_arch != "s390x"
+    when: target_arch != "s390x" and target_arch != "aarch64"
 
   - name: Generate Windows 10 templates
     template:
@@ -309,7 +310,7 @@
     - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
     vars:
       osinfoname: win10
-    when: target_arch != "s390x"
+    when: target_arch != "s390x" and target_arch != "aarch64"
 
   - name: Generate Windows 11 templates
     template:
@@ -322,7 +323,7 @@
     - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
     vars:
       osinfoname: win11
-    when: target_arch != "s390x"
+    when: target_arch != "s390x" and target_arch != "aarch64"
 
   - name: Generate Windows server 2022 templates
     template:
@@ -335,7 +336,7 @@
       - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
     vars:
       osinfoname: win2k22
-    when: target_arch != "s390x"
+    when: target_arch != "s390x" and target_arch != "aarch64"
 
   - name: Generate Windows server 2025 templates
     template:
@@ -348,4 +349,4 @@
       - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
     vars:
       osinfoname: win2k25
-    when: target_arch != "s390x"
+    when: target_arch != "s390x" and target_arch != "aarch64"
