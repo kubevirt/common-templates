@@ -46,6 +46,7 @@ release: dist/common-templates.yaml
 	cp dist/common-templates.yaml dist/common-templates-$(VERSION).yaml
 	cp dist/common-templates-amd64.yaml dist/common-templates-amd64-$(VERSION).yaml
 	cp dist/common-templates-s390x.yaml dist/common-templates-s390x-$(VERSION).yaml
+	cp dist/common-templates-arm64.yaml dist/common-templates-arm64-$(VERSION).yaml
 
 e2e-tests:
 	TARGET_ARCH=$(TARGET_ARCH) ./automation/test.sh
