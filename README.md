@@ -84,6 +84,7 @@ The table below lists the guest operating systems that are covered by the templa
 | Ubuntu | [ubuntu](templates/ubuntu.tpl.yaml) |
 | openSUSE Leap | [opensuse](templates/opensuse.tpl.yaml) |
 | CentOS Stream 9 | [centos-stream9](templates/centos-stream9.tpl.yaml) |
+| CentOS Stream 10 | [centos-stream10](templates/centos-stream10.tpl.yaml) |
 
 ## License
 

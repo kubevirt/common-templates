@@ -155,6 +155,35 @@
       containerdisk_urls: "{{ centos9stream_containerdisk_urls }}"
       image_urls: "{{ centos9stream_image_urls }}"
 
+  - name: Load CentOS Stream 10 containerdisk and image urls
+    set_fact:
+      centos10stream_containerdisk_urls: "{{ lookup('osinfo', 'centos-stream10') |attr('image_list') |selectattr('architecture', 'eq', target_arch) |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
+      centos10stream_image_urls: "{{ lookup('osinfo', 'centos-stream10') |attr('image_list') |selectattr('architecture', 'eq', target_arch) |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+
+  - name: Generate CentOS Stream 10 templates
+    template:
+      src: centos-stream10.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}{{ suffix }}.yaml"
+    with_items:
+    - {flavor: tiny,   workload: server,  memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
+    - {flavor: tiny,   workload: desktop, memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
+    - {flavor: small,  workload: server,  memsize: "2Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
+    - {flavor: small,  workload: desktop, memsize: "2Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
+    - {flavor: medium, workload: server,  memsize: "4Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
+    - {flavor: medium, workload: desktop, memsize: "4Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
+    - {flavor: large,  workload: server,  memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: False, default: False}
+    - {flavor: large,  workload: desktop, memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: True,  default: False}
+    vars:
+      os: centos-stream10
+      icon: centos
+      majorrelease: centos-stream10
+      oslabels:
+       - centos-stream10
+      osinfoname: "{{ oslabels[0] }}"
+      cloudusername: centos
+      containerdisk_urls: "{{ centos10stream_containerdisk_urls }}"
+      image_urls: "{{ centos10stream_image_urls }}"
+
   - name: Load CentOS 6 versions
     set_fact:
       centos6_labels: "{{ lookup('osinfo', 'distro=centos') |map(attribute='short_id') |select('match', '^centos6\\.') |list |sort }}"
