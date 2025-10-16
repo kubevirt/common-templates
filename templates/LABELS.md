@@ -39,16 +39,3 @@ identifiers](https://gitlab.com/libosinfo/osinfo-db/tree/master/data/os) from th
 
 - os.template.kubevirt.io/win2kXX (e.g. win2k19)
 - os.template.kubevirt.io/winXX (e.g. win10)
-
-## Workload profiles
-
-- workload.template.kubevirt.io/desktop
-- workload.template.kubevirt.io/server
-- workload.template.kubevirt.io/highperformance
-
-## Flavors
-
-- flavor.template.kubevirt.io/tiny
-- flavor.template.kubevirt.io/small
-- flavor.template.kubevirt.io/medium
-- flavor.template.kubevirt.io/large

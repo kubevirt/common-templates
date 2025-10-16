@@ -1,10 +1,5 @@
 SHELL=/bin/bash
 
-# i.e. fedora28.yaml
-ALL_META_TEMPLATES=$(wildcard templates/*.yaml)
-ALL_PRESETS=$(wildcard presets/*.yaml)
-METASOURCES=$(ALL_META_TEMPLATES) $(ALL_PRESETS)
-
 # target architecture
 TARGET_ARCH?=x86_64
 
@@ -23,7 +18,7 @@ dist/common-templates.yaml: generate
 	git describe --always --tags HEAD >> dist/common-templates-s390x.yaml;
 	echo -n "# Version " > dist/common-templates-arm64.yaml;
 	git describe --always --tags HEAD >> dist/common-templates-arm64.yaml;
-	for file in $(ALL_PRESETS) dist/templates/*.yaml; do \
+	for file in dist/templates/*.yaml; do \
 			if [[ "$$file" == *"s390x.yaml" ]]; then \
 					echo "---" >> dist/common-templates-s390x.yaml; \
 					echo "# Source: $$file" >> dist/common-templates-s390x.yaml; \

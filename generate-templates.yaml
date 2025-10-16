@@ -1,15 +1,20 @@
 ---
-- connection: local
-  hosts: 127.0.0.1
-  gather_facts: yes
+- hosts: localhost
+  gather_facts: False
   vars:
     suffix: "{{ '' if target_arch == 'x86_64' else '-arm64' if target_arch == 'aarch64' else '-' + target_arch }}"
+    preference_suffix: "{{ '' if target_arch == 'x86_64' else '.arm64' if target_arch == 'aarch64' else '.' + target_arch }}"
+    variant_suffix: "{{ suffix if item.variant | default('') == '' else '-' + item.variant + suffix }}"
+    variant_preference_suffix: "{{ preference_suffix if item.variant | default('') == '' else '.' + item.variant + preference_suffix }}"
+    template_arch: "{{ 'amd64' if target_arch == 'x86_64' else 'arm64' if target_arch == 'aarch64' else target_arch }}"
+    template_version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
+    template_revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
   tasks:
   - name: Ensure target_arch is defined
     assert:
-      that: 
-        - target_arch is defined
-        - target_arch in ['x86_64', 's390x', 'aarch64']
+      that:
+      - target_arch is defined
+      - target_arch in ['x86_64', 's390x', 'aarch64']
       fail_msg: "Please define the target architecture as either 'x86_64', 's390x' or 'aarch64'."
 
   - name: Prepare dist directory
@@ -17,336 +22,210 @@
       path: "{{ playbook_dir }}/dist/templates"
       state: directory
 
-  - name: Load RHEL 9 versions
+  - name: Load RHEL versions
     set_fact:
-      rhel9_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel9\\.') |list |sort }}"
+      "rhel{{ item.version }}_labels": "{{ lookup('osinfo', 'distro=rhel') | map(attribute='short_id') | select('match', item.pattern) | list | sort }}"
+    loop:
+    - { version: "10", pattern: "^rhel10\\." }
+    - { version: "9", pattern: "^rhel9\\." }
+    - { version: "8", pattern: "^rhel8\\." }
+    - { version: "7", pattern: "^rhel7\\." }
+
+  - name: Load RHEL 10 image urls
+    set_fact:
+      rhel10_image_urls: "{{ rhel10_image_urls | default([]) + lookup('osinfo', item) | attr('image_list') | selectattr('architecture', 'eq', target_arch) | selectattr('format', 'in', ['raw', 'qcow2']) | map(attribute='url') | list }}"
+    loop: "{{ rhel10_labels }}"
 
   - name: Load RHEL 9 image urls
     set_fact:
-      rhel9_image_urls: "{{ rhel9_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', target_arch) |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+      rhel9_image_urls: "{{ rhel9_image_urls | default([]) + lookup('osinfo', item) | attr('image_list') | selectattr('architecture', 'eq', target_arch) | selectattr('format', 'in', ['raw', 'qcow2']) | map(attribute='url') | list }}"
     loop: "{{ rhel9_labels }}"
-
-  - name: Generate RHEL 9 templates
-    template:
-      src: rhel9.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}{{ suffix }}.yaml"
-    with_items:
-    - {flavor: tiny,   workload: server,          memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: tiny,   workload: desktop,         memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: tiny,   workload: highperformance, memsize: "1.5Gi", cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
-    - {flavor: small,  workload: server,          memsize: "2Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
-    - {flavor: small,  workload: desktop,         memsize: "2Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: small,  workload: highperformance, memsize: "2Gi",   cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
-    - {flavor: medium, workload: server,          memsize: "4Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: medium, workload: desktop,         memsize: "4Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: medium, workload: highperformance, memsize: "4Gi",   cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
-    - {flavor: large,  workload: server,          memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: large,  workload: desktop,         memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: large,  workload: highperformance, memsize: "8Gi",   cpus: 2, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
-    vars:
-      os: rhel9
-      icon: rhel
-      majorrelease: rhel9
-      oslabels: "{{ rhel9_labels }}"
-      osinfoname: "{{ oslabels[0] }}"
-      cloudusername: cloud-user
-      image_urls: "{{ rhel9_image_urls }}"
-
-  - name: Load RHEL 8 versions
-    set_fact:
-      rhel8_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel8\\.') |list |sort }}"
 
   - name: Load RHEL 8 image urls
     set_fact:
-      rhel8_image_urls: "{{ rhel8_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', target_arch) |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+      rhel8_image_urls: "{{ rhel8_image_urls | default([]) + lookup('osinfo', item) | attr('image_list') | selectattr('architecture', 'eq', target_arch) | selectattr('format', 'in', ['raw', 'qcow2']) | map(attribute='url') | list }}"
     loop: "{{ rhel8_labels }}"
-
-  - name: Generate RHEL 8 templates
-    template:
-      src: rhel8.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}{{ suffix }}.yaml"
-    with_items:
-    - {flavor: tiny,   workload: server,          memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: tiny,   workload: desktop,         memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: tiny,   workload: highperformance, memsize: "1.5Gi", cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
-    - {flavor: small,  workload: server,          memsize: "2Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
-    - {flavor: small,  workload: desktop,         memsize: "2Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: small,  workload: highperformance, memsize: "2Gi",   cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
-    - {flavor: medium, workload: server,          memsize: "4Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: medium, workload: desktop,         memsize: "4Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: medium, workload: highperformance, memsize: "4Gi",   cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
-    - {flavor: large,  workload: server,          memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: large,  workload: desktop,         memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: large,  workload: highperformance, memsize: "8Gi",   cpus: 2, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
-    vars:
-      os: rhel8
-      icon: rhel
-      majorrelease: rhel8
-      oslabels: "{{ rhel8_labels }}"
-      osinfoname: "{{ oslabels[0] }}"
-      cloudusername: cloud-user
-      image_urls: "{{ rhel8_image_urls }}"
-    when: target_arch != "aarch64"
-
-  - name: Load RHEL 7 versions
-    set_fact:
-      rhel7_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel7\\.') |list |sort }}"
-    when: target_arch != "s390x" and target_arch != "aarch64"
 
   - name: Load RHEL 7 image urls
     set_fact:
-      rhel7_image_urls: "{{ rhel7_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+      rhel7_image_urls: "{{ rhel7_image_urls | default([]) + lookup('osinfo', item) | attr('image_list') | selectattr('architecture', 'eq', target_arch) | selectattr('format', 'in', ['raw', 'qcow2']) | map(attribute='url') | list }}"
     loop: "{{ rhel7_labels }}"
-    when: target_arch != "s390x" and target_arch != "aarch64"
 
-  - name: Generate RHEL 7 templates
+  - name: Generate RHEL templates
     template:
-      src: rhel7.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: tiny,   workload: server,          memsize: "1Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: tiny,   workload: desktop,         memsize: "1Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: tiny,   workload: highperformance, memsize: "1Gi", cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
-    - {flavor: small,  workload: server,          memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
-    - {flavor: small,  workload: desktop,         memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: small,  workload: highperformance, memsize: "2Gi", cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
-    - {flavor: medium, workload: server,          memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: medium, workload: desktop,         memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
-    - {flavor: large,  workload: server,          memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: large,  workload: desktop,         memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
+      src: linux.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/rhel{{ item.version }}{{ variant_suffix }}.yaml"
     vars:
-      os: rhel7
+      os: "rhel{{ item.version }}"
+      tag: rhel
       icon: rhel
-      majorrelease: rhel7
-      oslabels: "{{ rhel7_labels }}"
+      oslabels: "{{ vars['rhel' + item.version + '_labels'] }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: cloud-user
-      image_urls: "{{ rhel7_image_urls }}"
-    when: target_arch != "s390x" and target_arch != "aarch64"
+      containerdisk_urls: "{{ item.containerdisk_urls | default([]) }}"
+      image_urls: "{{ vars['rhel' + item.version + '_image_urls'] }}"
+      base_preference: "rhel.{{ item.version }}"
+    loop:
+    - { version: "10", containerdisk_urls: ["registry.redhat.io/rhel10/rhel-guest-image"] }
+    - { version: "9", containerdisk_urls: ["registry.redhat.io/rhel9/rhel-guest-image"] }
+    - { version: "9", containerdisk_urls: ["registry.redhat.io/rhel9/rhel-guest-image"], variant: "desktop", default: False }
+    - { version: "8", containerdisk_urls: ["registry.redhat.io/rhel8/rhel-guest-image"] }
+    - { version: "8", containerdisk_urls: ["registry.redhat.io/rhel8/rhel-guest-image"], variant: "desktop", default: False }
+    - { version: "7" }
+    - { version: "7", variant: "desktop", default: False }
+    when: >
+      (item.version == "10") or
+      (item.version == "9" and (item.variant | default("") == "" or target_arch == "x86_64")) or
+      (item.version == "8" and target_arch != "aarch64") or
+      (item.version == "7" and target_arch == "x86_64")
 
-  - name: Load CentOS Stream 9 containerdisk and image urls
+  - name: Load CentOS Stream containerdisk and image urls
     set_fact:
-      centos9stream_containerdisk_urls: "{{ lookup('osinfo', 'centos-stream9') |attr('image_list') |selectattr('architecture', 'eq', target_arch) |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
-      centos9stream_image_urls: "{{ lookup('osinfo', 'centos-stream9') |attr('image_list') |selectattr('architecture', 'eq', target_arch) |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+      "centosstream{{ item }}_containerdisk_urls": "{{ lookup('osinfo', 'centos-stream' + item) | attr('image_list') | selectattr('architecture', 'eq', target_arch) | selectattr('format', 'eq', 'containerdisk') | map(attribute='url') | map('replace', 'docker://', '') | list }}"
+      "centosstream{{ item }}_image_urls": "{{ lookup('osinfo', 'centos-stream' + item) | attr('image_list') | selectattr('architecture', 'eq', target_arch) | selectattr('format', 'in', ['raw', 'qcow2']) | map(attribute='url') | list }}"
+    loop:
+    - "10"
+    - "9"
 
-  - name: Generate CentOS Stream 9 templates
+  - name: Generate CentOS Stream templates
     template:
-      src: centos-stream9.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}{{ suffix }}.yaml"
-    with_items:
-    - {flavor: tiny,   workload: server,  memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: tiny,   workload: desktop, memsize: "1.5Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: small,  workload: server,  memsize: "2Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
-    - {flavor: small,  workload: desktop, memsize: "2Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: medium, workload: server,  memsize: "4Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi",   cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: large,  workload: server,  memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: large,  workload: desktop, memsize: "8Gi",   cpus: 2, iothreads: False, emulatorthread: False, tablet: True,  default: False}
+      src: linux.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/centos-stream{{ item.version }}{{ variant_suffix }}.yaml"
     vars:
-      os: centos-stream9
+      os: "centos-stream{{ item.version }}"
+      tag: centosstream
       icon: centos
-      majorrelease: centos-stream9
       oslabels:
-       - centos-stream9
-      osinfoname: "{{ oslabels[0] }}"
+        - "centos-stream{{ item.version }}"
+      osinfoname: "centos-stream{{ item.version }}"
       cloudusername: centos
-      containerdisk_urls: "{{ centos9stream_containerdisk_urls }}"
-      image_urls: "{{ centos9stream_image_urls }}"
+      containerdisk_urls: "{{ vars['centosstream' + item.version + '_containerdisk_urls'] }}"
+      image_urls: "{{ vars['centosstream' + item.version + '_image_urls'] }}"
+      base_preference: "{{ item.base_preference }}"
+    loop:
+    - { version: "10", base_preference: centos.stream10 }
+    - { version: "10", base_preference: centos.stream10, variant: "desktop", default: False }
+    - { version: "9", base_preference: centos.stream9 }
+    - { version: "9", base_preference: centos.stream9, variant: "desktop", default: False }
 
   - name: Load CentOS 6 versions
     set_fact:
-      centos6_labels: "{{ lookup('osinfo', 'distro=centos') |map(attribute='short_id') |select('match', '^centos6\\.') |list |sort }}"
-    when: target_arch != "s390x" and target_arch != "aarch64"
+      centos6_labels: "{{ lookup('osinfo', 'distro=centos') | map(attribute='short_id') | select('match', '^centos6\\.') | list | sort }}"
+    when: target_arch == "x86_64"
 
   - name: Generate CentOS 6 templates
     template:
-      src: centos6.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: tiny,   workload: server, memsize: "1Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: small,  workload: server, memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: large,  workload: server, memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, tablet: False, default: False}
+      src: linux.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}.yaml"
     vars:
+      deprecated: True
       os: centos6
+      tag: centos
       icon: centos
-      majorrelease: centos6
       oslabels: "{{ centos6_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: centos
-    when: target_arch != "s390x" and target_arch != "aarch64"
+      base_preference: linux.virtiotransitional
+    when: target_arch == "x86_64"
 
   - name: Load Fedora versions
     set_fact:
-      fedora_labels: "{{ lookup('osinfo', 'distro=fedora') |select('osinfo_active') |map(attribute='short_id') |select('match', '^fedora3[5-9]|^fedora[4-9][0-9]') |list |sort }}"
+      fedora_labels: "{{ lookup('osinfo', 'distro=fedora') | select('osinfo_active') | map(attribute='short_id') | select('match', '^fedora3[5-9]|^fedora[4-9][0-9]') | list | sort }}"
 
   - name: Load Fedora containerdisk and image urls
     set_fact:
-      fedora_containerdisk_urls: "{{ fedora_containerdisk_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', target_arch) |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
-      fedora_image_urls: "{{ fedora_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', target_arch) |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+      fedora_containerdisk_urls: "{{ fedora_containerdisk_urls | default([]) + lookup('osinfo', item) | attr('image_list') | selectattr('architecture', 'eq', target_arch) | selectattr('format', 'eq', 'containerdisk') | map(attribute='url') | map('replace', 'docker://', '') | list }}"
+      fedora_image_urls: "{{ fedora_image_urls | default([]) + lookup('osinfo', item) | attr('image_list') | selectattr('architecture', 'eq', target_arch) | selectattr('format', 'in', ['raw', 'qcow2']) | map(attribute='url') | list }}"
     loop: "{{ fedora_labels }}"
 
   - name: Generate Fedora templates
     template:
-      src: fedora.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}{{ suffix }}.yaml"
-    with_items:
-    - {flavor: small,  workload: desktop,         memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: small,  workload: server,          memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
-    - {flavor: small,  workload: highperformance, memsize: "2Gi", cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
-    - {flavor: medium, workload: desktop,         memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: medium, workload: server,          memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
-    - {flavor: large,  workload: desktop,         memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, tablet: True,  default: False}
-    - {flavor: large,  workload: server,          memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  tablet: False, default: False}
+      src: linux.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}{{ suffix }}.yaml"
     vars:
       os: fedora
+      tag: fedora
       icon: fedora
-      majorrelease: fedora
       oslabels: "{{ fedora_labels }}"
       osinfoname: "{{ oslabels | last }}"
       cloudusername: fedora
-      containerdisk_urls: "{{ fedora_containerdisk_urls }}"
+      containerdisk_urls: "{{ ['quay.io/containerdisks/fedora:latest'] + fedora_containerdisk_urls }}"
       image_urls: "{{ fedora_image_urls }}"
+      base_preference: fedora
+      orlater: True
 
-  - name: Load openSUSE versions
+  - name: Load openSUSE Leap versions
     set_fact:
-      opensuse_labels: "{{ lookup('osinfo', 'distro=opensuse') |select('osinfo_active') |map(attribute='short_id') |list |sort }}"
-    when: target_arch != "s390x" and target_arch != "aarch64"
+      opensuse_labels: "{{ lookup('osinfo', 'distro=opensuse') | select('osinfo_active') | map(attribute='short_id') | list | sort }}"
+    when: target_arch != "s390x"
 
-  - name: Load openSUSE image urls
+  - name: Load openSUSE Leap image urls
     set_fact:
-      opensuse_image_urls: "{{ opensuse_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', 'x86_64') |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+      opensuse_image_urls: "{{ opensuse_image_urls | default([]) + lookup('osinfo', item) | attr('image_list') | selectattr('architecture', 'eq', target_arch) | selectattr('format', 'in', ['raw', 'qcow2']) | map(attribute='url') | list }}"
     loop: "{{ opensuse_labels }}"
-    when: target_arch != "s390x" and target_arch != "aarch64"
+    when: target_arch != "s390x"
 
-  - name: Generate openSUSE templates
+  - name: Generate openSUSE Leap templates
     template:
-      src: opensuse.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: tiny,   workload: server, memsize: "1Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: small,  workload: server, memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
-    - {flavor: large,  workload: server, memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, tablet: False, default: False}
+      src: linux.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}{{ suffix }}.yaml"
     vars:
       os: opensuse
+      tag: opensuse
       icon: opensuse
-      majorrelease: opensuse
       oslabels: "{{ opensuse_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: opensuse
       image_urls: "{{ opensuse_image_urls }}"
-    when: target_arch != "s390x" and target_arch != "aarch64"
+      base_preference: opensuse.leap
+      orlater: True
+    when: target_arch != "s390x"
 
   - name: Load Ubuntu versions
     set_fact:
-      ubuntu_labels: "{{ lookup('osinfo', 'distro=ubuntu') |select('osinfo_active') |map(attribute='short_id') |list |sort }}"
+      ubuntu_labels: "{{ lookup('osinfo', 'distro=ubuntu') | select('osinfo_active') | map(attribute='short_id') | list | sort }}"
 
   - name: Load Ubuntu containerdisk and image urls
     set_fact:
-      ubuntu_containerdisk_urls: "{{ ubuntu_containerdisk_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', target_arch) |selectattr('format', 'eq', 'containerdisk') |map(attribute='url') |map('replace', 'docker://', '') |list }}"
-      ubuntu_image_urls: "{{ ubuntu_image_urls |default([]) + lookup('osinfo', item) |attr('image_list') |selectattr('architecture', 'eq', target_arch) |selectattr('format', 'in', ['raw', 'qcow2']) |map(attribute='url') |list }}"
+      ubuntu_containerdisk_urls: "{{ ubuntu_containerdisk_urls | default([]) + lookup('osinfo', item) | attr('image_list') | selectattr('architecture', 'eq', target_arch) | selectattr('format', 'eq', 'containerdisk') | map(attribute='url') | map('replace', 'docker://', '') | list }}"
+      ubuntu_image_urls: "{{ ubuntu_image_urls | default([]) + lookup('osinfo', item) | attr('image_list') | selectattr('architecture', 'eq', target_arch) | selectattr('format', 'in', ['raw', 'qcow2']) | map(attribute='url') | list }}"
     loop: "{{ ubuntu_labels }}"
 
   - name: Generate Ubuntu templates
     template:
-      src: ubuntu.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}{{ suffix }}.yaml"
-    with_items:
-    - {flavor: small,  workload: desktop, memsize: "3Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True, default: False}
-    - {flavor: small,  workload: server,  memsize: "3Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True, default: True}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True, default: False}
-    - {flavor: medium, workload: server,  memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: True, default: False}
-    - {flavor: large,  workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, tablet: True, default: False}
-    - {flavor: large,  workload: server,  memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, tablet: True, default: False}
+      src: linux.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}{{ suffix }}.yaml"
     vars:
       os: ubuntu
+      tag: ubuntu
       icon: ubuntu
-      majorrelease: ubuntu
       oslabels: "{{ ubuntu_labels }}"
       osinfoname: "{{ oslabels[0] }}"
       cloudusername: ubuntu
       containerdisk_urls: "{{ ubuntu_containerdisk_urls }}"
       image_urls: "{{ ubuntu_image_urls }}"
+      base_preference: ubuntu
+      orlater: True
 
-  - name: Generate Windows server 2016 templates
+  - name: Generate Windows templates
     template:
-      src: windows2k16.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/windows2k16-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: medium, workload: server,          memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, multiqueue: False, tablet: True, default: True}
-    - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
-    - {flavor: large,  workload: server,          memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, multiqueue: False, tablet: True, default: False}
-    - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
+      src: windows.tpl.yaml
+      dest: "{{ playbook_dir }}/dist/templates/{{ os }}{{ variant_suffix }}.yaml"
     vars:
-      osinfoname: win2k16
-    when: target_arch != "s390x" and target_arch != "aarch64"
-
-  - name: Generate Windows server 2019 templates
-    template:
-      src: windows2k19.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/windows2k19-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: medium, workload: server,          memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, multiqueue: False, tablet: True, default: True}
-    - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
-    - {flavor: large,  workload: server,          memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, multiqueue: False, tablet: True, default: False}
-    - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
-    vars:
-      osinfoname: win2k19
-    when: target_arch != "s390x" and target_arch != "aarch64"
-
-  - name: Generate Windows 10 templates
-    template:
-      src: windows10.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/windows10-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: medium, workload: desktop,         memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, multiqueue: False, tablet: True, default: True}
-    - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
-    - {flavor: large,  workload: desktop,         memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, multiqueue: False, tablet: True, default: False}
-    - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
-    vars:
-      osinfoname: win10
-    when: target_arch != "s390x" and target_arch != "aarch64"
-
-  - name: Generate Windows 11 templates
-    template:
-      src: windows11.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/windows11-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: medium, workload: desktop,         memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, multiqueue: False, tablet: True, default: True}
-    - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
-    - {flavor: large,  workload: desktop,         memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, multiqueue: False, tablet: True, default: False}
-    - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
-    vars:
-      osinfoname: win11
-    when: target_arch != "s390x" and target_arch != "aarch64"
-
-  - name: Generate Windows server 2022 templates
-    template:
-      src: windows2k22.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/windows2k22-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-      - {flavor: medium, workload: server,          memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, multiqueue: False, tablet: True, default: True}
-      - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
-      - {flavor: large,  workload: server,          memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, multiqueue: False, tablet: True, default: False}
-      - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
-    vars:
-      osinfoname: win2k22
-    when: target_arch != "s390x" and target_arch != "aarch64"
-
-  - name: Generate Windows server 2025 templates
-    template:
-      src: windows2k25.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/windows2k25-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-      - {flavor: medium, workload: server,          memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, multiqueue: False, tablet: True, default: True}
-      - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
-      - {flavor: large,  workload: server,          memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, multiqueue: False, tablet: True, default: False}
-      - {flavor: large,  workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True,  emulatorthread: True,  multiqueue: True,  tablet: True, default: False}
-    vars:
-      osinfoname: win2k25
-    when: target_arch != "s390x" and target_arch != "aarch64"
+      os: windows{{ item.version }}
+      osinfoname: win{{ item.version }}
+      base_preference: windows.{{ item.version }}
+    loop:
+    - { version: "2k16" }
+    - { version: "2k16", variant: "virtio", default: False }
+    - { version: "2k19" }
+    - { version: "2k19", variant: "virtio", default: False }
+    - { version: "2k22" }
+    - { version: "2k22", variant: "virtio", default: False }
+    - { version: "2k25" }
+    - { version: "2k25", variant: "virtio", default: False }
+    - { version: "10" }
+    - { version: "10", variant: "virtio", default: False }
+    - { version: "11" }
+    - { version: "11", variant: "virtio", default: False }
+    when: target_arch == "x86_64"
