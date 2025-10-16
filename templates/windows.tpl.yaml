@@ -1,0 +1,98 @@
+apiVersion: template.kubevirt.io/v1alpha1
+kind: VirtualMachineTemplate
+metadata:
+  name: {{ os }}{{ variant_suffix }}
+  annotations:
+    defaults.template.kubevirt.io/disk: rootdisk
+    defaults.template.kubevirt.io/network: default
+    description: >-
+      Template for {{ lookup('osinfo', osinfoname).name }} VM.
+      A PVC with the {{ lookup('osinfo', osinfoname).name }} disk image must be available.
+    iconClass: icon-windows
+    name.os.template.kubevirt.io/{{ osinfoname }}: {{ lookup('osinfo', osinfoname).name }}
+    openshift.io/display-name: {{ lookup('osinfo', osinfoname).name }} VM
+    openshift.io/documentation-url: https://github.com/kubevirt/common-templates
+    openshift.io/provider-display-name: KubeVirt
+    openshift.io/support-url: https://github.com/kubevirt/common-templates/issues
+    tags: hidden,kubevirt,virtualmachine,windows
+    template.kubevirt.io/editable: |
+      /spec.virtualMachine.spec.template.spec.volumes
+      /spec.virtualMachine.spec.template.spec.networks
+  labels:
+    os.template.kubevirt.io/{{ osinfoname }}: "true"
+    template.kubevirt.io/architecture: {{ template_arch }}
+{% if item.default | default(True) %}
+    template.kubevirt.io/default-os-variant: "true"
+{% endif %}
+    template.kubevirt.io/type: base
+    template.kubevirt.io/version: {{ template_version }}
+spec:
+  parameters:
+  - description: VM name
+    from: {{ os }}-[a-z0-9]{5}
+    generate: expression
+    name: NAME
+  - description: Instance type of the VM
+    name: INSTANCETYPE
+    value: u1.medium
+  - description: The kind of the Instance type the VM is using
+    name: INSTANCETYPE_KIND
+    value: VirtualMachineClusterInstancetype
+  - description: Name of the DataSource to clone
+    name: DATA_SOURCE_NAME
+    value: {{ osinfoname }}
+  - description: Namespace of the DataSource
+    name: DATA_SOURCE_NAMESPACE
+    value: kubevirt-os-images
+  virtualMachine:
+    apiVersion: kubevirt.io/v1
+    kind: VirtualMachine
+    metadata:
+      name: ${NAME}
+      labels:
+        app: ${NAME}
+        vm.kubevirt.io/template: {{ os }}{{ variant_suffix }}
+        vm.kubevirt.io/template.version: {{ template_version }}
+        vm.kubevirt.io/template.revision: "{{ template_revision }}"
+    spec:
+      dataVolumeTemplates:
+      - apiVersion: cdi.kubevirt.io/v1beta1
+        kind: DataVolume
+        metadata:
+          name: ${NAME}
+        spec:
+          storage:
+            resources:
+              requests:
+                storage: 60Gi
+          sourceRef:
+            kind: DataSource
+            name: ${DATA_SOURCE_NAME}
+            namespace: ${DATA_SOURCE_NAMESPACE}
+      runStrategy: Halted
+      instancetype:
+        kind: ${INSTANCETYPE_KIND}
+        name: ${INSTANCETYPE}
+      preference:
+        name: {{ base_preference }}{{ variant_preference_suffix }}
+      template:
+        metadata:
+          annotations:
+            vm.kubevirt.io/os: {{ os }}
+          labels:
+            kubevirt.io/domain: ${NAME}
+        spec:
+          architecture: {{ template_arch }}
+          domain:
+            devices:
+              interfaces:
+              - masquerade: {}
+                name: default
+          terminationGracePeriodSeconds: 3600
+          networks:
+          - name: default
+            pod: {}
+          volumes:
+          - dataVolume:
+              name: ${NAME}
+            name: rootdisk

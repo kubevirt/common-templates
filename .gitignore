@@ -11,3 +11,4 @@ common-templates*.yaml
 releases.json
 ssp-operator-deploy-key
 virtctl
+_out

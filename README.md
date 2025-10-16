@@ -4,17 +4,26 @@ A set of (meta-)Templates to create KubeVirt VMs.
 
 ## Overview
 
-This repository provides VM templates in the form compatible with [OpenShift templates](https://docs.okd.io/latest/openshift_images/using-templates.html) and OpenShift Cluster Console Web UI and those can further be transformed into regular objects for use with plain Kubernetes.
+This repository provides VM templates in the form of
+[KubeVirt VirtualMachineTemplates](https://github.com/kubevirt/virt-template).
 
-The VM templates are generated from [meta-templates](templates/) via [Ansible](https://www.ansible.com/) and [libosinfo](https://libosinfo.org/). The generated templates are parametrized according to three aspects: the guest OS, the workload type and the size. The generated content is stored in [dist/](dist/).
+The VM templates are generated from [meta-templates](templates/) via
+[Ansible](https://www.ansible.com/) and [libosinfo](https://libosinfo.org/). The
+generated templates use
+[instancetypes and preferences](https://kubevirt.io/user-guide/virtual_machines/instancetypes/)
+to define VM resource sizing and runtime preferences. The generated content is
+stored in [dist/](dist/).
 
-The [Ansible playbook](https://docs.ansible.com/ansible/latest/user_guide/playbooks.html) [generate-templates.yaml](generate-templates.yaml) describes all combinations that should be generated.
+The [Ansible playbook](https://docs.ansible.com/ansible/latest/user_guide/playbooks.html) [generate-templates.yaml](generate-templates.yaml)
+describes all combinations that should be generated.
 
-Every template consists of a VirtualMachine definition which can be used to launch the guest, if a disk image is available (see below).
+Every template consists of a VirtualMachine definition which can be used to
+launch the guest, if a disk image is available (see below).
 
 ## Requirements
 
-Is it necessary to install the following components to be able to run the Ansible generator and the CI suite:
+It is necessary to install the following components to be able to run the
+Ansible generator and the CI suite:
 
 - jq
 - ansible >= 2.4
@@ -25,7 +34,8 @@ Is it necessary to install the following components to be able to run the Ansibl
 
 ## Usage
 
-By default the process below takes a generated template and converts it to an VM object that can be used to start a virtual machine.
+By default the process below takes a generated template and converts it to a VM
+object that can be used to start a virtual machine.
 
 ```bash
 # Clone the repository
@@ -36,56 +46,47 @@ $ cd common-templates
 $ git submodule init
 $ git submodule update
 
-# Build osinfo database
-$ make -C osinfo-db
+# Generate the templates
+$ make generate
 
-# Generate the template matrix
-$ ansible-playbook generate-templates.yaml
-
-# Pick a template by selecting
-# - the guest OS - windows
-# - the workload type - desktop
-# - the size - medium
+# Pick a template by selecting the guest OS - e.g. windows10
 
 # Use the template
-$ oc process --local -f dist/templates/windows10-desktop-medium.yaml
+$ virttemplatectl process --local -f dist/templates/windows10.yaml
 
-$ oc process --local -f dist/templates/windows10-desktop-medium.yaml  --parameters
+$ virttemplatectl process --local -f dist/templates/windows10.yaml --parameters
 NAME                    DESCRIPTION                       GENERATOR           VALUE
-NAME                    VM name                           expression          windows-[a-z0-9]{6}
+NAME                    VM name                           expression          windows10-[a-z0-9]{5}
 DATA_SOURCE_NAME        Name of the DataSource to clone                       win10
 DATA_SOURCE_NAMESPACE   Namespace of the DataSource                           kubevirt-os-images
+INSTANCETYPE            Instance type of the VM                               u1.medium
+INSTANCETYPE_KIND       The kind of the Instance type                         VirtualMachineClusterInstancetype
 
-$ oc process --local -f dist/templates/windows10-desktop-medium.yaml | kubectl apply -f -
-virtualmachine.kubevirt.io/windows10-rt1ap2 created
-
-$
+$ virttemplatectl process --local -f dist/templates/windows10.yaml | kubectl apply -f -
+virtualmachine.kubevirt.io/windows10-rt1ap created
 ```
 
 ## Templates
 
-The table below lists the guest operating systems that are covered by the templates. The meta-templates are not directly consumable, please use the [generator](generate-templates.yaml) to prepare the properly parametrized templates first.
+The table below lists the guest operating systems that are covered by the
+templates. The meta-templates are not directly consumable, please use
+the [generator](generate-templates.yaml) to prepare the properly parametrized
+templates first.
 
-> **Note:** The templates are tuned for a specific guest version, but is often
-> usable with different versions as well, i.e. the Fedora 34 template is also
-> usable with Fedora 35.
+> **Note:** The templates are tuned for a specific guest version, but are often
+> usable with different versions as well, e.g. the Fedora 40 template is also
+> usable with Fedora 41.
 
-| Guest OS | Meta-template |
-|---|---|
-| Microsoft Windows Server 2016 | [windows2k16](templates/windows2k16.tpl.yaml) |
-| Microsoft Windows Server 2019 | [windows2k19](templates/windows2k19.tpl.yaml) |
-| Microsoft Windows Server 2022 | [windows2k22](templates/windows2k22.tpl.yaml) |
-| Microsoft Windows 10 | [windows10](templates/windows10.tpl.yaml) |
-| Microsoft Windows 11 | [windows11](templates/windows11.tpl.yaml) |
-| Fedora | [fedora](templates/fedora.tpl.yaml) |
-| Red Hat Enterprise Linux 7 | [rhel7](templates/rhel7.tpl.yaml) |
-| Red Hat Enterprise Linux 8 | [rhel8](templates/rhel8.tpl.yaml) |
-| Red Hat Enterprise Linux 9 | [rhel9](templates/rhel9.tpl.yaml) |
-| Ubuntu | [ubuntu](templates/ubuntu.tpl.yaml) |
-| openSUSE Leap | [opensuse](templates/opensuse.tpl.yaml) |
-| CentOS Stream 9 | [centos-stream9](templates/centos-stream9.tpl.yaml) |
+| Guest OS                                                  | Meta-template                         |
+|-----------------------------------------------------------|---------------------------------------|
+| Microsoft Windows (Server 2016, 2019, 2022, 2025, 10, 11) | [windows](templates/windows.tpl.yaml) |
+| Red Hat Enterprise Linux (7, 8, 9, 10)                    | [linux](templates/linux.tpl.yaml)     |
+| CentOS (6, Stream 9, Stream 10)                           | [linux](templates/linux.tpl.yaml)     |
+| Fedora                                                    | [linux](templates/linux.tpl.yaml)     |
+| Ubuntu                                                    | [linux](templates/linux.tpl.yaml)     |
+| openSUSE Leap                                             | [linux](templates/linux.tpl.yaml)     |
 
 ## License
 
-common-templates are  distributed under the
+common-templates are distributed under the
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt).
