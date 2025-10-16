@@ -60,9 +60,7 @@ unit-tests: generate
 validate-no-offensive-lang:
 	./automation/validate-no-offensive-lang.sh
 
-generate: generate-templates.yaml $(METASOURCES)
-	# Just build the XML files, no need to export to tarball
-	make -C osinfo-db/ OSINFO_DB_EXPORT=echo
+generate: install-osinfo-db
 	ansible-playbook generate-templates.yaml -e "target_arch=x86_64"
 	ansible-playbook generate-templates.yaml -e "target_arch=s390x"
 	ansible-playbook generate-templates.yaml -e "target_arch=aarch64"
@@ -71,7 +69,12 @@ update-osinfo-db:
 	git submodule init
 	git submodule update --remote osinfo-db
 
+install-osinfo-db:
+	mkdir -p _out
+	make -C osinfo-db install DESTDIR=$(CURDIR)/_out OSINFO_DB_TARGET=--system
+
 clean:
 	rm -rf dist/templates
+	rm -rf _out
 
-.PHONY: all generate release e2e-tests unit-tests go-tests
+.PHONY: all generate release e2e-tests unit-tests go-tests install-osinfo-db
