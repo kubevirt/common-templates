@@ -22,6 +22,7 @@ Is it necessary to install the following components to be able to run the Ansibl
 - python-gobject
 - osinfo-db-tools
 - intltool
+- gobject-introspection
 
 ## Usage
 

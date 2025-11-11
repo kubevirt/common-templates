@@ -2,7 +2,7 @@
 FROM quay.io/fedora/fedora:latest
 
 # Install dependencies and tools
-RUN dnf install -y jq ansible python3-gobject python3-openshift python3-pip libosinfo intltool make git findutils expect golang podman openssh-clients sshpass
+RUN dnf install -y jq ansible python3-gobject python3-openshift python3-pip libosinfo gobject-introspection intltool make git findutils expect golang podman openssh-clients sshpass
 
 # Allow writes to /etc/passwd so a user for ansible can be added by CI commands
 RUN chmod a+w /etc/passwd
