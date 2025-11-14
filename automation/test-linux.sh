@@ -97,6 +97,7 @@ fi
 
 if [[ $TARGET =~ opensuse.* ]]; then
   workloads=("server")
+  sizes=("small" "medium" "large")
 fi
 
 if [[ $TARGET =~ centos-stream.* ]]; then
