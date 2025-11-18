@@ -228,7 +228,6 @@
       src: opensuse.tpl.yaml
       dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
     with_items:
-    - {flavor: tiny,   workload: server, memsize: "1Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
     - {flavor: small,  workload: server, memsize: "2Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: True}
     - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, emulatorthread: False, tablet: False, default: False}
     - {flavor: large,  workload: server, memsize: "8Gi", cpus: 2, iothreads: False, emulatorthread: False, tablet: False, default: False}
