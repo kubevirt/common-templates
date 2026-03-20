@@ -144,6 +144,12 @@ run_vm() {
 
     oc wait --for=condition=Ready --timeout=${timeout}s vm/"$vm_name" -n $namespace
 
+    # Wait for guest agent to be connected, indicating OS is fully booted
+    echo "Waiting for guest agent to be connected..."
+    timeout ${timeout} bash -c "until oc get vmi \"$vm_name\" -n $namespace -o json | jq -e '.status.conditions[] | select(.type==\"AgentConnected\" and .status==\"True\")' > /dev/null 2>&1; do sleep 5; done" || {
+      echo "Guest agent did not connect within timeout, proceeding anyway..."
+    }
+
     ./automation/connect_to_rhel_console.exp "$vm_name"
     if [ $? -ne 0 ]; then
       error=true

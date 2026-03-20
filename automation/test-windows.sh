@@ -38,7 +38,7 @@ spec:
   tags:
   - from:
       kind: DockerImage
-      name: ibmc.artifactory.cnv-qe.rhood.us/docker/kubevirt-common-instancetypes/${template_name}-container-disk:${version}
+      name: ibmc.artifactory.cnv-qe.rhood.us/docker-local/kubevirt-common-instancetypes/${template_name}-container-disk:${version}
     name: "${version}"
     referencePolicy:
       type: Source
