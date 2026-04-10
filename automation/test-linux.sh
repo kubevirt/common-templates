@@ -14,12 +14,15 @@ image_url=""
 #set secret_ref only for rhel OSes
 secret_ref=""
 
+has_guest_agent=true
+
 case $TARGET in
   centos-stream9)
     image_url="${containerdisks_url}/centos-stream:9"
     ;;
   centos6)
     image_url="${legacy_common_templates_disk_url}:centos6"
+    has_guest_agent=false
     ;;
   fedora)
     image_url="${containerdisks_url}/fedora:latest"
@@ -33,6 +36,7 @@ case $TARGET in
     ;;
   ubuntu)
     image_url="${containerdisks_url}/ubuntu:24.04"
+    has_guest_agent=false
     ;;
   *)
     echo "Target: $TARGET is not valid"
@@ -144,17 +148,21 @@ run_vm() {
 
     oc wait --for=condition=Ready --timeout=${timeout}s vm/"$vm_name" -n $namespace
 
-    # Wait for guest agent to be connected, indicating OS is fully booted
-    echo "Waiting for guest agent to be connected..."
-    timeout ${timeout} bash -c "until oc get vmi \"$vm_name\" -n $namespace -o json | jq -e '.status.conditions[] | select(.type==\"AgentConnected\" and .status==\"True\")' > /dev/null 2>&1; do sleep 5; done" || {
-      echo "Guest agent did not connect within timeout, proceeding anyway..."
-    }
-
-    ./automation/connect_to_rhel_console.exp "$vm_name"
-    if [ $? -ne 0 ]; then
-      error=true
+    # Wait for OS to be fully booted
+    if $has_guest_agent; then
+      echo "Waiting for guest agent to be connected..."
+      oc wait --for=condition=AgentConnected --timeout=${timeout}s vmi/"$vm_name" -n $namespace || {
+        echo "Guest agent did not connect within timeout"
+        exit 1
+      }
+    else
+      echo "Guest agent not available for $TARGET, waiting for VMI to reach Running phase..."
+      oc wait --for=jsonpath='{.status.phase}'=Running --timeout=${timeout}s vmi/"$vm_name" -n $namespace || {
+        echo "VMI did not reach Running phase within timeout"
+        exit 1
+      }
     fi
-
+    
     delete_vm "$vm_name" "$template_option"
     #no error were observed, the vm is running
     if ! $error; then
